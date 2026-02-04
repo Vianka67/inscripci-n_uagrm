@@ -1,0 +1,105 @@
+from django.contrib import admin
+from .models import (
+    Carrera, PlanEstudios, Materia, MateriaCarreraSemestre,
+    Estudiante, PeriodoAcademico, Inscripcion, InscripcionMateria
+)
+
+
+@admin.register(Carrera)
+class CarreraAdmin(admin.ModelAdmin):
+    list_display = ['codigo', 'nombre', 'facultad', 'duracion_semestres', 'activa']
+    list_filter = ['activa', 'facultad']
+    search_fields = ['codigo', 'nombre', 'facultad']
+    ordering = ['nombre']
+
+
+@admin.register(PlanEstudios)
+class PlanEstudiosAdmin(admin.ModelAdmin):
+    list_display = ['codigo', 'nombre', 'carrera', 'anio_vigencia', 'vigente']
+    list_filter = ['vigente', 'carrera', 'anio_vigencia']
+    search_fields = ['codigo', 'nombre']
+    ordering = ['-anio_vigencia']
+
+
+@admin.register(Materia)
+class MateriaAdmin(admin.ModelAdmin):
+    list_display = ['codigo', 'nombre', 'creditos', 'horas_teoricas', 'horas_practicas']
+    search_fields = ['codigo', 'nombre']
+    ordering = ['codigo']
+
+
+@admin.register(MateriaCarreraSemestre)
+class MateriaCarreraSemestreAdmin(admin.ModelAdmin):
+    list_display = ['materia', 'carrera', 'plan_estudios', 'semestre', 'obligatoria', 'habilitada']
+    list_filter = ['carrera', 'semestre', 'obligatoria', 'habilitada']
+    search_fields = ['materia__codigo', 'materia__nombre', 'carrera__nombre']
+    ordering = ['carrera', 'semestre', 'materia__codigo']
+
+
+@admin.register(Estudiante)
+class EstudianteAdmin(admin.ModelAdmin):
+    list_display = ['registro', 'nombre_completo', 'carrera_actual', 'semestre_actual', 'modalidad', 'activo']
+    list_filter = ['carrera_actual', 'semestre_actual', 'modalidad', 'activo']
+    search_fields = ['registro', 'nombre', 'apellido_paterno', 'apellido_materno', 'email']
+    ordering = ['apellido_paterno', 'apellido_materno', 'nombre']
+    
+    fieldsets = (
+        ('Información Personal', {
+            'fields': ('registro', 'nombre', 'apellido_paterno', 'apellido_materno')
+        }),
+        ('Información Académica', {
+            'fields': ('carrera_actual', 'semestre_actual', 'plan_estudios', 'modalidad', 'fecha_ingreso')
+        }),
+        ('Información de Contacto', {
+            'fields': ('email', 'telefono', 'lugar_origen')
+        }),
+        ('Estado', {
+            'fields': ('activo',)
+        }),
+    )
+
+
+@admin.register(PeriodoAcademico)
+class PeriodoAcademicoAdmin(admin.ModelAdmin):
+    list_display = ['codigo', 'nombre', 'tipo', 'fecha_inicio', 'fecha_fin', 'activo', 'inscripciones_habilitadas']
+    list_filter = ['activo', 'inscripciones_habilitadas', 'tipo']
+    search_fields = ['codigo', 'nombre']
+    ordering = ['-fecha_inicio']
+
+
+class InscripcionMateriaInline(admin.TabularInline):
+    model = InscripcionMateria
+    extra = 1
+    autocomplete_fields = ['materia']
+
+
+@admin.register(Inscripcion)
+class InscripcionAdmin(admin.ModelAdmin):
+    list_display = ['estudiante', 'periodo_academico', 'fecha_inscripcion_asignada', 
+                    'estado', 'bloqueado', 'boleta_generada']
+    list_filter = ['estado', 'bloqueado', 'boleta_generada', 'periodo_academico']
+    search_fields = ['estudiante__registro', 'estudiante__nombre', 'numero_boleta']
+    ordering = ['-fecha_inscripcion_asignada']
+    inlines = [InscripcionMateriaInline]
+    
+    fieldsets = (
+        ('Información General', {
+            'fields': ('estudiante', 'periodo_academico')
+        }),
+        ('Fechas', {
+            'fields': ('fecha_inscripcion_asignada', 'fecha_inscripcion_realizada')
+        }),
+        ('Estado', {
+            'fields': ('estado', 'bloqueado', 'motivo_bloqueo')
+        }),
+        ('Boleta', {
+            'fields': ('boleta_generada', 'numero_boleta')
+        }),
+    )
+
+
+@admin.register(InscripcionMateria)
+class InscripcionMateriaAdmin(admin.ModelAdmin):
+    list_display = ['inscripcion', 'materia', 'grupo']
+    list_filter = ['grupo']
+    search_fields = ['inscripcion__estudiante__registro', 'materia__codigo', 'materia__nombre']

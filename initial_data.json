@@ -1,0 +1,296 @@
+[
+    {
+        "model": "inscripcion.carrera",
+        "pk": 1,
+        "fields": {
+            "codigo": "ING-SIS",
+            "nombre": "Ingeniería de Sistemas",
+            "facultad": "Facultad de Ciencias Exactas y Tecnología",
+            "duracion_semestres": 10,
+            "activa": true
+        }
+    },
+    {
+        "model": "inscripcion.carrera",
+        "pk": 2,
+        "fields": {
+            "codigo": "ING-IND",
+            "nombre": "Ingeniería Industrial",
+            "facultad": "Facultad de Ciencias Exactas y Tecnología",
+            "duracion_semestres": 10,
+            "activa": true
+        }
+    },
+    {
+        "model": "inscripcion.carrera",
+        "pk": 3,
+        "fields": {
+            "codigo": "MED",
+            "nombre": "Medicina",
+            "facultad": "Facultad de Medicina",
+            "duracion_semestres": 12,
+            "activa": true
+        }
+    },
+    {
+        "model": "inscripcion.planestudios",
+        "pk": 1,
+        "fields": {
+            "carrera": 1,
+            "codigo": "PLAN-SIS-2020",
+            "nombre": "Plan de Estudios Ingeniería de Sistemas 2020",
+            "anio_vigencia": 2020,
+            "vigente": true
+        }
+    },
+    {
+        "model": "inscripcion.planestudios",
+        "pk": 2,
+        "fields": {
+            "carrera": 2,
+            "codigo": "PLAN-IND-2020",
+            "nombre": "Plan de Estudios Ingeniería Industrial 2020",
+            "anio_vigencia": 2020,
+            "vigente": true
+        }
+    },
+    {
+        "model": "inscripcion.materia",
+        "pk": 1,
+        "fields": {
+            "codigo": "MAT-101",
+            "nombre": "Cálculo I",
+            "creditos": 5,
+            "horas_teoricas": 4,
+            "horas_practicas": 2
+        }
+    },
+    {
+        "model": "inscripcion.materia",
+        "pk": 2,
+        "fields": {
+            "codigo": "FIS-101",
+            "nombre": "Física I",
+            "creditos": 5,
+            "horas_teoricas": 4,
+            "horas_practicas": 2
+        }
+    },
+    {
+        "model": "inscripcion.materia",
+        "pk": 3,
+        "fields": {
+            "codigo": "PRG-101",
+            "nombre": "Programación I",
+            "creditos": 6,
+            "horas_teoricas": 4,
+            "horas_practicas": 4
+        }
+    },
+    {
+        "model": "inscripcion.materia",
+        "pk": 4,
+        "fields": {
+            "codigo": "MAT-102",
+            "nombre": "Cálculo II",
+            "creditos": 5,
+            "horas_teoricas": 4,
+            "horas_practicas": 2
+        }
+    },
+    {
+        "model": "inscripcion.materia",
+        "pk": 5,
+        "fields": {
+            "codigo": "PRG-102",
+            "nombre": "Programación II",
+            "creditos": 6,
+            "horas_teoricas": 4,
+            "horas_practicas": 4
+        }
+    },
+    {
+        "model": "inscripcion.materia",
+        "pk": 6,
+        "fields": {
+            "codigo": "BD-201",
+            "nombre": "Base de Datos I",
+            "creditos": 6,
+            "horas_teoricas": 4,
+            "horas_practicas": 4
+        }
+    },
+    {
+        "model": "inscripcion.materiacarrerasemestre",
+        "pk": 1,
+        "fields": {
+            "carrera": 1,
+            "plan_estudios": 1,
+            "materia": 1,
+            "semestre": 1,
+            "obligatoria": true,
+            "habilitada": true
+        }
+    },
+    {
+        "model": "inscripcion.materiacarrerasemestre",
+        "pk": 2,
+        "fields": {
+            "carrera": 1,
+            "plan_estudios": 1,
+            "materia": 2,
+            "semestre": 1,
+            "obligatoria": true,
+            "habilitada": true
+        }
+    },
+    {
+        "model": "inscripcion.materiacarrerasemestre",
+        "pk": 3,
+        "fields": {
+            "carrera": 1,
+            "plan_estudios": 1,
+            "materia": 3,
+            "semestre": 1,
+            "obligatoria": true,
+            "habilitada": true
+        }
+    },
+    {
+        "model": "inscripcion.materiacarrerasemestre",
+        "pk": 4,
+        "fields": {
+            "carrera": 1,
+            "plan_estudios": 1,
+            "materia": 4,
+            "semestre": 2,
+            "obligatoria": true,
+            "habilitada": true
+        }
+    },
+    {
+        "model": "inscripcion.materiacarrerasemestre",
+        "pk": 5,
+        "fields": {
+            "carrera": 1,
+            "plan_estudios": 1,
+            "materia": 5,
+            "semestre": 2,
+            "obligatoria": true,
+            "habilitada": true
+        }
+    },
+    {
+        "model": "inscripcion.materiacarrerasemestre",
+        "pk": 6,
+        "fields": {
+            "carrera": 1,
+            "plan_estudios": 1,
+            "materia": 6,
+            "semestre": 3,
+            "obligatoria": true,
+            "habilitada": true
+        }
+    },
+    {
+        "model": "inscripcion.estudiante",
+        "pk": "218001234",
+        "fields": {
+            "nombre": "Juan Carlos",
+            "apellido_paterno": "Pérez",
+            "apellido_materno": "García",
+            "carrera_actual": 1,
+            "semestre_actual": 3,
+            "plan_estudios": 1,
+            "modalidad": "PRESENCIAL",
+            "lugar_origen": "Santa Cruz de la Sierra",
+            "email": "juan.perez@estudiante.uagrm.edu.bo",
+            "telefono": "77123456",
+            "activo": true,
+            "fecha_ingreso": "2021-03-01"
+        }
+    },
+    {
+        "model": "inscripcion.estudiante",
+        "pk": "219005678",
+        "fields": {
+            "nombre": "María Fernanda",
+            "apellido_paterno": "López",
+            "apellido_materno": "Martínez",
+            "carrera_actual": 1,
+            "semestre_actual": 2,
+            "plan_estudios": 1,
+            "modalidad": "PRESENCIAL",
+            "lugar_origen": "Montero",
+            "email": "maria.lopez@estudiante.uagrm.edu.bo",
+            "telefono": "76234567",
+            "activo": true,
+            "fecha_ingreso": "2022-03-01"
+        }
+    },
+    {
+        "model": "inscripcion.periodoacademico",
+        "pk": 1,
+        "fields": {
+            "codigo": "1/2026",
+            "nombre": "Primer Semestre 2026",
+            "tipo": "1/2026",
+            "fecha_inicio": "2026-03-01",
+            "fecha_fin": "2026-07-31",
+            "activo": true,
+            "inscripciones_habilitadas": true
+        }
+    },
+    {
+        "model": "inscripcion.periodoacademico",
+        "pk": 2,
+        "fields": {
+            "codigo": "2/2025",
+            "nombre": "Segundo Semestre 2025",
+            "tipo": "2/2025",
+            "fecha_inicio": "2025-08-01",
+            "fecha_fin": "2025-12-31",
+            "activo": false,
+            "inscripciones_habilitadas": false
+        }
+    },
+    {
+        "model": "inscripcion.inscripcion",
+        "pk": 1,
+        "fields": {
+            "estudiante": "218001234",
+            "periodo_academico": 1,
+            "fecha_inscripcion_asignada": "2026-02-10",
+            "fecha_inscripcion_realizada": null,
+            "estado": "PENDIENTE",
+            "bloqueado": false,
+            "motivo_bloqueo": "",
+            "boleta_generada": false,
+            "numero_boleta": ""
+        }
+    },
+    {
+        "model": "inscripcion.inscripcion",
+        "pk": 2,
+        "fields": {
+            "estudiante": "219005678",
+            "periodo_academico": 1,
+            "fecha_inscripcion_asignada": "2026-02-12",
+            "fecha_inscripcion_realizada": null,
+            "estado": "PENDIENTE",
+            "bloqueado": true,
+            "motivo_bloqueo": "Deuda pendiente en biblioteca",
+            "boleta_generada": false,
+            "numero_boleta": ""
+        }
+    },
+    {
+        "model": "inscripcion.inscripcionmateria",
+        "pk": 1,
+        "fields": {
+            "inscripcion": 1,
+            "materia": 6,
+            "grupo": "A"
+        }
+    }
+]

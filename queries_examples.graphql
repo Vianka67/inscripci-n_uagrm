@@ -1,0 +1,314 @@
+# ========================================
+# QUERIES GRAPHQL - SISTEMA DE INSCRIPCIÓN
+# ========================================
+
+# ===== 1. QUERIES PARA INICIO =====
+
+# Obtener todas las carreras activas
+query ObtenerCarreras {
+  todasCarreras(activa: true) {
+    codigo
+    nombre
+    facultad
+    duracionSemestres
+    activa
+  }
+}
+
+# Obtener semestres disponibles por carrera
+query ObtenerSemestres {
+  semestresPorCarrera(codigoCarrera: "ING-SIS")
+}
+
+# Obtener una carrera específica
+query ObtenerCarreraPorCodigo {
+  carreraPorCodigo(codigo: "ING-SIS") {
+    codigo
+    nombre
+    facultad
+    duracionSemestres
+  }
+}
+
+
+# ===== 2. QUERIES DE PERFIL DE ESTUDIANTE =====
+
+# Perfil completo del estudiante
+query PerfilEstudiante {
+  perfilEstudiante(registro: "218001234") {
+    registro
+    nombreCompleto
+    nombre
+    apellidoPaterno
+    apellidoMaterno
+    carreraActual {
+      codigo
+      nombre
+      facultad
+    }
+    semestreActual
+    planEstudios {
+      codigo
+      nombre
+      anioVigencia
+    }
+    modalidad
+    lugarOrigen
+    email
+    telefono
+    activo
+    fechaIngreso
+  }
+}
+
+# Estudiante por registro (alternativa)
+query EstudiantePorRegistro {
+  estudiantePorRegistro(registro: "218001234") {
+    registro
+    nombreCompleto
+    carreraActual {
+      nombre
+    }
+    semestreActual
+  }
+}
+
+
+# ===== 3. QUERIES DE MÓDULOS ESPECÍFICOS =====
+
+# Fecha de inscripción del estudiante
+query FechaInscripcion {
+  fechaInscripcionEstudiante(registro: "218001234")
+}
+
+# Estado de bloqueo del estudiante
+query EstadoBloqueo {
+  estadoBloqueoEstudiante(registro: "218001234")
+}
+
+# Motivo del bloqueo (si existe)
+query MotivoBloqueo {
+  motivoBloqueoEstudiante(registro: "218001234")
+}
+
+# Consulta combinada de bloqueo
+query ConsultaBloqueo {
+  estadoBloqueoEstudiante(registro: "219005678")
+  motivoBloqueoEstudiante(registro: "219005678")
+}
+
+# Materias habilitadas para el estudiante
+query MateriasHabilitadas {
+  materiasHabilitadas(registro: "218001234") {
+    materia {
+      codigo
+      nombre
+      creditos
+      horasTeorica
+      horasPracticas
+    }
+    semestre
+    obligatoria
+    habilitada
+  }
+}
+
+# Periodo académico habilitado actualmente
+query PeriodoHabilitado {
+  periodoHabilitado {
+    codigo
+    nombre
+    tipo
+    fechaInicio
+    fechaFin
+    activo
+    inscripcionesHabilitadas
+  }
+}
+
+# Boleta del estudiante
+query BoletaEstudiante {
+  boletaEstudiante(registro: "218001234") {
+    numeroBoleta
+    estado
+    fechaInscripcionAsignada
+    fechaInscripcionRealizada
+    bloqueado
+    estudiante {
+      nombreCompleto
+      carreraActual {
+        nombre
+      }
+    }
+    periodoAcademico {
+      nombre
+    }
+    materiasInscritas {
+      materia {
+        codigo
+        nombre
+        creditos
+      }
+      grupo
+    }
+  }
+}
+
+
+# ===== 4. QUERY COMPLETA DE INSCRIPCIÓN =====
+
+# Información completa de inscripción del estudiante
+query InscripcionCompleta {
+  inscripcionCompleta(registro: "218001234") {
+    id
+    estudiante {
+      registro
+      nombreCompleto
+      carreraActual {
+        codigo
+        nombre
+      }
+      semestreActual
+    }
+    periodoAcademico {
+      codigo
+      nombre
+      tipo
+    }
+    fechaInscripcionAsignada
+    fechaInscripcionRealizada
+    estado
+    bloqueado
+    motivoBloqueo
+    boletaGenerada
+    numeroBoleta
+    materiasInscritas {
+      materia {
+        codigo
+        nombre
+        creditos
+        horasTeorica
+        horasPracticas
+      }
+      grupo
+    }
+  }
+}
+
+
+# ===== 5. QUERIES ADICIONALES =====
+
+# Todos los periodos académicos
+query TodosPeriodos {
+  todosPeriodos {
+    codigo
+    nombre
+    tipo
+    fechaInicio
+    fechaFin
+    activo
+    inscripcionesHabilitadas
+  }
+}
+
+# Solo periodos activos
+query PeriodosActivos {
+  todosPeriodos(activo: true) {
+    codigo
+    nombre
+    tipo
+  }
+}
+
+# Todas las materias
+query TodasMaterias {
+  todasMaterias {
+    codigo
+    nombre
+    creditos
+    horasTeorica
+    horasPracticas
+  }
+}
+
+
+# ===== 6. QUERY COMBINADA PARA DASHBOARD =====
+
+# Query completa para obtener toda la información necesaria en una sola petición
+query DashboardEstudiante {
+  # Perfil del estudiante
+  perfil: perfilEstudiante(registro: "218001234") {
+    registro
+    nombreCompleto
+    carreraActual {
+      codigo
+      nombre
+    }
+    semestreActual
+    modalidad
+  }
+  
+  # Periodo activo
+  periodo: periodoHabilitado {
+    codigo
+    nombre
+    fechaInicio
+    fechaFin
+  }
+  
+  # Información de inscripción
+  inscripcion: inscripcionCompleta(registro: "218001234") {
+    fechaInscripcionAsignada
+    estado
+    bloqueado
+    motivoBloqueo
+    boletaGenerada
+  }
+  
+  # Materias habilitadas
+  materias: materiasHabilitadas(registro: "218001234") {
+    materia {
+      codigo
+      nombre
+      creditos
+    }
+    semestre
+  }
+}
+
+
+# ===== 7. QUERIES PARA ESTUDIANTE BLOQUEADO =====
+
+# Verificar estudiante bloqueado
+query EstudianteBloqueado {
+  perfilEstudiante(registro: "219005678") {
+    nombreCompleto
+  }
+  
+  estadoBloqueo: estadoBloqueoEstudiante(registro: "219005678")
+  motivoBloqueo: motivoBloqueoEstudiante(registro: "219005678")
+  
+  inscripcion: inscripcionCompleta(registro: "219005678") {
+    estado
+    bloqueado
+    motivoBloqueo
+  }
+}
+
+
+# ===== NOTAS DE USO =====
+
+# Para usar estas queries:
+# 1. Accede a http://localhost:8000/graphql/
+# 2. Copia y pega cualquiera de estas queries
+# 3. Haz clic en el botón "Play" o presiona Ctrl+Enter
+# 4. Los resultados aparecerán en el panel derecho
+
+# Estudiantes de prueba disponibles:
+# - 218001234 (Juan Carlos Pérez García) - Sin bloqueo
+# - 219005678 (María Fernanda López Martínez) - Bloqueado
+
+# Carreras disponibles:
+# - ING-SIS (Ingeniería de Sistemas)
+# - ING-IND (Ingeniería Industrial)
+# - MED (Medicina)

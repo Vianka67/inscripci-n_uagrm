@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: inscripcion_db
+    environment:
+      POSTGRES_DB: inscripcion_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - inscripcion_network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d inscripcion_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: inscripcion_backend
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py loaddata initial_data.json &&
+             python create_superuser.py &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - DATABASE_URL=postgresql://admin:admin123@db:5432/inscripcion_db
+      - ALLOWED_HOSTS=*
+      - CORS_ALLOWED_ORIGINS=*
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - inscripcion_network
+
+volumes:
+  postgres_data:
+
+
+networks:
+  inscripcion_network:
+    driver: bridge
