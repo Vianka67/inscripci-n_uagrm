@@ -2,7 +2,7 @@
 
 ## 📐 Diagrama de Arquitectura
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │                        FRONTEND                              │
 │                  (Otra máquina/localhost)                    │
@@ -84,7 +84,7 @@
 
 ### 1. Consulta de Perfil de Estudiante
 
-```
+```text
 Frontend
    │
    │ POST /graphql/
@@ -123,7 +123,7 @@ Frontend
 
 ### 2. Consulta de Materias Habilitadas
 
-```
+```text
 Frontend
    │
    │ query { materiasHabilitadas(registro: "218001234") { ... } }
@@ -165,7 +165,7 @@ Frontend
 
 ## 🗄️ Modelo Entidad-Relación
 
-```
+```text
 ┌─────────────────┐
 │    Carrera      │
 │─────────────────│
@@ -355,7 +355,7 @@ docker stats
 
 ## 🔄 Ciclo de Vida del Contenedor
 
-```
+```text
 ┌─────────────────┐
 │  docker-compose │
 │   up --build    │
@@ -411,4 +411,4 @@ docker stats
 
 ---
 
-**🏗️ Arquitectura diseñada para ser escalable, mantenible y fácil de desplegar**
+## 🏗️ Arquitectura diseñada para ser escalable, mantenible y fácil de desplegar

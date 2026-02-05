@@ -1,0 +1,334 @@
+# ========================================
+# QUERIES GRAPHQL ACTUALIZADAS
+# Sistema de Inscripción UAGRM
+# ========================================
+
+# ==========================================
+# 1️⃣ PANEL COMPLETO DEL ESTUDIANTE
+# ==========================================
+# Esta query obtiene TODA la información necesaria para el panel principal
+# en una sola llamada, reduciendo la lógica del frontend
+
+query PanelEstudiante {
+  panelEstudiante(registro: "2150826") {
+    estudiante {
+      registro
+      nombreCompleto
+      nombre
+      apellidoPaterno
+      apellidoMaterno
+    }
+    carrera {
+      codigo
+      nombre
+      tipo
+      facultad
+    }
+    modalidad
+    semestreActual
+    estado
+    periodoActual {
+      codigo
+      nombre
+      inscripcionesHabilitadas
+      fechaInicio
+      fechaFin
+    }
+    opcionesDisponibles {
+      fechasInscripcion
+      boleta
+      bloqueo
+      inscripcion
+    }
+    inscripcionActual {
+      fechaAsignada
+      fechaRealizada
+      estado
+      bloqueado
+      boletaGenerada
+      numeroBoleta
+    }
+  }
+}
+
+# ==========================================
+# 2️⃣ INFORMACIÓN DE BLOQUEOS
+# ==========================================
+# Obtiene información completa de bloqueos del estudiante
+
+query BloqueoEstudiante {
+  bloqueoEstudiante(registro: "2150826") {
+    bloqueado
+    bloqueos {
+      id
+      tipo
+      motivo
+      fechaBloqueo
+      fechaDesbloqueoEstimada
+      activo
+    }
+    puedeInscribirse
+    mensaje
+  }
+}
+
+# ==========================================
+# 3️⃣ SEMESTRES POR CARRERA (ESTRUCTURADO)
+# ==========================================
+# Obtiene los semestres disponibles para una carrera
+
+query SemestresCarrera {
+  semestresCarrera(codigoCarrera: "DER") {
+    carrera {
+      codigo
+      nombre
+    }
+    semestres {
+      numero
+      nombre
+      habilitado
+    }
+    totalSemestres
+  }
+}
+
+# ==========================================
+# 4️⃣ BOLETA DE INSCRIPCIÓN COMPLETA
+# ==========================================
+# Obtiene la boleta de inscripción con todas las materias
+
+query BoletaInscripcion {
+  boletaInscripcion(registro: "2150826") {
+    estudiante {
+      registro
+      nombreCompleto
+    }
+    carrera {
+      codigo
+      nombre
+    }
+    periodo {
+      codigo
+      nombre
+    }
+    numeroBoleta
+    fechaGeneracion
+    estado
+    materiasInscritas {
+      codigo
+      nombre
+      creditos
+      grupo
+      horasTeo ricas
+      horasPracticas
+    }
+    totalCreditos
+    totalMaterias
+  }
+}
+
+# ==========================================
+# 5️⃣ LISTA DE CARRERAS ACTIVAS
+# ==========================================
+# Para la pantalla de selección de carrera
+
+query CarrerasActivas {
+  todasCarreras(activa: true) {
+    id
+    codigo
+    nombre
+    facultad
+    duracionSemestres
+    activa
+  }
+}
+
+# ==========================================
+# 6️⃣ PERFIL DEL ESTUDIANTE
+# ==========================================
+# Información básica del estudiante
+
+query PerfilEstudiante {
+  estudiantePorRegistro(registro: "2150826") {
+    registro
+    nombreCompleto
+    nombre
+    apellidoPaterno
+    apellidoMaterno
+    carreraActual {
+      codigo
+      nombre
+      facultad
+    }
+    semestreActual
+    modalidad
+    planEstudios {
+      codigo
+      nombre
+      anioVigencia
+    }
+    email
+    telefono
+    lugarOrigen
+    activo
+    fechaIngreso
+  }
+}
+
+# ==========================================
+# 7️⃣ MATERIAS HABILITADAS PARA INSCRIPCIÓN
+# ==========================================
+# Materias disponibles según carrera y semestre del estudiante
+
+query MateriasHabilitadas {
+  materiasHabilitadas(registro: "2150826") {
+    id
+    materia {
+      codigo
+      nombre
+      creditos
+      horasTeoricas
+      horasPracticas
+    }
+    semestre
+    obligatoria
+    habilitada
+  }
+}
+
+# ==========================================
+# 8️⃣ PERIODO ACADÉMICO ACTIVO
+# ==========================================
+# Obtiene el periodo con inscripciones habilitadas
+
+query PeriodoActivo {
+  periodoHabilitado {
+    codigo
+    nombre
+    tipo
+    fechaInicio
+    fechaFin
+    activo
+    inscripcionesHabilitadas
+  }
+}
+
+# ==========================================
+# 9️⃣ INSCRIPCIÓN COMPLETA DEL ESTUDIANTE
+# ==========================================
+# Información detallada de la inscripción actual
+
+query InscripcionCompleta {
+  inscripcionCompleta(registro: "2150826") {
+    id
+    estudiante {
+      registro
+      nombreCompleto
+    }
+    periodoAcademico {
+      codigo
+      nombre
+    }
+    fechaInscripcionAsignada
+    fechaInscripcionRealizada
+    estado
+    boletaGenerada
+    numeroBoleta
+    materiasInscritas {
+      materia {
+        codigo
+        nombre
+        creditos
+      }
+      grupo
+    }
+  }
+}
+
+# ==========================================
+# 🔟 TODOS LOS BLOQUEOS (ADMIN)
+# ==========================================
+# Para administradores: ver todos los bloqueos
+
+query TodosBloqueos {
+  todosBloqueos {
+    id
+    estudiante {
+      registro
+      nombreCompleto
+    }
+    tipo
+    motivo
+    fechaBloqueo
+    fechaDesbloqueoEstimada
+    activo
+    resuelto
+    fechaResolucion
+  }
+}
+
+# ==========================================
+# QUERIES DE COMPATIBILIDAD
+# ==========================================
+# Estas queries mantienen compatibilidad con código existente
+
+# Fecha de inscripción
+query FechaInscripcion {
+  fechaInscripcionEstudiante(registro: "2150826")
+}
+
+# Estado de bloqueo (boolean)
+query EstadoBloqueo {
+  estadoBloqueoEstudiante(registro: "2150826")
+}
+
+# Motivo de bloqueo
+query MotivoBloqueo {
+  motivoBloqueoEstudiante(registro: "2150826")
+}
+
+# Semestres por carrera (lista simple de números)
+query SemestresSimple {
+  semestresPorCarrera(codigoCarrera: "DER")
+}
+
+# ==========================================
+# EJEMPLOS DE USO EN EL FRONTEND
+# ==========================================
+
+# Ejemplo 1: Cargar panel principal al iniciar sesión
+# Uso: Una sola llamada obtiene toda la info necesaria
+query CargarPanelInicial {
+  panelEstudiante(registro: "2150826") {
+    estudiante { nombreCompleto }
+    carrera { nombre }
+    estado
+    opcionesDisponibles {
+      fechasInscripcion
+      boleta
+      bloqueo
+      inscripcion
+    }
+  }
+}
+
+# Ejemplo 2: Verificar si puede inscribirse
+query PuedeInscribirse {
+  bloqueoEstudiante(registro: "2150826") {
+    puedeInscribirse
+    mensaje
+  }
+}
+
+# Ejemplo 3: Mostrar boleta si está disponible
+query MostrarBoleta {
+  boletaInscripcion(registro: "2150826") {
+    numeroBoleta
+    materiasInscritas {
+      codigo
+      nombre
+      creditos
+    }
+    totalCreditos
+  }
+}

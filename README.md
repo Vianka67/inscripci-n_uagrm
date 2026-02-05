@@ -32,6 +32,7 @@ docker-compose up --build
 ```
 
 Este comando:
+
 - Creará la base de datos PostgreSQL
 - Ejecutará las migraciones
 - Cargará los datos de prueba
@@ -39,14 +40,15 @@ Este comando:
 
 ### 3. Acceder a la aplicación
 
-- **GraphQL Playground**: http://localhost:8000/graphql/
-- **Panel Admin**: http://localhost:8000/admin/
+- **GraphQL Playground**: <http://localhost:8000/graphql/>
+- **Panel Admin**: <http://localhost:8000/admin/>
 
 ## 👤 Datos de Prueba
 
 ### Estudiantes de Prueba
 
 **Estudiante 1:**
+
 - Registro: `218001234`
 - Nombre: Juan Carlos Pérez García
 - Carrera: Ingeniería de Sistemas
@@ -54,6 +56,7 @@ Este comando:
 - Estado: Sin bloqueo
 
 **Estudiante 2:**
+
 - Registro: `219005678`
 - Nombre: María Fernanda López Martínez
 - Carrera: Ingeniería de Sistemas
@@ -276,7 +279,7 @@ CORS_ALLOWED_ORIGINS = [
 
 ## 📁 Estructura del Proyecto
 
-```
+```text
 backend_inscripción/
 ├── docker-compose.yml          # Configuración de Docker Compose
 ├── Dockerfile                  # Imagen de Docker
@@ -342,4 +345,4 @@ docker-compose logs -f web
 
 ---
 
-**Desarrollado con Django 4.2, Graphene-Django 3.2 y PostgreSQL 15**
+Desarrollado con Django 4.2, Graphene-Django 3.2 y PostgreSQL 15

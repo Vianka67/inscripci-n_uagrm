@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     Carrera, PlanEstudios, Materia, MateriaCarreraSemestre,
-    Estudiante, PeriodoAcademico, Inscripcion, InscripcionMateria
+    Estudiante, PeriodoAcademico, Inscripcion, InscripcionMateria, Bloqueo
 )
 
 
@@ -103,3 +103,31 @@ class InscripcionMateriaAdmin(admin.ModelAdmin):
     list_display = ['inscripcion', 'materia', 'grupo']
     list_filter = ['grupo']
     search_fields = ['inscripcion__estudiante__registro', 'materia__codigo', 'materia__nombre']
+
+
+@admin.register(Bloqueo)
+class BloqueoAdmin(admin.ModelAdmin):
+    list_display = ['estudiante', 'tipo', 'motivo_corto', 'fecha_bloqueo', 'fecha_desbloqueo_estimada', 'activo', 'resuelto']
+    list_filter = ['tipo', 'activo', 'resuelto', 'fecha_bloqueo']
+    search_fields = ['estudiante__registro', 'estudiante__nombre', 'motivo']
+    ordering = ['-fecha_bloqueo']
+    
+    fieldsets = (
+        ('Información del Bloqueo', {
+            'fields': ('estudiante', 'tipo', 'motivo')
+        }),
+        ('Fechas', {
+            'fields': ('fecha_bloqueo', 'fecha_desbloqueo_estimada', 'fecha_resolucion')
+        }),
+        ('Estado', {
+            'fields': ('activo', 'resuelto', 'observaciones')
+        }),
+    )
+    
+    readonly_fields = ['fecha_bloqueo']
+    
+    def motivo_corto(self, obj):
+        """Muestra una versión corta del motivo"""
+        return obj.motivo[:50] + '...' if len(obj.motivo) > 50 else obj.motivo
+    motivo_corto.short_description = 'Motivo'
+

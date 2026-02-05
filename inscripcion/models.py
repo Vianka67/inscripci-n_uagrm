@@ -125,12 +125,10 @@ class Estudiante(models.Model):
 class PeriodoAcademico(models.Model):
     """Modelo para los periodos académicos (gestiones)"""
     TIPO_PERIODO_CHOICES = [
-        ('1/2024', 'Primer Semestre 2024'),
-        ('2/2024', 'Segundo Semestre 2024'),
-        ('1/2025', 'Primer Semestre 2025'),
-        ('2/2025', 'Segundo Semestre 2025'),
         ('1/2026', 'Primer Semestre 2026'),
         ('2/2026', 'Segundo Semestre 2026'),
+        ('1/2025', 'Primer Semestre 2025'), # Backward compatibility
+        ('2/2025', 'Segundo Semestre 2025'),
     ]
     
     codigo = models.CharField(max_length=10, unique=True, verbose_name="Código del Periodo")
@@ -148,6 +146,54 @@ class PeriodoAcademico(models.Model):
     
     def __str__(self):
         return f"{self.codigo} - {self.nombre}"
+
+
+class Bloqueo(models.Model):
+    """Modelo para gestionar bloqueos de estudiantes"""
+    TIPO_BLOQUEO_CHOICES = [
+        ('FINANCIERO', 'Deuda Financiera'),
+        ('ACADEMICO', 'Bloqueo Académico'),
+        ('ADMINISTRATIVO', 'Bloqueo Administrativo'),
+        ('DISCIPLINARIO', 'Bloqueo Disciplinario'),
+    ]
+    
+    estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE, related_name='bloqueos')
+    tipo = models.CharField(max_length=20, choices=TIPO_BLOQUEO_CHOICES, verbose_name="Tipo de Bloqueo")
+    motivo = models.TextField(verbose_name="Motivo del Bloqueo")
+    fecha_bloqueo = models.DateField(auto_now_add=True, verbose_name="Fecha de Bloqueo")
+    fecha_desbloqueo_estimada = models.DateField(null=True, blank=True, verbose_name="Fecha de Desbloqueo Estimada")
+    activo = models.BooleanField(default=True, verbose_name="Bloqueo Activo")
+    resuelto = models.BooleanField(default=False, verbose_name="Bloqueo Resuelto")
+    fecha_resolucion = models.DateField(null=True, blank=True, verbose_name="Fecha de Resolución")
+    observaciones = models.TextField(blank=True, verbose_name="Observaciones")
+    
+    class Meta:
+        verbose_name = "Bloqueo"
+        verbose_name_plural = "Bloqueos"
+        ordering = ['-fecha_bloqueo']
+    
+    def __str__(self):
+        return f"Bloqueo {self.tipo} - {self.estudiante.registro}"
+
+
+class OfertaMateria(models.Model):
+    """Modelo para la oferta de materias en un periodo específico (Grupos)"""
+    materia_carrera = models.ForeignKey(MateriaCarreraSemestre, on_delete=models.CASCADE, related_name='ofertas')
+    periodo = models.ForeignKey(PeriodoAcademico, on_delete=models.CASCADE, related_name='ofertas')
+    grupo = models.CharField(max_length=5, verbose_name="Grupo")
+    docente = models.CharField(max_length=100, verbose_name="Docente", default="Por designar")
+    horario = models.CharField(max_length=100, verbose_name="Horario", default="HORARIO A CONFIRMAR")
+    cupo_maximo = models.IntegerField(default=40, verbose_name="Cupo Máximo")
+    cupo_actual = models.IntegerField(default=0, verbose_name="Cupo Actual")
+    
+    class Meta:
+        verbose_name = "Oferta de Materia"
+        verbose_name_plural = "Ofertas de Materias"
+        unique_together = ['materia_carrera', 'periodo', 'grupo']
+        ordering = ['materia_carrera__materia__codigo', 'grupo']
+        
+    def __str__(self):
+        return f"{self.materia_carrera.materia.codigo} - Gr. {self.grupo} ({self.periodo.codigo})"
 
 
 class Inscripcion(models.Model):
@@ -181,13 +227,66 @@ class Inscripcion(models.Model):
 class InscripcionMateria(models.Model):
     """Modelo para las materias inscritas en cada inscripción"""
     inscripcion = models.ForeignKey(Inscripcion, on_delete=models.CASCADE, related_name='materias_inscritas')
-    materia = models.ForeignKey(Materia, on_delete=models.CASCADE, related_name='inscripciones')
-    grupo = models.CharField(max_length=5, verbose_name="Grupo", default="A")
+    oferta = models.ForeignKey(OfertaMateria, on_delete=models.CASCADE, related_name='inscripciones', null=True)
+    # Mantener campos antiguos por compatibilidad si es necesario, pero idealmente migrar a oferta
+    materia = models.ForeignKey(Materia, on_delete=models.CASCADE, related_name='inscripciones_directas', null=True, blank=True)
+    grupo = models.CharField(max_length=5, verbose_name="Grupo", default="A", blank=True)
     
     class Meta:
         verbose_name = "Materia Inscrita"
         verbose_name_plural = "Materias Inscritas"
-        unique_together = ['inscripcion', 'materia']
+        unique_together = ['inscripcion', 'oferta']
     
     def __str__(self):
+        if self.oferta:
+            return f"{self.inscripcion.estudiante.registro} - {self.oferta.materia_carrera.materia.codigo}"
         return f"{self.inscripcion.estudiante.registro} - {self.materia.codigo}"
+
+
+class ConceptoPago(models.Model):
+    """Modelo para los conceptos de pago de la boleta"""
+    nombre = models.CharField(max_length=100, verbose_name="Concepto")
+    monto = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Monto")
+    obligatorio = models.BooleanField(default=True, verbose_name="Obligatorio")
+    
+    class Meta:
+        verbose_name = "Concepto de Pago"
+        verbose_name_plural = "Conceptos de Pago"
+
+    def __str__(self):
+        return f"{self.nombre} - {self.monto} Bs"
+
+
+class Boleta(models.Model):
+    """Modelo para la boleta de pago del estudiante"""
+    ESTADO_PAGO_CHOICES = [
+        ('PENDIENTE', 'Pendiente'),
+        ('PAGADO', 'Pagado'),
+        ('ANULADO', 'Anulado'),
+    ]
+    
+    inscripcion = models.OneToOneField(Inscripcion, on_delete=models.CASCADE, related_name='boleta_pago')
+    fecha_emision = models.DateField(auto_now_add=True, verbose_name="Fecha de Emisión")
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Total")
+    estado = models.CharField(max_length=20, choices=ESTADO_PAGO_CHOICES, default='PENDIENTE')
+    
+    class Meta:
+        verbose_name = "Boleta"
+        verbose_name_plural = "Boletas"
+        
+    def __str__(self):
+        return f"Boleta {self.inscripcion.numero_boleta} - {self.inscripcion.estudiante.registro}"
+
+
+class DetalleBoleta(models.Model):
+    """Detalle de los conceptos en una boleta específica"""
+    boleta = models.ForeignKey(Boleta, on_delete=models.CASCADE, related_name='detalles')
+    concepto = models.ForeignKey(ConceptoPago, on_delete=models.PROTECT, related_name='boletas')
+    monto = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Monto Aplicado")
+    
+    class Meta:
+        verbose_name = "Detalle de Boleta"
+        verbose_name_plural = "Detalles de Boleta"
+        
+    def __str__(self):
+        return f"{self.concepto.nombre} en Boleta {self.boleta.id}"
