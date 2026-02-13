@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     Carrera, PlanEstudios, Materia, MateriaCarreraSemestre,
-    Estudiante, PeriodoAcademico, Inscripcion, InscripcionMateria, Bloqueo
+    Estudiante, EstudianteCarrera, PeriodoAcademico, Inscripcion, InscripcionMateria, Bloqueo
 )
 
 
@@ -38,25 +38,29 @@ class MateriaCarreraSemestreAdmin(admin.ModelAdmin):
 
 @admin.register(Estudiante)
 class EstudianteAdmin(admin.ModelAdmin):
-    list_display = ['registro', 'nombre_completo', 'carrera_actual', 'semestre_actual', 'modalidad', 'activo']
-    list_filter = ['carrera_actual', 'semestre_actual', 'modalidad', 'activo']
+    list_display = ['registro', 'nombre_completo', 'activo']
+    list_filter = ['activo']
     search_fields = ['registro', 'nombre', 'apellido_paterno', 'apellido_materno', 'email']
     ordering = ['apellido_paterno', 'apellido_materno', 'nombre']
     
     fieldsets = (
         ('Información Personal', {
-            'fields': ('registro', 'nombre', 'apellido_paterno', 'apellido_materno')
-        }),
-        ('Información Académica', {
-            'fields': ('carrera_actual', 'semestre_actual', 'plan_estudios', 'modalidad', 'fecha_ingreso')
+            'fields': ('registro', 'documento_identidad', 'nombre', 'apellido_paterno', 'apellido_materno')
         }),
         ('Información de Contacto', {
             'fields': ('email', 'telefono', 'lugar_origen')
         }),
         ('Estado', {
-            'fields': ('activo',)
+            'fields': ('activo', 'fecha_ingreso')
         }),
     )
+
+
+@admin.register(EstudianteCarrera)
+class EstudianteCarreraAdmin(admin.ModelAdmin):
+    list_display = ['estudiante', 'carrera', 'semestre_actual', 'modalidad', 'activa']
+    list_filter = ['carrera', 'semestre_actual', 'modalidad', 'activa']
+    search_fields = ['estudiante__registro', 'estudiante__nombre', 'carrera__nombre']
 
 
 @admin.register(PeriodoAcademico)
@@ -70,21 +74,20 @@ class PeriodoAcademicoAdmin(admin.ModelAdmin):
 class InscripcionMateriaInline(admin.TabularInline):
     model = InscripcionMateria
     extra = 1
-    autocomplete_fields = ['materia']
 
 
 @admin.register(Inscripcion)
 class InscripcionAdmin(admin.ModelAdmin):
-    list_display = ['estudiante', 'periodo_academico', 'fecha_inscripcion_asignada', 
+    list_display = ['estudiante_carrera', 'periodo_academico', 'fecha_inscripcion_asignada', 
                     'estado', 'bloqueado', 'boleta_generada']
     list_filter = ['estado', 'bloqueado', 'boleta_generada', 'periodo_academico']
-    search_fields = ['estudiante__registro', 'estudiante__nombre', 'numero_boleta']
+    search_fields = ['estudiante_carrera__estudiante__registro', 'numero_boleta']
     ordering = ['-fecha_inscripcion_asignada']
     inlines = [InscripcionMateriaInline]
     
     fieldsets = (
         ('Información General', {
-            'fields': ('estudiante', 'periodo_academico')
+            'fields': ('estudiante_carrera', 'periodo_academico')
         }),
         ('Fechas', {
             'fields': ('fecha_inscripcion_asignada', 'fecha_inscripcion_realizada')
@@ -98,23 +101,16 @@ class InscripcionAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(InscripcionMateria)
-class InscripcionMateriaAdmin(admin.ModelAdmin):
-    list_display = ['inscripcion', 'materia', 'grupo']
-    list_filter = ['grupo']
-    search_fields = ['inscripcion__estudiante__registro', 'materia__codigo', 'materia__nombre']
-
-
 @admin.register(Bloqueo)
 class BloqueoAdmin(admin.ModelAdmin):
-    list_display = ['estudiante', 'tipo', 'motivo_corto', 'fecha_bloqueo', 'fecha_desbloqueo_estimada', 'activo', 'resuelto']
+    list_display = ['estudiante_carrera', 'tipo', 'motivo_corto', 'fecha_bloqueo', 'fecha_desbloqueo_estimada', 'activo', 'resuelto']
     list_filter = ['tipo', 'activo', 'resuelto', 'fecha_bloqueo']
-    search_fields = ['estudiante__registro', 'estudiante__nombre', 'motivo']
+    search_fields = ['estudiante_carrera__estudiante__registro', 'motivo']
     ordering = ['-fecha_bloqueo']
     
     fieldsets = (
         ('Información del Bloqueo', {
-            'fields': ('estudiante', 'tipo', 'motivo')
+            'fields': ('estudiante_carrera', 'tipo', 'motivo')
         }),
         ('Fechas', {
             'fields': ('fecha_bloqueo', 'fecha_desbloqueo_estimada', 'fecha_resolucion')

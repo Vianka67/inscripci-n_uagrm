@@ -11,31 +11,42 @@ class EstudianteService:
     @staticmethod
     def get_by_registro(registro: str) -> Optional[Estudiante]:
         """
-        Obtiene un estudiante por su registro universitario
-        
-        Args:
-            registro: Registro universitario del estudiante
-            
-        Returns:
-            Estudiante o None si no existe
+        Obtiene un estudiante (info personal) por su registro universitario
         """
         try:
-            return Estudiante.objects.select_related(
-                'carrera_actual', 
-                'plan_estudios'
-            ).get(registro=registro)
+            return Estudiante.objects.get(registro=registro)
         except Estudiante.DoesNotExist:
+            return None
+    
+    @staticmethod
+    def get_carreras_estudiante(registro: str):
+        """
+        Obtiene todas las carreras activas vinculadas a un registro
+        """
+        from ..models import EstudianteCarrera
+        return EstudianteCarrera.objects.select_related('carrera', 'plan_estudios').filter(
+            estudiante__registro=registro,
+            activa=True
+        )
+
+    @staticmethod
+    def get_carrera_especifica(registro: str, codigo_carrera: str):
+        """
+        Obtiene la información académica de una carrera específica para un estudiante
+        """
+        from ..models import EstudianteCarrera
+        try:
+            return EstudianteCarrera.objects.select_related('carrera', 'plan_estudios').get(
+                estudiante__registro=registro,
+                carrera__codigo=codigo_carrera,
+                activa=True
+            )
+        except EstudianteCarrera.DoesNotExist:
             return None
     
     @staticmethod
     def get_nombre_completo(estudiante: Estudiante) -> str:
         """
         Obtiene el nombre completo del estudiante
-        
-        Args:
-            estudiante: Instancia del estudiante
-            
-        Returns:
-            Nombre completo formateado
         """
         return estudiante.nombre_completo

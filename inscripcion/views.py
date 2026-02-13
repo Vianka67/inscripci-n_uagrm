@@ -7,20 +7,24 @@ from .models import Estudiante, PeriodoAcademico, Inscripcion, Bloqueo, OfertaMa
 class StandardResponseMixin:
     """Mixin para estandarizar la respuesta JSON según requerimientos"""
     
-    def get_encabezado(self, estudiante):
+    def get_encabezado(self, estudiante, est_carrera=None):
+        if not est_carrera:
+            from .models import EstudianteCarrera
+            est_carrera = EstudianteCarrera.objects.filter(estudiante=estudiante, activa=True).first()
+            
         return {
             "encabezado": {
                 "universidad": "UAGRM",
                 "registro": estudiante.registro,
                 "nombre": estudiante.nombre_completo,
-                "carrera": estudiante.carrera_actual.nombre,
-                "modalidad": estudiante.get_modalidad_display(),
-                "tipo_carrera": "Semestral"  # Podría ser dinámico si el PlanEstudios tiene ese dato
+                "carrera": est_carrera.carrera.nombre if est_carrera else "N/A",
+                "modalidad": est_carrera.get_modalidad_display() if est_carrera else "N/A",
+                "tipo_carrera": "Semestral"
             }
         }
 
-    def build_response(self, estudiante, data):
-        response = self.get_encabezado(estudiante)
+    def build_response(self, estudiante, data, est_carrera=None):
+        response = self.get_encabezado(estudiante, est_carrera)
         response.update(data)
         return JsonResponse(response)
 
@@ -46,7 +50,12 @@ class FechasInscripcionView(View, StandardResponseMixin):
 class BloqueoView(View, StandardResponseMixin):
     def get(self, request, registro):
         estudiante = get_object_or_404(Estudiante, registro=registro)
-        bloqueo_activo = estudiante.bloqueos.filter(activo=True).first()
+        from .models import EstudianteCarrera
+        est_carrera = EstudianteCarrera.objects.filter(estudiante=estudiante, activa=True).first()
+        
+        bloqueo_activo = None
+        if est_carrera:
+            bloqueo_activo = est_carrera.bloqueos.filter(activo=True).first()
         
         data = {
             "titulo": "BLOQUEO",
@@ -56,7 +65,7 @@ class BloqueoView(View, StandardResponseMixin):
                 "fecha_desbloqueo": bloqueo_activo.fecha_desbloqueo_estimada.strftime("%Y-%m-%d") if bloqueo_activo and bloqueo_activo.fecha_desbloqueo_estimada else None
             } if bloqueo_activo else None
         }
-        return self.build_response(estudiante, data)
+        return self.build_response(estudiante, data, est_carrera)
 
 
 class MateriasHabilitadasView(View, StandardResponseMixin):
@@ -66,22 +75,25 @@ class MateriasHabilitadasView(View, StandardResponseMixin):
         
         materias_data = []
         if periodo:
-            # Obtener ofertas para la carrera del estudiante, filtrando por semestre actual o lógica de pre-requisitos
-            # Por simplicidad, mostramos ofertas del semestre actual del estudiante
-            ofertas = OfertaMateria.objects.filter(
-                periodo=periodo,
-                materia_carrera__carrera=estudiante.carrera_actual,
-                materia_carrera__semestre=estudiante.semestre_actual
-            )
+            from .models import EstudianteCarrera
+            est_carrera = EstudianteCarrera.objects.filter(estudiante=estudiante, activa=True).first()
             
-            for oferta in ofertas:
-                materias_data.append({
-                    "codigo": oferta.materia_carrera.materia.codigo,
-                    "nombre": oferta.materia_carrera.materia.nombre,
-                    "grupo": oferta.grupo,
-                    "horario": oferta.horario,
-                    "docente": oferta.docente
-                })
+            if est_carrera:
+                # Obtener ofertas para la carrera del estudiante
+                ofertas = OfertaMateria.objects.filter(
+                    periodo=periodo,
+                    materia_carrera__carrera=est_carrera.carrera,
+                    materia_carrera__semestre=est_carrera.semestre_actual
+                )
+                
+                for oferta in ofertas:
+                    materias_data.append({
+                        "codigo": oferta.materia_carrera.materia.codigo,
+                        "nombre": oferta.materia_carrera.materia.nombre,
+                        "grupo": oferta.grupo,
+                        "horario": oferta.horario,
+                        "docente": oferta.docente
+                    })
         
         data = {
             "titulo": "MATERIAS HABILITADAS",
@@ -114,21 +126,27 @@ class BoletaView(View, StandardResponseMixin):
         estado = "NO GENERADA"
         
         if periodo:
-            inscripcion = Inscripcion.objects.filter(estudiante=estudiante, periodo_academico=periodo).first()
-            if inscripcion and hasattr(inscripcion, 'boleta_pago'):
-                boleta = inscripcion.boleta_pago
-                estado = boleta.get_estado_display().upper()
-                total = float(boleta.total)
-                
-                for detalle in boleta.detalles.all():
-                    boleta_data.append({
-                        "concepto": detalle.concepto.nombre,
-                        "monto": float(detalle.monto)
-                    })
-            elif inscripcion:
-                 estado = "PENDIENTE DE GENERAR"
+            from .models import EstudianteCarrera
+            est_carrera = EstudianteCarrera.objects.filter(estudiante=estudiante, activa=True).first()
+            
+            if est_carrera:
+                inscripcion = Inscripcion.objects.filter(estudiante_carrera=est_carrera, periodo_academico=periodo).first()
+                if inscripcion and hasattr(inscripcion, 'boleta_pago'):
+                    boleta = inscripcion.boleta_pago
+                    estado = boleta.get_estado_display().upper()
+                    total = float(boleta.total)
+                    
+                    for detalle in boleta.detalles.all():
+                        boleta_data.append({
+                            "concepto": detalle.concepto.nombre,
+                            "monto": float(detalle.monto)
+                        })
+                elif inscripcion:
+                     estado = "PENDIENTE DE GENERAR"
+                else:
+                     estado = "SIN INSCRIPCIÓN"
             else:
-                 estado = "SIN INSCRIPCIÓN"
+                estado = "SIN CARRERA"
 
         data = {
             "titulo": "BOLETA",

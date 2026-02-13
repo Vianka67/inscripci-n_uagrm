@@ -1,9 +1,9 @@
 """
 Servicio para gestión de bloqueos de estudiantes
 """
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from datetime import date
-from ..models import Bloqueo, Estudiante
+from inscripcion.models import Bloqueo, Estudiante
 
 
 class BloqueoService:
@@ -21,7 +21,7 @@ class BloqueoService:
             True si tiene bloqueos activos, False en caso contrario
         """
         return Bloqueo.objects.filter(
-            estudiante__registro=estudiante_registro,
+            estudiante_carrera__estudiante__registro=estudiante_registro,
             activo=True,
             resuelto=False
         ).exists()
@@ -39,8 +39,8 @@ class BloqueoService:
             Lista de bloqueos
         """
         queryset = Bloqueo.objects.filter(
-            estudiante__registro=estudiante_registro
-        ).select_related('estudiante')
+            estudiante_carrera__estudiante__registro=estudiante_registro
+        ).select_related('estudiante_carrera__estudiante')
         
         if solo_activos:
             queryset = queryset.filter(activo=True, resuelto=False)
@@ -65,8 +65,8 @@ class BloqueoService:
         estudiante_registro: str, 
         tipo: str, 
         motivo: str, 
-        fecha_desbloqueo: date = None
-    ) -> Bloqueo:
+        fecha_desbloqueo: Optional[date] = None
+    ) -> Optional[Bloqueo]:
         """
         Crea un nuevo bloqueo para un estudiante
         
@@ -80,9 +80,19 @@ class BloqueoService:
             Bloqueo creado
         """
         try:
-            estudiante = Estudiante.objects.get(registro=estudiante_registro)
+            from inscripcion.models import EstudianteCarrera
+            # Nota: Si se crea un bloqueo sin especificar carrera, se aplica a la primera activa
+            # En un sistema real, debería pedirse la carrera.
+            est_carrera = EstudianteCarrera.objects.filter(
+                estudiante__registro=estudiante_registro,
+                activa=True
+            ).first()
+            
+            if not est_carrera:
+                return None
+
             bloqueo = Bloqueo.objects.create(
-                estudiante=estudiante,
+                estudiante_carrera=est_carrera,
                 tipo=tipo,
                 motivo=motivo,
                 fecha_desbloqueo_estimada=fecha_desbloqueo,
@@ -90,7 +100,7 @@ class BloqueoService:
                 resuelto=False
             )
             return bloqueo
-        except Estudiante.DoesNotExist:
+        except Exception:
             return None
     
     @staticmethod

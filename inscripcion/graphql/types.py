@@ -2,7 +2,8 @@ import graphene
 from graphene_django import DjangoObjectType
 from ..models import (
     Carrera, PlanEstudios, Materia, MateriaCarreraSemestre,
-    Estudiante, PeriodoAcademico, Inscripcion, InscripcionMateria, Bloqueo
+    Estudiante, EstudianteCarrera, PeriodoAcademico, Inscripcion, 
+    InscripcionMateria, Bloqueo
 )
 
 class CarreraType(DjangoObjectType):
@@ -35,15 +36,25 @@ class EstudianteType(DjangoObjectType):
     def resolve_nombre_completo(self, info):
         return self.nombre_completo
 
+class EstudianteCarreraType(DjangoObjectType):
+    class Meta:
+        model = EstudianteCarrera
+        fields = ('estudiante', 'carrera', 'plan_estudios', 'semestre_actual', 'modalidad', 'activa')
+
 class PeriodoAcademicoType(DjangoObjectType):
     class Meta:
         model = PeriodoAcademico
         fields = '__all__'
 
 class InscripcionType(DjangoObjectType):
+    estudiante = graphene.Field('inscripcion.graphql.types.EstudianteType')
+    
     class Meta:
         model = Inscripcion
         fields = '__all__'
+        
+    def resolve_estudiante(self, info):
+        return self.estudiante_carrera.estudiante
 
 class InscripcionMateriaType(DjangoObjectType):
     class Meta:
@@ -169,3 +180,9 @@ class BoletaInscripcionType(graphene.ObjectType):
     total_creditos = graphene.Int()
     total_materias = graphene.Int()
 
+class FechasInscripcionType(graphene.ObjectType):
+    """Información de fechas de inscripción para compatibilidad"""
+    fecha_inicio = graphene.String()
+    fecha_fin = graphene.String()
+    grupo = graphene.String()
+    estado = graphene.String()

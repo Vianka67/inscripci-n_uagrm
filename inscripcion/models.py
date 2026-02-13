@@ -82,24 +82,12 @@ class MateriaCarreraSemestre(models.Model):
 
 
 class Estudiante(models.Model):
-    """Modelo para los estudiantes"""
-    MODALIDAD_CHOICES = [
-        ('PRESENCIAL', 'Presencial'),
-        ('SEMIPRESENCIAL', 'Semipresencial'),
-        ('VIRTUAL', 'Virtual'),
-    ]
-    
+    """Modelo para los estudiantes (Información Personal)"""
     registro = models.CharField(max_length=20, unique=True, primary_key=True, verbose_name="Registro Universitario")
+    documento_identidad = models.CharField(max_length=20, verbose_name="Documento de Identidad", default="0")
     nombre = models.CharField(max_length=100, verbose_name="Nombre")
     apellido_paterno = models.CharField(max_length=100, verbose_name="Apellido Paterno")
     apellido_materno = models.CharField(max_length=100, blank=True, verbose_name="Apellido Materno")
-    carrera_actual = models.ForeignKey(Carrera, on_delete=models.PROTECT, related_name='estudiantes')
-    semestre_actual = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(20)],
-        verbose_name="Semestre Actual"
-    )
-    plan_estudios = models.ForeignKey(PlanEstudios, on_delete=models.PROTECT, related_name='estudiantes')
-    modalidad = models.CharField(max_length=20, choices=MODALIDAD_CHOICES, default='PRESENCIAL')
     lugar_origen = models.CharField(max_length=200, verbose_name="Lugar de Origen")
     email = models.EmailField(blank=True, verbose_name="Correo Electrónico")
     telefono = models.CharField(max_length=20, blank=True, verbose_name="Teléfono")
@@ -120,6 +108,32 @@ class Estudiante(models.Model):
         if self.apellido_materno:
             return f"{self.nombre} {self.apellido_paterno} {self.apellido_materno}"
         return f"{self.nombre} {self.apellido_paterno}"
+
+
+class EstudianteCarrera(models.Model):
+    """Relación entre Estudiante y Carrera (Información Académica)"""
+    MODALIDAD_CHOICES = [
+        ('PRESENCIAL', 'Presencial'),
+        ('SEMIPRESENCIAL', 'Semipresencial'),
+        ('VIRTUAL', 'Virtual'),
+    ]
+    
+    estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE, related_name='carreras')
+    carrera = models.ForeignKey(Carrera, on_delete=models.PROTECT, related_name='estudiantes_inscritos')
+    plan_estudios = models.ForeignKey(PlanEstudios, on_delete=models.PROTECT)
+    semestre_actual = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(20)],
+        verbose_name="Semestre Actual"
+    )
+    modalidad = models.CharField(max_length=20, choices=MODALIDAD_CHOICES, default='PRESENCIAL')
+    activa = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Carrera de Estudiante"
+        verbose_name_plural = "Carreras de Estudiante"
+
+    def __str__(self):
+        return f"{self.estudiante.registro} - {self.carrera.nombre}"
 
 
 class PeriodoAcademico(models.Model):
@@ -157,7 +171,7 @@ class Bloqueo(models.Model):
         ('DISCIPLINARIO', 'Bloqueo Disciplinario'),
     ]
     
-    estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE, related_name='bloqueos')
+    estudiante_carrera = models.ForeignKey(EstudianteCarrera, on_delete=models.CASCADE, related_name='bloqueos')
     tipo = models.CharField(max_length=20, choices=TIPO_BLOQUEO_CHOICES, verbose_name="Tipo de Bloqueo")
     motivo = models.TextField(verbose_name="Motivo del Bloqueo")
     fecha_bloqueo = models.DateField(auto_now_add=True, verbose_name="Fecha de Bloqueo")
@@ -173,7 +187,7 @@ class Bloqueo(models.Model):
         ordering = ['-fecha_bloqueo']
     
     def __str__(self):
-        return f"Bloqueo {self.tipo} - {self.estudiante.registro}"
+        return f"Bloqueo {self.tipo} - {self.estudiante_carrera.estudiante.registro} ({self.estudiante_carrera.carrera.codigo})"
 
 
 class OfertaMateria(models.Model):
@@ -204,7 +218,7 @@ class Inscripcion(models.Model):
         ('CANCELADA', 'Cancelada'),
     ]
     
-    estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE, related_name='inscripciones')
+    estudiante_carrera = models.ForeignKey(EstudianteCarrera, on_delete=models.CASCADE, related_name='inscripciones')
     periodo_academico = models.ForeignKey(PeriodoAcademico, on_delete=models.CASCADE, related_name='inscripciones')
     fecha_inscripcion_asignada = models.DateField(verbose_name="Fecha de Inscripción Asignada")
     fecha_inscripcion_realizada = models.DateTimeField(null=True, blank=True, verbose_name="Fecha de Inscripción Realizada")
@@ -217,11 +231,11 @@ class Inscripcion(models.Model):
     class Meta:
         verbose_name = "Inscripción"
         verbose_name_plural = "Inscripciones"
-        unique_together = ['estudiante', 'periodo_academico']
+        unique_together = ['estudiante_carrera', 'periodo_academico']
         ordering = ['-fecha_inscripcion_asignada']
     
     def __str__(self):
-        return f"Inscripción {self.estudiante.registro} - {self.periodo_academico.codigo}"
+        return f"Inscripción {self.estudiante_carrera.estudiante.registro} - {self.estudiante_carrera.carrera.codigo} - {self.periodo_academico.codigo}"
 
 
 class InscripcionMateria(models.Model):

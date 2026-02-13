@@ -13,17 +13,15 @@ class PanelService:
     """Servicio para obtener toda la información del panel del estudiante"""
     
     @staticmethod
-    def get_panel_estudiante(registro: str) -> Dict[str, Any]:
+    def get_panel_estudiante(registro: str, codigo_carrera: str = None) -> Dict[str, Any]:
         """
         Obtiene toda la información necesaria para el panel principal del estudiante
         
         Args:
-            registro: Registro universitario del estudiante
-            
-        Returns:
-            Diccionario con toda la información del panel
+            registro: Registro universitario del estudiante (login inicial)
+            codigo_carrera: Opcional, código de la carrera a mostrar
         """
-        # Obtener estudiante
+        # Obtener información personal del estudiante
         estudiante = EstudianteService.get_by_registro(registro)
         if not estudiante:
             return {
@@ -31,14 +29,37 @@ class PanelService:
                 'estudiante': None
             }
         
+        # Obtener información académica de la carrera (específica o la primera disponible)
+        carreras = EstudianteService.get_carreras_estudiante(registro)
+        if not carreras.exists():
+            return {
+                'error': 'El estudiante no tiene carreras registradas',
+                'estudiante': estudiante
+            }
+
+        est_carrera = None
+        if codigo_carrera:
+            est_carrera = EstudianteService.get_carrera_especifica(registro, codigo_carrera)
+        
+        if not est_carrera:
+            est_carrera = carreras.first()
+
         # Obtener periodo actual
         periodo_actual = PeriodoAcademicoService.get_periodo_habilitado_inscripcion()
         
-        # Obtener inscripción actual
-        inscripcion = InscripcionService.get_inscripcion_actual(registro)
+        # Obtener inscripción actual vinculada a ESTA carrera del estudiante
+        inscripcion = None
+        from ..models import Inscripcion
+        try:
+            inscripcion = Inscripcion.objects.get(
+                estudiante_carrera=est_carrera,
+                periodo_academico=periodo_actual
+            ) if periodo_actual else None
+        except Inscripcion.DoesNotExist:
+            pass
         
-        # Obtener información de bloqueos
-        tiene_bloqueos = BloqueoService.tiene_bloqueos_activos(registro)
+        # Obtener información de bloqueos (vinculados a la carrera)
+        tiene_bloqueos = est_carrera.bloqueos.filter(activo=True).exists()
         
         # Determinar estado del estudiante
         estado = "BLOQUEADO" if tiene_bloqueos else "ACTIVO"
@@ -60,13 +81,13 @@ class PanelService:
                 'apellido_materno': estudiante.apellido_materno,
             },
             'carrera': {
-                'codigo': estudiante.carrera_actual.codigo,
-                'nombre': estudiante.carrera_actual.nombre,
-                'tipo': 'Semestral',  # Basado en que tiene semestres
-                'facultad': estudiante.carrera_actual.facultad,
+                'codigo': est_carrera.carrera.codigo,
+                'nombre': est_carrera.carrera.nombre,
+                'tipo': 'Semestral',
+                'facultad': est_carrera.carrera.facultad,
             },
-            'modalidad': estudiante.get_modalidad_display(),
-            'semestre_actual': estudiante.semestre_actual,
+            'modalidad': est_carrera.get_modalidad_display(),
+            'semestre_actual': est_carrera.semestre_actual,
             'estado': estado,
             'periodo_actual': None,
             'opciones_disponibles': opciones_disponibles,
@@ -135,12 +156,13 @@ class PanelService:
         return opciones
     
     @staticmethod
-    def get_info_boleta(registro: str) -> Optional[Dict[str, Any]]:
+    def get_info_boleta(registro: str, codigo_carrera: str = None) -> Optional[Dict[str, Any]]:
         """
         Obtiene la información completa de la boleta de inscripción
         
         Args:
             registro: Registro del estudiante
+            codigo_carrera: Código de la carrera (opcional)
             
         Returns:
             Diccionario con información de la boleta o None
@@ -149,7 +171,7 @@ class PanelService:
         if not estudiante:
             return None
         
-        inscripcion = InscripcionService.get_boleta_estudiante(registro)
+        inscripcion = InscripcionService.get_boleta_estudiante(registro, codigo_carrera=codigo_carrera)
         if not inscripcion:
             return None
         
@@ -176,8 +198,8 @@ class PanelService:
                 'nombre_completo': estudiante.nombre_completo,
             },
             'carrera': {
-                'codigo': estudiante.carrera_actual.codigo,
-                'nombre': estudiante.carrera_actual.nombre,
+                'codigo': inscripcion.estudiante_carrera.carrera.codigo,
+                'nombre': inscripcion.estudiante_carrera.carrera.nombre,
             },
             'periodo': {
                 'codigo': inscripcion.periodo_academico.codigo,
