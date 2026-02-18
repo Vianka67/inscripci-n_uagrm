@@ -3,7 +3,7 @@ from graphene_django import DjangoObjectType
 from inscripcion.models import (
     Carrera, PlanEstudios, Materia, MateriaCarreraSemestre,
     Estudiante, EstudianteCarrera, PeriodoAcademico, Inscripcion, 
-    InscripcionMateria, Bloqueo
+    InscripcionMateria, Bloqueo, OfertaMateria
 )
 
 class CarreraType(DjangoObjectType):
@@ -65,6 +65,28 @@ class BloqueoType(DjangoObjectType):
     class Meta:
         model = Bloqueo
         fields = '__all__'
+
+class OfertaMateriaType(DjangoObjectType):
+    materia_nombre = graphene.String()
+    materia_codigo = graphene.String()
+    carrera_nombre = graphene.String()
+    cupos_disponibles = graphene.Int()
+    
+    class Meta:
+        model = OfertaMateria
+        fields = '__all__'
+        
+    def resolve_materia_nombre(self, info):
+        return self.materia_carrera.materia.nombre
+        
+    def resolve_materia_codigo(self, info):
+        return self.materia_carrera.materia.codigo
+        
+    def resolve_carrera_nombre(self, info):
+        return self.materia_carrera.carrera.nombre
+        
+    def resolve_cupos_disponibles(self, info):
+        return self.cupo_maximo - self.cupo_actual
 
 
 # ========== TIPOS COMPUESTOS PARA RESPUESTAS ==========

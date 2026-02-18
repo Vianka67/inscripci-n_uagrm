@@ -3,7 +3,8 @@ from inscripcion.graphql.types import (
     CarreraType, EstudianteType, EstudianteCarreraType, MateriaCarreraSemestreType, 
     PeriodoAcademicoType, InscripcionType, MateriaType, PlanEstudiosType,
     BloqueoType, PanelEstudianteType, SemestresPorCarreraType, 
-    BloqueoEstudianteType, BoletaInscripcionType, FechasInscripcionType
+    BloqueoEstudianteType, BoletaInscripcionType, FechasInscripcionType,
+    OfertaMateriaType
 )
 from inscripcion.services import (
     EstudianteService, InscripcionService, PeriodoAcademicoService,
@@ -41,6 +42,19 @@ class Query(graphene.ObjectType):
         BoletaInscripcionType,
         registro=graphene.String(required=True),
         description="Obtiene la boleta de inscripción completa del estudiante"
+    )
+    
+    # Grupos/Ofertas de materias con filtros
+    ofertas_materia = graphene.List(
+        OfertaMateriaType,
+        codigo_materia=graphene.String(),
+        codigo_carrera=graphene.String(),
+        codigo_periodo=graphene.String(),
+        turno=graphene.String(),
+        tiene_cupo=graphene.Boolean(),
+        docente=graphene.String(),
+        grupo=graphene.String(),
+        description="Obtiene las ofertas de materias (grupos) con filtros dinámicos"
     )
     
     # ========== QUERIES EXISTENTES (COMPATIBILIDAD) ==========
@@ -113,6 +127,10 @@ class Query(graphene.ObjectType):
     def resolve_boleta_inscripcion(self, info, registro):
         """Resolver para obtener boleta de inscripción"""
         return PanelService.get_info_boleta(registro)
+
+    def resolve_ofertas_materia(self, info, **kwargs):
+        """Resolver para obtener ofertas de materias con filtros"""
+        return InscripcionService.get_ofertas_filtered(**kwargs)
 
     # ================= RESOLVERS EXISTENTES =================
     
