@@ -1,0 +1,13 @@
+.git
+.venv
+venv
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.db.sqlite3
+.db
+inscripcion_frontend
+.idea
+.vscode
+*.log

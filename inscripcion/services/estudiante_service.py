@@ -2,7 +2,7 @@
 Servicio para gestión de estudiantes
 """
 from typing import Optional
-from ..models import Estudiante
+from inscripcion.models import Estudiante
 
 
 class EstudianteService:
@@ -23,7 +23,7 @@ class EstudianteService:
         """
         Obtiene todas las carreras activas vinculadas a un registro
         """
-        from ..models import EstudianteCarrera
+        from inscripcion.models import EstudianteCarrera
         return EstudianteCarrera.objects.select_related('carrera', 'plan_estudios').filter(
             estudiante__registro=registro,
             activa=True
@@ -34,7 +34,7 @@ class EstudianteService:
         """
         Obtiene la información académica de una carrera específica para un estudiante
         """
-        from ..models import EstudianteCarrera
+        from inscripcion.models import EstudianteCarrera
         try:
             return EstudianteCarrera.objects.select_related('carrera', 'plan_estudios').get(
                 estudiante__registro=registro,

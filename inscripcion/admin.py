@@ -122,8 +122,8 @@ class BloqueoAdmin(admin.ModelAdmin):
     
     readonly_fields = ['fecha_bloqueo']
     
+    @admin.display(description='Motivo')
     def motivo_corto(self, obj):
         """Muestra una versión corta del motivo"""
         return obj.motivo[:50] + '...' if len(obj.motivo) > 50 else obj.motivo
-    motivo_corto.short_description = 'Motivo'
 

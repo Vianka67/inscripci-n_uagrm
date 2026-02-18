@@ -2,7 +2,7 @@
 Servicio para gestión de inscripciones
 """
 from typing import Optional, List
-from ..models import Inscripcion, PeriodoAcademico, MateriaCarreraSemestre
+from inscripcion.models import Inscripcion, PeriodoAcademico, MateriaCarreraSemestre
 from .periodo_service import PeriodoAcademicoService
 from .estudiante_service import EstudianteService
 
@@ -11,7 +11,7 @@ class InscripcionService:
     """Servicio para operaciones relacionadas con inscripciones"""
     
     @staticmethod
-    def get_inscripcion_actual(estudiante_registro: str, codigo_periodo: str = None, codigo_carrera: str = None) -> Optional[Inscripcion]:
+    def get_inscripcion_actual(estudiante_registro: str, codigo_periodo: Optional[str] = None, codigo_carrera: Optional[str] = None) -> Optional[Inscripcion]:
         """
         Obtiene la inscripción actual de un estudiante para una carrera específica
         
@@ -47,7 +47,7 @@ class InscripcionService:
             return None
     
     @staticmethod
-    def get_materias_habilitadas(estudiante_registro: str, codigo_carrera: str = None) -> List[MateriaCarreraSemestre]:
+    def get_materias_habilitadas(estudiante_registro: str, codigo_carrera: Optional[str] = None) -> List[MateriaCarreraSemestre]:
         """
         Obtiene las materias habilitadas para un estudiante según su carrera y semestre
         
@@ -60,7 +60,7 @@ class InscripcionService:
         """
         # Buscar la información académica de la carrera
         try:
-            from ..models import EstudianteCarrera
+            from inscripcion.models import EstudianteCarrera
             est_carrera_query = EstudianteCarrera.objects.select_related('carrera', 'plan_estudios').filter(
                 estudiante__registro=estudiante_registro,
                 activa=True
@@ -84,7 +84,7 @@ class InscripcionService:
             return []
     
     @staticmethod
-    def get_boleta_estudiante(estudiante_registro: str, codigo_periodo: str = None, codigo_carrera: str = None):
+    def get_boleta_estudiante(estudiante_registro: str, codigo_periodo: Optional[str] = None, codigo_carrera: Optional[str] = None):
         """
         Obtiene la boleta de inscripción de un estudiante
         

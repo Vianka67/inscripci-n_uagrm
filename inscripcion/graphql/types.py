@@ -1,6 +1,6 @@
 import graphene
 from graphene_django import DjangoObjectType
-from ..models import (
+from inscripcion.models import (
     Carrera, PlanEstudios, Materia, MateriaCarreraSemestre,
     Estudiante, EstudianteCarrera, PeriodoAcademico, Inscripcion, 
     InscripcionMateria, Bloqueo
