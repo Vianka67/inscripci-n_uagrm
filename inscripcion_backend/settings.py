@@ -69,11 +69,11 @@ WSGI_APPLICATION = 'inscripcion_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'inscripcion_db',
-        'USER': 'admin',
-        'PASSWORD': 'admin123',
+        'NAME': os.environ.get('DB_NAME', 'inscripcion_db'),
+        'USER': os.environ.get('DB_USER', 'admin'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'admin123'),
         'HOST': os.environ.get('DB_HOST', 'db'),
-        'PORT': '5432',
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
 

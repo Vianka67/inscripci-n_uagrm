@@ -10,7 +10,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# lib/ (Eliminado para permitir carpeta lib de Flutter)
 lib64/
 parts/
 sdist/

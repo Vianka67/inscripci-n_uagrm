@@ -2,6 +2,7 @@
 Servicio para gestión de inscripciones
 """
 from typing import Optional, List
+from django.db import models
 from inscripcion.models import Inscripcion, PeriodoAcademico, MateriaCarreraSemestre
 from .periodo_service import PeriodoAcademicoService
 from .estudiante_service import EstudianteService
@@ -102,3 +103,75 @@ class InscripcionService:
             return inscripcion
         
         return None
+
+    @staticmethod
+    def get_ofertas_filtered(
+        codigo_materia: Optional[str] = None,
+        codigo_carrera: Optional[str] = None,
+        codigo_periodo: Optional[str] = None,
+        turno: Optional[str] = None,
+        tiene_cupo: Optional[bool] = None,
+        docente: Optional[str] = None,
+        grupo: Optional[str] = None
+    ) -> List:
+        """
+        Obtiene ofertas de materias filtradas según múltiples criterios
+        """
+        from inscripcion.models import OfertaMateria, PeriodoAcademico
+        
+        # Obtener periodo activo si no se provee
+        if not codigo_periodo:
+            periodo = PeriodoAcademico.objects.filter(activo=True).first()
+        else:
+            periodo = PeriodoAcademico.objects.filter(codigo=codigo_periodo).first()
+            
+        if not periodo:
+            return []
+            
+        queryset = OfertaMateria.objects.filter(periodo=periodo).select_related(
+            'materia_carrera__materia',
+            'materia_carrera__carrera'
+        )
+        
+        if codigo_materia:
+            queryset = queryset.filter(materia_carrera__materia__codigo=codigo_materia)
+            
+        if codigo_carrera:
+            queryset = queryset.filter(materia_carrera__carrera__codigo=codigo_carrera)
+            
+        if grupo:
+            queryset = queryset.filter(grupo=grupo)
+            
+        if docente:
+            if docente.upper() == "POR DESIGNAR":
+                queryset = queryset.filter(models.Q(docente__isnull=True) | models.Q(docente="") | models.Q(docente__iexact="Por designar"))
+            else:
+                queryset = queryset.filter(docente__icontains=docente)
+                
+        if tiene_cupo is not None:
+            if tiene_cupo:
+                queryset = queryset.filter(cupo_actual__lt=models.F('cupo_maximo'))
+            else:
+                queryset = queryset.filter(cupo_actual__gte=models.F('cupo_maximo'))
+                
+        # Filtrado por Turno (lógica basada en horario)
+        # Mañana: 07:00 - 12:00
+        # Tarde: 12:00 - 18:00
+        # Noche: 18:00 - 22:00
+        if turno:
+            turno = turno.upper()
+            if turno == "MAÑANA":
+                # Buscamos patrones típicos de mañana en el string de horario
+                queryset = queryset.filter(horario__icontains="07:") | queryset.filter(horario__icontains="08:") | \
+                           queryset.filter(horario__icontains="09:") | queryset.filter(horario__icontains="10:") | \
+                           queryset.filter(horario__icontains="11:")
+            elif turno == "TARDE":
+                queryset = queryset.filter(horario__icontains="12:") | queryset.filter(horario__icontains="13:") | \
+                           queryset.filter(horario__icontains="14:") | queryset.filter(horario__icontains="15:") | \
+                           queryset.filter(horario__icontains="16:") | queryset.filter(horario__icontains="17:")
+            elif turno == "NOCHE":
+                queryset = queryset.filter(horario__icontains="18:") | queryset.filter(horario__icontains="19:") | \
+                           queryset.filter(horario__icontains="20:") | queryset.filter(horario__icontains="21:") | \
+                           queryset.filter(horario__icontains="22:")
+
+        return list(queryset)

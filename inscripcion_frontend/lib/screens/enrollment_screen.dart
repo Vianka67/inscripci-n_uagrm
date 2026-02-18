@@ -13,38 +13,59 @@ class EnrollmentScreen extends StatefulWidget {
 }
 
 class _EnrollmentScreenState extends State<EnrollmentScreen> {
+  String? selectedPeriod;
+  
+  // Filtros
+  String selectedTurno = 'TODOS';
+  String selectedCupos = 'TODOS';
+  String? selectedDocente = 'TODOS';
+  String selectedGrupo = 'TODOS';
+  
+  // Selección de materias y grupos
+  Set<String> selectedSubjectCodes = {};
+  Map<String, dynamic> selectedGroupsPerSubject = {}; // materia_codigo -> oferta_data
+
   @override
   void initState() {
     super.initState();
-    // Configurar barra de estado para esta pantalla
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light, // Iconos claros para fondo azul
+        statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
       ),
     );
   }
 
-  String? selectedPeriod;
-
-  // Periodos de ejemplo (hardcoded por ahora)
+  // Periodos de ejemplo
   final List<Map<String, dynamic>> periods = [
     {'nombre': '1/2026', 'activo': true},
-    {'nombre': '3/2026', 'activo': false},
   ];
 
-  final String getSubjectsQuery = """
-    query GetEnabledSubjects(\$registro: String!, \$codigoCarrera: String) {
-      materiasHabilitadas(registro: \$registro, codigoCarrera: \$codigoCarrera) {
-        materia {
-          codigo
-          nombre
-          creditos
-        }
-        semestre
-        obligatoria
-        habilitada
+  final String getOfertasQuery = """
+    query GetOfertasFiltered(
+      \$codigoCarrera: String,
+      \$turno: String,
+      \$tieneCupo: Boolean,
+      \$docente: String,
+      \$grupo: String
+    ) {
+      ofertasMateria(
+        codigoCarrera: \$codigoCarrera,
+        turno: \$turno,
+        tieneCupo: \$tieneCupo,
+        docente: \$docente,
+        grupo: \$grupo
+      ) {
+        id
+        grupo
+        docente
+        horario
+        cupoMaximo
+        cupoActual
+        cuposDisponibles
+        materiaCodigo
+        materiaNombre
       }
     }
   """;
@@ -53,301 +74,349 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<RegistrationProvider>();
     final studentRegister = provider.studentRegister;
+    final codigoCarrera = provider.selectedCareer?.code;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Inscripción'),
-        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [UAGRMTheme.primaryBlue, Color(0xFF1565C0)],
+        child: selectedPeriod == null 
+          ? _buildPeriodSelection()
+          : _buildEnrollmentFlow(studentRegister ?? '', codigoCarrera ?? ''),
+      ),
+    );
+  }
+
+  Widget _buildPeriodSelection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [UAGRMTheme.primaryBlue, Color(0xFF1565C0)],
+            ),
+          ),
+          child: const Column(
+            children: [
+              Icon(Icons.app_registration, size: 48, color: Colors.white),
+              SizedBox(height: 8),
+              Text(
+                'Selecciona el Periodo',
+                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: periods.length,
+            itemBuilder: (context, index) {
+              final period = periods[index];
+              final periodName = period['nombre'] ?? '';
+              final isActive = period['activo'] ?? false;
+
+              return Card(
+                elevation: 4,
+                margin: const EdgeInsets.only(bottom: 12),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(16),
+                  leading: const Icon(Icons.calendar_today, color: UAGRMTheme.primaryBlue),
+                  title: Text(periodName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  subtitle: Text(isActive ? 'Activo' : 'Inactivo', 
+                    style: TextStyle(color: isActive ? UAGRMTheme.successGreen : UAGRMTheme.textGrey)),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: isActive ? () => setState(() => selectedPeriod = periodName) : null,
                 ),
-              ),
-              child: const Column(
-                children: [
-                  Icon(Icons.app_registration, size: 48, color: Colors.white),
-                  SizedBox(height: 8),
-                  Text(
-                    'Selecciona el Periodo',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
 
-            // Period List
-            Expanded(
-              child: ListView.builder(
+  Widget _buildEnrollmentFlow(String registro, String codigoCarrera) {
+    return Column(
+      children: [
+        // Filtros
+        _buildFiltersSection(),
+        
+        // Mensaje superior y Checkbox Maestro
+        _buildSelectAllHeader(),
+
+        // Contenido Principal (Tablas)
+        Expanded(
+          child: Query(
+            options: QueryOptions(
+              document: gql(getOfertasQuery),
+              variables: {
+                'codigoCarrera': codigoCarrera,
+                'turno': selectedTurno == 'TODOS' ? null : selectedTurno,
+                'tieneCupo': selectedCupos == 'TODOS' ? null : (selectedCupos == 'CON CUPO'),
+                'docente': selectedDocente == 'TODOS' ? null : selectedDocente,
+                'grupo': selectedGrupo == 'TODOS' ? null : selectedGrupo,
+              },
+            ),
+            builder: (QueryResult result, {VoidCallback? refetch, FetchMore? fetchMore}) {
+              if (result.isLoading) return const Center(child: CircularProgressIndicator());
+              if (result.hasException) return _buildError(result.exception.toString(), refetch);
+
+              final ofertas = result.data?['ofertasMateria'] as List<dynamic>? ?? [];
+              
+              // Agrupar ofertas por materia para la primera tabla
+              Map<String, List<dynamic>> subjectsMap = {};
+              for (var o in ofertas) {
+                final code = o['materiaCodigo'];
+                if (!subjectsMap.containsKey(code)) subjectsMap[code] = [];
+                subjectsMap[code]!.add(o);
+              }
+              
+              final distinctSubjects = subjectsMap.keys.toList();
+
+              return SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
-                itemCount: periods.length,
-                itemBuilder: (context, index) {
-                  final period = periods[index];
-                  final periodName = period['nombre'] ?? '';
-                  final isActive = period['activo'] ?? false;
-                  final isSelected = selectedPeriod == periodName;
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSubjectsTable(distinctSubjects, subjectsMap),
+                    const SizedBox(height: 24),
+                    _buildConfirmedGroupsTable(),
+                    const SizedBox(height: 32),
+                    _buildFinalActions(),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
 
-                  return GestureDetector(
-                    onTap: isActive
-                        ? () {
-                            setState(() => selectedPeriod = periodName);
-                            _showSubjectsForPeriod(context, studentRegister ?? '');
-                          }
-                        : null,
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isSelected
-                              ? UAGRMTheme.primaryBlue
-                              : Colors.grey.shade300,
-                          width: isSelected ? 2 : 1,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: isSelected
-                                ? UAGRMTheme.primaryBlue.withOpacity(0.2)
-                                : Colors.black12,
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: isActive
-                                  ? UAGRMTheme.primaryBlue.withOpacity(0.1)
-                                  : Colors.grey.shade200,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Icon(
-                              Icons.calendar_today,
-                              color: isActive
-                                  ? UAGRMTheme.primaryBlue
-                                  : UAGRMTheme.textGrey,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  periodName,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: UAGRMTheme.textDark,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  isActive ? 'Activo' : 'Inactivo',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: isActive
-                                        ? UAGRMTheme.successGreen
-                                        : UAGRMTheme.textGrey,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (isActive)
-                            const Icon(
-                              Icons.arrow_forward_ios,
-                              color: UAGRMTheme.primaryBlue,
-                              size: 20,
-                            ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
+  Widget _buildFiltersSection() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      color: Colors.grey.shade100,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            _buildFilterButton('Turno', selectedTurno, ['TODOS', 'MAÑANA', 'TARDE', 'NOCHE'], (v) => setState(() => selectedTurno = v)),
+            _buildFilterButton('Cupos', selectedCupos, ['TODOS', 'CON CUPO', 'SIN CUPO'], (v) => setState(() => selectedCupos = v)),
+            _buildFilterButton('Docente', selectedDocente ?? 'TODOS', ['TODOS', 'POR DESIGNAR'], (v) => setState(() => selectedDocente = v)),
+            _buildFilterButton('Grupo', selectedGrupo, ['TODOS', 'AC', 'BD', 'AB', 'D', 'A', 'B', 'C'], (v) => setState(() => selectedGrupo = v)),
           ],
         ),
       ),
     );
   }
 
-  void _showSubjectsForPeriod(BuildContext context, String registro) {
-    final provider = context.read<RegistrationProvider>();
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.9,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        builder: (_, controller) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  Widget _buildFilterButton(String label, String current, List<String> options, Function(String) onSelect) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: PopupMenuButton<String>(
+        onSelected: onSelect,
+        itemBuilder: (context) => options.map((o) => PopupMenuItem(value: o, child: Text(o))).toList(),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: current == 'TODOS' ? Colors.white : UAGRMTheme.primaryBlue.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: current == 'TODOS' ? Colors.grey.shade300 : UAGRMTheme.primaryBlue),
           ),
-          child: Column(
+          child: Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  color: UAGRMTheme.primaryBlue,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                ),
-                child: Row(
-                  children: [
-                    const Expanded(
-                      child: Text(
-                        'Materias Disponibles',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Query(
-                  options: QueryOptions(
-                    document: gql(getSubjectsQuery),
-                    variables: {
-                      'registro': registro,
-                      'codigoCarrera': provider.selectedCareer?.code,
-                    },
-                  ),
-                  builder: (QueryResult result, {VoidCallback? refetch, FetchMore? fetchMore}) {
-                    if (result.isLoading) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    if (result.hasException) {
-                      return Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.error_outline, color: UAGRMTheme.errorRed, size: 48),
-                              const SizedBox(height: 16),
-                              const Text(
-                                'Error al cargar materias',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                result.exception.toString(),
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 12, color: UAGRMTheme.textGrey),
-                              ),
-                              const SizedBox(height: 16),
-                              ElevatedButton(
-                                onPressed: refetch,
-                                child: const Text('Reintentar'),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }
-
-                    final subjectsData = result.data?['materiasHabilitadas'] as List<dynamic>? ?? [];
-
-                    if (subjectsData.isEmpty) {
-                      return const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(24.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.school_outlined, size: 64, color: UAGRMTheme.textGrey),
-                              SizedBox(height: 16),
-                              Text(
-                                'No hay materias disponibles',
-                                style: TextStyle(fontSize: 16, color: UAGRMTheme.textGrey),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }
-
-                    return ListView.builder(
-                      controller: controller,
-                      padding: const EdgeInsets.all(16),
-                      itemCount: subjectsData.length,
-                      itemBuilder: (context, index) {
-                        final subject = subjectsData[index];
-                        final materia = subject['materia'];
-                        final isEnabled = subject['habilitada'] ?? false;
-
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: isEnabled
-                                  ? UAGRMTheme.successGreen
-                                  : UAGRMTheme.textGrey,
-                              child: Text(
-                                '${subject['semestre']}',
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            ),
-                            title: Text(
-                              materia['nombre'] ?? '',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: Text('Código: ${materia['codigo']} • ${materia['creditos']} créditos'),
-                            trailing: isEnabled
-                                ? ElevatedButton(
-                                    onPressed: () {
-                                      // TODO: Implement enrollment logic
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Funcionalidad de inscripción próximamente'),
-                                        ),
-                                      );
-                                    },
-                                    child: const Text('Inscribir'),
-                                  )
-                                : const Chip(
-                                    label: Text('No habilitada'),
-                                    backgroundColor: Colors.grey,
-                                  ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
+              Text('$label: ', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              Text(current, style: TextStyle(color: current == 'TODOS' ? UAGRMTheme.textDark : UAGRMTheme.primaryBlue, fontSize: 12)),
+              const Icon(Icons.arrow_drop_down, size: 18),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSelectAllHeader() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text(
+            "Seleccione Todas las Materias",
+            style: TextStyle(fontWeight: FontWeight.bold, color: UAGRMTheme.textDark),
+          ),
+          Checkbox(
+            value: false, // Lógica de "todos" simplificada
+            onChanged: (val) {
+              // Implementar si es necesario marcar todas las visibles
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubjectsTable(List<String> codes, Map<String, List<dynamic>> map) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text("MATERIAS DISPONIBLES", style: TextStyle(fontWeight: FontWeight.bold, color: UAGRMTheme.primaryBlue)),
+        const SizedBox(height: 8),
+        Table(
+          border: TableBorder.all(color: Colors.grey.shade300, width: 1),
+          columnWidths: const {
+            0: FixedColumnWidth(50),
+            1: FixedColumnWidth(80),
+            2: FlexColumnWidth(),
+          },
+          children: [
+            _buildTableHeader(['OK', 'SIGLA', 'NOMBRE']),
+            ...codes.map((code) {
+              final name = map[code]![0]['materiaNombre'];
+              final isSelected = selectedSubjectCodes.contains(code);
+              return TableRow(
+                children: [
+                  TableCell(child: Checkbox(
+                    value: isSelected,
+                    onChanged: (val) {
+                      setState(() {
+                        if (val == true) {
+                          selectedSubjectCodes.add(code);
+                          // Auto-seleccionar el primer grupo disponible
+                          if (map[code]!.isNotEmpty) {
+                            selectedGroupsPerSubject[code] = map[code]![0];
+                          }
+                        } else {
+                          selectedSubjectCodes.remove(code);
+                          selectedGroupsPerSubject.remove(code);
+                        }
+                      });
+                    },
+                  )),
+                  TableCell(child: Padding(padding: const EdgeInsets.all(8), child: Text(code, style: const TextStyle(fontSize: 12)))),
+                  TableCell(child: Padding(padding: const EdgeInsets.all(8), child: Text(name, style: const TextStyle(fontSize: 12)))),
+                ],
+              );
+            }),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildConfirmedGroupsTable() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text("CONFIRMAR GRUPOS SELECCIONADOS", style: TextStyle(fontWeight: FontWeight.bold, color: UAGRMTheme.primaryBlue)),
+        const SizedBox(height: 8),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Table(
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            border: TableBorder.all(color: Colors.grey.shade300, width: 1),
+            columnWidths: const {
+              0: FixedColumnWidth(60),
+              1: FixedColumnWidth(140),
+              2: FixedColumnWidth(60),
+              3: FixedColumnWidth(100),
+              4: FixedColumnWidth(100),
+              5: FixedColumnWidth(50),
+            },
+            children: [
+              _buildTableHeader(['SIGLA', 'MATERIA', 'GRUPO', 'DOCENTE', 'HORARIO', 'CUPO']),
+              ...selectedSubjectCodes.map((code) {
+                final g = selectedGroupsPerSubject[code];
+                if (g == null) return const TableRow(children: [SizedBox(), SizedBox(), SizedBox(), SizedBox(), SizedBox(), SizedBox()]);
+                return TableRow(
+                  children: [
+                    TableCell(child: Padding(padding: const EdgeInsets.all(8), child: Text(code, style: const TextStyle(fontSize: 10)))),
+                    TableCell(child: Padding(padding: const EdgeInsets.all(8), child: Text(g['materiaNombre'], style: const TextStyle(fontSize: 10)))),
+                    TableCell(child: Padding(padding: const EdgeInsets.all(8), child: Text(g['grupo'], style: const TextStyle(fontSize: 10)))),
+                    TableCell(child: Padding(padding: const EdgeInsets.all(8), child: Text(g['docente'], style: const TextStyle(fontSize: 10)))),
+                    TableCell(child: Padding(padding: const EdgeInsets.all(8), child: Text(g['horario'], style: const TextStyle(fontSize: 10)))),
+                    TableCell(child: Padding(padding: const EdgeInsets.all(8), child: Text("${g['cuposDisponibles']}", 
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: (g['cuposDisponibles'] > 0 ? UAGRMTheme.successGreen : UAGRMTheme.errorRed))))),
+                  ],
+                );
+              }),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  TableRow _buildTableHeader(List<String> labels) {
+    return TableRow(
+      decoration: BoxDecoration(color: Colors.grey.shade200),
+      children: labels.map((l) => TableCell(child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Text(l, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10)),
+      ))).toList(),
+    );
+  }
+
+  Widget _buildFinalActions() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          TextButton(
+            onPressed: () => setState(() {
+              selectedSubjectCodes.clear();
+              selectedGroupsPerSubject.clear();
+            }),
+            child: const Text("LIMPIAR"),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: ElevatedButton(
+              onPressed: selectedSubjectCodes.isEmpty ? null : () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Simulando inscripción de grupos...')),
+                );
+              },
+              child: const Text(
+                "CONFIRMAR INSCRIPCIÓN",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildError(String error, VoidCallback? refetch) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error, color: UAGRMTheme.errorRed, size: 48),
+            const SizedBox(height: 16),
+            Text(error, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
+            const SizedBox(height: 16),
+            ElevatedButton(onPressed: refetch, child: const Text("Reintentar")),
+          ],
         ),
       ),
     );
