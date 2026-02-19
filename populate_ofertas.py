@@ -20,7 +20,7 @@ def populate_offers():
 
     # 1. Asegurar Periodo 1/2026
     periodo, created = PeriodoAcademico.objects.get_or_create(
-        codigo="1-2026",
+        codigo="1/2026",
         defaults={
             "nombre": "Primer Semestre 2026",
             "tipo": "1/2026",
