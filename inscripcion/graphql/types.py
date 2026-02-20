@@ -71,6 +71,7 @@ class OfertaMateriaType(DjangoObjectType):
     materia_codigo = graphene.String()
     carrera_nombre = graphene.String()
     cupos_disponibles = graphene.Int()
+    semestre = graphene.Int()
     
     class Meta:
         model = OfertaMateria
@@ -87,6 +88,9 @@ class OfertaMateriaType(DjangoObjectType):
         
     def resolve_cupos_disponibles(self, info):
         return self.cupo_maximo - self.cupo_actual
+
+    def resolve_semestre(self, info):
+        return self.materia_carrera.semestre
 
 
 # ========== TIPOS COMPUESTOS PARA RESPUESTAS ==========
@@ -186,6 +190,7 @@ class MateriaInscritaInfoType(graphene.ObjectType):
     nombre = graphene.String()
     creditos = graphene.Int()
     grupo = graphene.String()
+    semestre = graphene.Int()
     horas_teoricas = graphene.Int()
     horas_practicas = graphene.Int()
 

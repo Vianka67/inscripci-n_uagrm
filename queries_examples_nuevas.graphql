@@ -119,7 +119,7 @@ query BoletaInscripcion {
       nombre
       creditos
       grupo
-      horasTeo ricas
+      horasTeoricas
       horasPracticas
     }
     totalCreditos

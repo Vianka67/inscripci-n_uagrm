@@ -188,6 +188,7 @@ class PanelService:
                 'nombre': mat_inscrita.materia.nombre,
                 'creditos': mat_inscrita.materia.creditos,
                 'grupo': mat_inscrita.grupo,
+                'semestre': mat_inscrita.oferta.materia_carrera.semestre if mat_inscrita.oferta else 0,
                 'horas_teoricas': mat_inscrita.materia.horas_teoricas,
                 'horas_practicas': mat_inscrita.materia.horas_practicas,
             })

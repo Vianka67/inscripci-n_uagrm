@@ -4,6 +4,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 import 'package:inscripcion_frontend/providers/registration_provider.dart';
+import 'package:inscripcion_frontend/utils/time_formatter.dart';
 
 class EnrollmentScreen extends StatefulWidget {
   const EnrollmentScreen({super.key});
@@ -14,16 +15,20 @@ class EnrollmentScreen extends StatefulWidget {
 
 class _EnrollmentScreenState extends State<EnrollmentScreen> {
   String? selectedPeriod;
-  
+
   // Filtros
   String selectedTurno = 'TODOS';
   String selectedCupos = 'TODOS';
   String? selectedDocente = 'TODOS';
   String selectedGrupo = 'TODOS';
-  
+
   // Selección de materias y grupos
   Set<String> selectedSubjectCodes = {};
   Map<String, dynamic> selectedGroupsPerSubject = {}; // materia_codigo -> oferta_data
+
+  // Estado de confirmación: null = no confirmado, true/false = en proceso/resultado
+  bool _confirmed = false;
+  bool _isConfirming = false;
 
   @override
   void initState() {
@@ -37,7 +42,6 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     );
   }
 
-  // Periodos de ejemplo
   final List<Map<String, dynamic>> periods = [
     {'nombre': '1/2026', 'activo': true},
   ];
@@ -70,6 +74,90 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     }
   """;
 
+  final String confirmMutation = """
+    mutation ConfirmarInscripcion(
+      \$registro: String!,
+      \$codigoCarrera: String!,
+      \$ofertaIds: [Int!]!
+    ) {
+      confirmarInscripcion(
+        registro: \$registro,
+        codigoCarrera: \$codigoCarrera,
+        ofertaIds: \$ofertaIds
+      ) {
+        ok
+        mensaje
+      }
+    }
+  """;
+
+  Future<void> _handleConfirmar(String registro, String codigoCarrera) async {
+    if (selectedGroupsPerSubject.isEmpty) return;
+
+    setState(() => _isConfirming = true);
+
+    try {
+      final client = GraphQLProvider.of(context).value;
+      final ofertaIds = selectedGroupsPerSubject.values
+          .map((g) => int.parse(g['id'].toString()))
+          .toList();
+
+      final result = await client.mutate(
+        MutationOptions(
+          document: gql(confirmMutation),
+          variables: {
+            'registro': registro,
+            'codigoCarrera': codigoCarrera,
+            'ofertaIds': ofertaIds,
+          },
+        ),
+      );
+
+      if (!mounted) return;
+
+      if (result.hasException) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${result.exception.toString()}'),
+            backgroundColor: UAGRMTheme.errorRed,
+          ),
+        );
+        setState(() => _isConfirming = false);
+        return;
+      }
+
+      final data = result.data?['confirmarInscripcion'];
+      final ok = data?['ok'] == true;
+      final mensaje = data?['mensaje'] ?? 'Sin respuesta del servidor';
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(mensaje),
+          backgroundColor: ok ? UAGRMTheme.successGreen : UAGRMTheme.errorRed,
+        ),
+      );
+
+      if (ok) {
+        setState(() {
+          _confirmed = true;
+          _isConfirming = false;
+        });
+      } else {
+        setState(() => _isConfirming = false);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error inesperado: $e'),
+            backgroundColor: UAGRMTheme.errorRed,
+          ),
+        );
+        setState(() => _isConfirming = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<RegistrationProvider>();
@@ -85,9 +173,9 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
         ),
       ),
       body: SafeArea(
-        child: selectedPeriod == null 
-          ? _buildPeriodSelection()
-          : _buildEnrollmentFlow(studentRegister ?? '', codigoCarrera ?? ''),
+        child: selectedPeriod == null
+            ? _buildPeriodSelection()
+            : _buildEnrollmentFlow(studentRegister ?? '', codigoCarrera ?? ''),
       ),
     );
   }
@@ -122,7 +210,6 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
               final period = periods[index];
               final periodName = period['nombre'] ?? '';
               final isActive = period['activo'] ?? false;
-
               return Card(
                 elevation: 4,
                 margin: const EdgeInsets.only(bottom: 12),
@@ -130,8 +217,10 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                   contentPadding: const EdgeInsets.all(16),
                   leading: const Icon(Icons.calendar_today, color: UAGRMTheme.primaryBlue),
                   title: Text(periodName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                  subtitle: Text(isActive ? 'Activo' : 'Inactivo', 
-                    style: TextStyle(color: isActive ? UAGRMTheme.successGreen : UAGRMTheme.textGrey)),
+                  subtitle: Text(
+                    isActive ? 'Activo' : 'Inactivo',
+                    style: TextStyle(color: isActive ? UAGRMTheme.successGreen : UAGRMTheme.textGrey),
+                  ),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: isActive ? () => setState(() => selectedPeriod = periodName) : null,
                 ),
@@ -146,13 +235,10 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   Widget _buildEnrollmentFlow(String registro, String codigoCarrera) {
     return Column(
       children: [
-        // Filtros
-        _buildFiltersSection(),
-        
-        // Mensaje superior y Checkbox Maestro
-        _buildSelectAllHeader(),
+        // Filtros (solo visibles si no está confirmado)
+        if (!_confirmed) _buildFiltersSection(),
 
-        // Contenido Principal (Tablas)
+        // Contenido Principal
         Expanded(
           child: Query(
             options: QueryOptions(
@@ -170,15 +256,14 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
               if (result.hasException) return _buildError(result.exception.toString(), refetch);
 
               final ofertas = result.data?['ofertasMateria'] as List<dynamic>? ?? [];
-              
-              // Agrupar ofertas por materia para la primera tabla
+
+              // Agrupar ofertas por materia
               Map<String, List<dynamic>> subjectsMap = {};
               for (var o in ofertas) {
                 final code = o['materiaCodigo'];
                 if (!subjectsMap.containsKey(code)) subjectsMap[code] = [];
                 subjectsMap[code]!.add(o);
               }
-              
               final distinctSubjects = subjectsMap.keys.toList();
 
               return SingleChildScrollView(
@@ -186,11 +271,23 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSubjectsTable(distinctSubjects, subjectsMap),
-                    const SizedBox(height: 24),
-                    _buildConfirmedGroupsTable(),
-                    const SizedBox(height: 32),
-                    _buildFinalActions(),
+                    // === ESTADO: SELECCIÓN (antes de confirmar) ===
+                    if (!_confirmed) ...[
+                      _buildSelectAllHeader(distinctSubjects, subjectsMap),
+                      const SizedBox(height: 8),
+                      _buildSubjectsTable(distinctSubjects, subjectsMap),
+                      const SizedBox(height: 32),
+                      _buildFinalActions(registro, codigoCarrera),
+                    ],
+
+                    // === ESTADO: CONFIRMADO (solo muestra tabla de grupos confirmados) ===
+                    if (_confirmed) ...[
+                      _buildConfirmationSuccess(),
+                      const SizedBox(height: 16),
+                      _buildConfirmedGroupsTable(),
+                      const SizedBox(height: 24),
+                      _buildResetButton(),
+                    ],
                   ],
                 ),
               );
@@ -209,10 +306,14 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            _buildFilterButton('Turno', selectedTurno, ['TODOS', 'MAÑANA', 'TARDE', 'NOCHE'], (v) => setState(() => selectedTurno = v)),
-            _buildFilterButton('Cupos', selectedCupos, ['TODOS', 'CON CUPO', 'SIN CUPO'], (v) => setState(() => selectedCupos = v)),
-            _buildFilterButton('Docente', selectedDocente ?? 'TODOS', ['TODOS', 'POR DESIGNAR'], (v) => setState(() => selectedDocente = v)),
-            _buildFilterButton('Grupo', selectedGrupo, ['TODOS', 'AC', 'BD', 'AB', 'D', 'A', 'B', 'C'], (v) => setState(() => selectedGrupo = v)),
+            _buildFilterButton('Turno', selectedTurno, ['TODOS', 'MAÑANA', 'TARDE', 'NOCHE'],
+                (v) => setState(() => selectedTurno = v)),
+            _buildFilterButton('Cupos', selectedCupos, ['TODOS', 'CON CUPO', 'SIN CUPO'],
+                (v) => setState(() => selectedCupos = v)),
+            _buildFilterButton('Docente', selectedDocente ?? 'TODOS', ['TODOS', 'POR DESIGNAR'],
+                (v) => setState(() => selectedDocente = v)),
+            _buildFilterButton('Grupo', selectedGrupo, ['TODOS', 'AC', 'BD', 'AB', 'D', 'A', 'B', 'C'],
+                (v) => setState(() => selectedGrupo = v)),
           ],
         ),
       ),
@@ -224,18 +325,23 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: PopupMenuButton<String>(
         onSelected: onSelect,
-        itemBuilder: (context) => options.map((o) => PopupMenuItem(value: o, child: Text(o))).toList(),
+        itemBuilder: (context) =>
+            options.map((o) => PopupMenuItem(value: o, child: Text(o))).toList(),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: current == 'TODOS' ? Colors.white : UAGRMTheme.primaryBlue.withOpacity(0.1),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: current == 'TODOS' ? Colors.grey.shade300 : UAGRMTheme.primaryBlue),
+            border: Border.all(
+                color: current == 'TODOS' ? Colors.grey.shade300 : UAGRMTheme.primaryBlue),
           ),
           child: Row(
             children: [
               Text('$label: ', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-              Text(current, style: TextStyle(color: current == 'TODOS' ? UAGRMTheme.textDark : UAGRMTheme.primaryBlue, fontSize: 12)),
+              Text(current,
+                  style: TextStyle(
+                      color: current == 'TODOS' ? UAGRMTheme.textDark : UAGRMTheme.primaryBlue,
+                      fontSize: 12)),
               const Icon(Icons.arrow_drop_down, size: 18),
             ],
           ),
@@ -244,7 +350,11 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     );
   }
 
-  Widget _buildSelectAllHeader() {
+  /// Encabezado "Seleccionar Todas las Materias" — ahora con lógica real
+  Widget _buildSelectAllHeader(List<String> distinctSubjects, Map<String, List<dynamic>> subjectsMap) {
+    final allSelected = distinctSubjects.isNotEmpty &&
+        distinctSubjects.every((code) => selectedSubjectCodes.contains(code));
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -255,14 +365,31 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Text(
-            "Seleccione Todas las Materias",
+            'Seleccione Todas las Materias',
             style: TextStyle(fontWeight: FontWeight.bold, color: UAGRMTheme.textDark),
           ),
           Checkbox(
-            value: false, // Lógica de "todos" simplificada
-            onChanged: (val) {
-              // Implementar si es necesario marcar todas las visibles
-            },
+            value: allSelected,
+            activeColor: UAGRMTheme.primaryBlue,
+            onChanged: distinctSubjects.isEmpty
+                ? null
+                : (val) {
+                    setState(() {
+                      if (val == true) {
+                        // Seleccionar todas: agregar cada materia con su primer grupo
+                        for (final code in distinctSubjects) {
+                          selectedSubjectCodes.add(code);
+                          if (subjectsMap[code]!.isNotEmpty) {
+                            selectedGroupsPerSubject[code] = subjectsMap[code]![0];
+                          }
+                        }
+                      } else {
+                        // Deseleccionar todas
+                        selectedSubjectCodes.clear();
+                        selectedGroupsPerSubject.clear();
+                      }
+                    });
+                  },
           ),
         ],
       ),
@@ -273,7 +400,10 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("MATERIAS DISPONIBLES", style: TextStyle(fontWeight: FontWeight.bold, color: UAGRMTheme.primaryBlue)),
+        const Text(
+          'MATERIAS DISPONIBLES',
+          style: TextStyle(fontWeight: FontWeight.bold, color: UAGRMTheme.primaryBlue),
+        ),
         const SizedBox(height: 8),
         Table(
           border: TableBorder.all(color: Colors.grey.shade300, width: 1),
@@ -288,26 +418,42 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
               final name = map[code]![0]['materiaNombre'];
               final isSelected = selectedSubjectCodes.contains(code);
               return TableRow(
+                decoration: BoxDecoration(
+                  color: isSelected ? UAGRMTheme.primaryBlue.withOpacity(0.05) : null,
+                ),
                 children: [
-                  TableCell(child: Checkbox(
-                    value: isSelected,
-                    onChanged: (val) {
-                      setState(() {
-                        if (val == true) {
-                          selectedSubjectCodes.add(code);
-                          // Auto-seleccionar el primer grupo disponible
-                          if (map[code]!.isNotEmpty) {
-                            selectedGroupsPerSubject[code] = map[code]![0];
+                  TableCell(
+                    child: Checkbox(
+                      value: isSelected,
+                      activeColor: UAGRMTheme.primaryBlue,
+                      onChanged: (val) {
+                        setState(() {
+                          if (val == true) {
+                            selectedSubjectCodes.add(code);
+                            // Auto-seleccionar el primer grupo disponible
+                            if (map[code]!.isNotEmpty) {
+                              selectedGroupsPerSubject[code] = map[code]![0];
+                            }
+                          } else {
+                            selectedSubjectCodes.remove(code);
+                            selectedGroupsPerSubject.remove(code);
                           }
-                        } else {
-                          selectedSubjectCodes.remove(code);
-                          selectedGroupsPerSubject.remove(code);
-                        }
-                      });
-                    },
-                  )),
-                  TableCell(child: Padding(padding: const EdgeInsets.all(8), child: Text(code, style: const TextStyle(fontSize: 12)))),
-                  TableCell(child: Padding(padding: const EdgeInsets.all(8), child: Text(name, style: const TextStyle(fontSize: 12)))),
+                        });
+                      },
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(code, style: const TextStyle(fontSize: 12)),
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(name, style: const TextStyle(fontSize: 12)),
+                    ),
+                  ),
                 ],
               );
             }),
@@ -317,11 +463,15 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     );
   }
 
+  /// Tabla de grupos confirmados — solo se muestra DESPUÉS de confirmar
   Widget _buildConfirmedGroupsTable() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("CONFIRMAR GRUPOS SELECCIONADOS", style: TextStyle(fontWeight: FontWeight.bold, color: UAGRMTheme.primaryBlue)),
+        const Text(
+          'GRUPOS INSCRITOS',
+          style: TextStyle(fontWeight: FontWeight.bold, color: UAGRMTheme.primaryBlue),
+        ),
         const SizedBox(height: 8),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -332,24 +482,69 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
               0: FixedColumnWidth(60),
               1: FixedColumnWidth(140),
               2: FixedColumnWidth(60),
-              3: FixedColumnWidth(100),
-              4: FixedColumnWidth(100),
+              3: FixedColumnWidth(120),
+              4: FixedColumnWidth(120),
               5: FixedColumnWidth(50),
             },
             children: [
               _buildTableHeader(['SIGLA', 'MATERIA', 'GRUPO', 'DOCENTE', 'HORARIO', 'CUPO']),
               ...selectedSubjectCodes.map((code) {
                 final g = selectedGroupsPerSubject[code];
-                if (g == null) return const TableRow(children: [SizedBox(), SizedBox(), SizedBox(), SizedBox(), SizedBox(), SizedBox()]);
+                if (g == null) {
+                  return const TableRow(
+                    children: [SizedBox(), SizedBox(), SizedBox(), SizedBox(), SizedBox(), SizedBox()],
+                  );
+                }
                 return TableRow(
                   children: [
-                    TableCell(child: Padding(padding: const EdgeInsets.all(8), child: Text(code, style: const TextStyle(fontSize: 10)))),
-                    TableCell(child: Padding(padding: const EdgeInsets.all(8), child: Text(g['materiaNombre'], style: const TextStyle(fontSize: 10)))),
-                    TableCell(child: Padding(padding: const EdgeInsets.all(8), child: Text(g['grupo'], style: const TextStyle(fontSize: 10)))),
-                    TableCell(child: Padding(padding: const EdgeInsets.all(8), child: Text(g['docente'], style: const TextStyle(fontSize: 10)))),
-                    TableCell(child: Padding(padding: const EdgeInsets.all(8), child: Text(g['horario'], style: const TextStyle(fontSize: 10)))),
-                    TableCell(child: Padding(padding: const EdgeInsets.all(8), child: Text("${g['cuposDisponibles']}", 
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: (g['cuposDisponibles'] > 0 ? UAGRMTheme.successGreen : UAGRMTheme.errorRed))))),
+                    TableCell(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text(code, style: const TextStyle(fontSize: 10)),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text(g['materiaNombre'] ?? '', style: const TextStyle(fontSize: 10)),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text(g['grupo'] ?? '', style: const TextStyle(fontSize: 10)),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text(g['docente'] ?? '', style: const TextStyle(fontSize: 10)),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text(
+                          TimeFormatter.formatHorario(g['horario'] ?? ''), 
+                          style: const TextStyle(fontSize: 10)
+                        ),
+                      ),
+                    ),
+                    TableCell(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text(
+                          '${g['cuposDisponibles'] ?? 0}',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: ((g['cuposDisponibles'] ?? 0) > 0)
+                                ? UAGRMTheme.successGreen
+                                : UAGRMTheme.errorRed,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 );
               }),
@@ -360,47 +555,107 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     );
   }
 
-  TableRow _buildTableHeader(List<String> labels) {
-    return TableRow(
-      decoration: BoxDecoration(color: Colors.grey.shade200),
-      children: labels.map((l) => TableCell(child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Text(l, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10)),
-      ))).toList(),
-    );
-  }
-
-  Widget _buildFinalActions() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+  /// Banner de éxito tras confirmar
+  Widget _buildConfirmationSuccess() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: UAGRMTheme.successGreen.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: UAGRMTheme.successGreen),
+      ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          TextButton(
-            onPressed: () => setState(() {
-              selectedSubjectCodes.clear();
-              selectedGroupsPerSubject.clear();
-            }),
-            child: const Text("LIMPIAR"),
-          ),
-          const SizedBox(width: 8),
+          Icon(Icons.check_circle, color: UAGRMTheme.successGreen, size: 32),
+          const SizedBox(width: 12),
           Expanded(
-            child: ElevatedButton(
-              onPressed: selectedSubjectCodes.isEmpty ? null : () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Simulando inscripción de grupos...')),
-                );
-              },
-              child: const Text(
-                "CONFIRMAR INSCRIPCIÓN",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12),
-                overflow: TextOverflow.ellipsis,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '¡Inscripción Confirmada!',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: UAGRMTheme.successGreen,
+                    fontSize: 16,
+                  ),
+                ),
+                Text(
+                  '${selectedSubjectCodes.length} materia(s) inscrita(s) correctamente.',
+                  style: const TextStyle(fontSize: 13),
+                ),
+              ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  /// Botón para reiniciar y hacer una nueva selección
+  Widget _buildResetButton() {
+    return Center(
+      child: OutlinedButton.icon(
+        onPressed: () {
+          setState(() {
+            _confirmed = false;
+            selectedSubjectCodes.clear();
+            selectedGroupsPerSubject.clear();
+          });
+        },
+        icon: const Icon(Icons.refresh),
+        label: const Text('Nueva Selección'),
+      ),
+    );
+  }
+
+  TableRow _buildTableHeader(List<String> labels) {
+    return TableRow(
+      decoration: BoxDecoration(color: Colors.grey.shade200),
+      children: labels
+          .map((l) => TableCell(
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Text(l, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10)),
+                ),
+              ))
+          .toList(),
+    );
+  }
+
+  Widget _buildFinalActions(String registro, String codigoCarrera) {
+    return Row(
+      children: [
+        TextButton(
+          onPressed: () => setState(() {
+            selectedSubjectCodes.clear();
+            selectedGroupsPerSubject.clear();
+          }),
+          child: const Text('LIMPIAR'),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: ElevatedButton(
+            onPressed: (selectedSubjectCodes.isEmpty || _isConfirming)
+                ? null
+                : () => _handleConfirmar(registro, codigoCarrera),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+            ),
+            child: _isConfirming
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                : const Text(
+                    'CONFIRMAR INSCRIPCIÓN',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12),
+                  ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -415,7 +670,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
             const SizedBox(height: 16),
             Text(error, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
             const SizedBox(height: 16),
-            ElevatedButton(onPressed: refetch, child: const Text("Reintentar")),
+            ElevatedButton(onPressed: refetch, child: const Text('Reintentar')),
           ],
         ),
       ),

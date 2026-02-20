@@ -104,7 +104,7 @@ query MateriasHabilitadas {
       codigo
       nombre
       creditos
-      horasTeorica
+      horasTeoricas
       horasPracticas
     }
     semestre
