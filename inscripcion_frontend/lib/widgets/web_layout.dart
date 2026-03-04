@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:inscripcion_frontend/utils/responsive_helper.dart';
 
-/// Centra el contenido con un ancho máximo solo en web.
+/// Centra el contenido con un ancho máximo en tablet y desktop.
 /// En móvil pasa el hijo tal cual.
 class WebCenteredLayout extends StatelessWidget {
   final Widget child;
@@ -17,7 +17,7 @@ class WebCenteredLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!kIsWeb) return child;
+    if (Responsive.isMobile(context)) return child;
     return Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
@@ -36,7 +36,7 @@ class WebPageBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!kIsWeb) return child;
+    if (Responsive.isMobile(context)) return child;
     return Container(
       color: const Color(0xFFF4F6F9),
       child: child,

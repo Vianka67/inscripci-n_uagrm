@@ -1,10 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 import 'package:inscripcion_frontend/providers/registration_provider.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:inscripcion_frontend/models/career.dart';
+import 'package:inscripcion_frontend/utils/responsive_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -94,13 +94,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (kIsWeb) return _buildWebLayout();
-    return _buildMobileLayout();
+    // Mobile: columna única; Tablet + Desktop: dos columnas
+    if (Responsive.isMobile(context)) return _buildMobileLayout();
+    return _buildWideLayout();
   }
 
-  // ─── LAYOUT WEB (2 columnas) ─────────────────────────────────────────────────
+  // ─── LAYOUT AMPLIO (Tablet + Desktop) — 2 columnas ───────────────────────────
 
-  Widget _buildWebLayout() {
+  Widget _buildWideLayout() {
     return Scaffold(
       body: Row(
         children: [
@@ -183,7 +184,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 40),
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 400),
-                      child: _buildLoginCard(isWeb: true),
+                      child: _buildLoginCard(isWide: true),
                     ),
                   ),
                 ),
@@ -244,7 +245,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 8),
                     const Text('UAGRM', style: TextStyle(color: Colors.white70, fontSize: 16)),
                     const SizedBox(height: 48),
-                    _buildLoginCard(isWeb: false),
+                    _buildLoginCard(isWide: false),
                   ],
                 ),
               ),
@@ -257,13 +258,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // ─── FORMULARIO COMPARTIDO ────────────────────────────────────────────────────
 
-  Widget _buildLoginCard({required bool isWeb}) {
+  Widget _buildLoginCard({required bool isWide}) {
     Widget formContent = Form(
-      key: isWeb ? _formKey : GlobalKey<FormState>(),
+      key: isWide ? _formKey : GlobalKey<FormState>(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (isWeb) ...[
+          if (isWide) ...[
             const Text(
               'Iniciar Sesión',
               style: TextStyle(
@@ -288,14 +289,14 @@ class _LoginScreenState extends State<LoginScreen> {
           TextFormField(
             controller: _registroController,
             keyboardType: TextInputType.number,
-            style: TextStyle(fontSize: isWeb ? 14 : 16),
+            style: TextStyle(fontSize: isWide ? 14 : 16),
             decoration: InputDecoration(
               hintText: 'Ej: 218001234',
-              labelText: isWeb ? 'Nro. de Registro' : null,
+              labelText: isWide ? 'Nro. de Registro' : null,
               prefixIcon: const Icon(Icons.badge_outlined, size: 20),
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 16,
-                vertical: isWeb ? 12 : 16,
+                vertical: isWide ? 12 : 16,
               ),
             ),
             validator: (value) {
@@ -306,13 +307,13 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           const SizedBox(height: 20),
           SizedBox(
-            height: isWeb ? 44 : 52,
+            height: isWide ? 44 : 52,
             child: ElevatedButton(
               onPressed: _isLoading ? null : _handleLogin,
               style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: isWeb ? 0 : 16),
+                padding: EdgeInsets.symmetric(vertical: isWide ? 0 : 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(isWeb ? 8 : 12),
+                  borderRadius: BorderRadius.circular(isWide ? 8 : 12),
                 ),
               ),
               child: _isLoading
@@ -323,11 +324,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     )
                   : Text(
                       'Ingresar',
-                      style: TextStyle(fontSize: isWeb ? 14 : 16),
+                      style: TextStyle(fontSize: isWide ? 14 : 16),
                     ),
             ),
           ),
-          if (isWeb) ...[
+          if (isWide) ...[
             const SizedBox(height: 20),
             const Divider(),
             const SizedBox(height: 12),
@@ -346,7 +347,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
 
-    if (isWeb) {
+    if (isWide) {
       return Container(
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(

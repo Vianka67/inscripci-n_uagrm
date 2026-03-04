@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 import 'package:inscripcion_frontend/services/graphql_service.dart';
 import 'package:inscripcion_frontend/providers/registration_provider.dart';
+import 'package:inscripcion_frontend/providers/theme_provider.dart';
 import 'package:inscripcion_frontend/screens/login_screen.dart';
 import 'package:inscripcion_frontend/screens/career_selection_screen.dart';
 import 'package:inscripcion_frontend/screens/main_panel_screen.dart';
@@ -39,24 +40,29 @@ class UAGRMApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => RegistrationProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
       child: GraphQLProvider(
         client: client,
-        child: MaterialApp(
-          title: 'UAGRM Inscripción',
-          debugShowCheckedModeBanner: false,
-          theme: UAGRMTheme.themeData,
-          initialRoute: '/',
-          routes: {
-            '/': (context) => const LoginScreen(),
-            '/career': (context) => const CareerSelectionScreen(),
-            '/panel': (context) => const MainPanelScreen(),
-            '/enabled-subjects': (context) => const EnabledSubjectsScreen(),
-            '/enrollment-slip': (context) => const EnrollmentSlipScreen(),
-            '/blocked-status': (context) => const BlockedStatusScreen(),
-            '/enrollment': (context) => const EnrollmentScreen(),
-            '/enrollment-dates': (context) => const EnrollmentDatesScreen(),
-          },
+        child: Consumer<ThemeProvider>(
+          builder: (context, themeProvider, _) => MaterialApp(
+            title: 'UAGRM Inscripción',
+            debugShowCheckedModeBanner: false,
+            theme: UAGRMTheme.themeData,
+            darkTheme: UAGRMTheme.darkThemeData,
+            themeMode: themeProvider.themeMode,
+            initialRoute: '/',
+            routes: {
+              '/': (context) => const LoginScreen(),
+              '/career': (context) => const CareerSelectionScreen(),
+              '/panel': (context) => const MainPanelScreen(),
+              '/enabled-subjects': (context) => const EnabledSubjectsScreen(),
+              '/enrollment-slip': (context) => const EnrollmentSlipScreen(),
+              '/blocked-status': (context) => const BlockedStatusScreen(),
+              '/enrollment': (context) => const EnrollmentScreen(),
+              '/enrollment-dates': (context) => const EnrollmentDatesScreen(),
+            },
+          ),
         ),
       ),
     );

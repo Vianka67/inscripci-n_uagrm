@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -9,6 +8,8 @@ import 'package:inscripcion_frontend/providers/registration_provider.dart';
 import 'package:inscripcion_frontend/widgets/student_info_header.dart';
 import 'package:inscripcion_frontend/widgets/option_button.dart';
 import 'package:inscripcion_frontend/widgets/web_layout.dart';
+import 'package:inscripcion_frontend/providers/theme_provider.dart';
+import 'package:inscripcion_frontend/utils/responsive_helper.dart';
 
 class MainPanelScreen extends StatefulWidget {
   const MainPanelScreen({super.key});
@@ -64,13 +65,26 @@ class _MainPanelScreenState extends State<MainPanelScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<RegistrationProvider>();
     final studentRegister = provider.studentRegister;
+    final isLarge = Responsive.isTabletOrDesktop(context);
 
     if (studentRegister == null) {
       return const Scaffold(body: Center(child: Text('No se ha proporcionado un registro.')));
     }
 
     return Scaffold(
-      backgroundColor: kIsWeb ? const Color(0xFFF4F6F9) : Colors.white,
+      backgroundColor: isLarge ? Theme.of(context).scaffoldBackgroundColor : Theme.of(context).scaffoldBackgroundColor,
+      floatingActionButton: FloatingActionButton(
+        mini: true,
+        tooltip: 'Cambiar modo oscuro',
+        backgroundColor: UAGRMTheme.primaryBlue,
+        onPressed: () => context.read<ThemeProvider>().toggle(),
+        child: Consumer<ThemeProvider>(
+          builder: (_, tp, __) => Icon(
+            tp.isDark ? Icons.light_mode : Icons.dark_mode,
+            color: Colors.white,
+          ),
+        ),
+      ),
       body: SafeArea(
         child: Query(
           options: QueryOptions(
@@ -124,13 +138,10 @@ class _MainPanelScreenState extends State<MainPanelScreen> {
 
             return Column(
               children: [
-                // Header (compacto en web, expandido en móvil)
                 StudentInfoHeader(student: student),
-
-                // Contenido del panel
                 Expanded(
-                  child: kIsWeb
-                      ? _buildWebGrid(context, options)
+                  child: isLarge
+                      ? _buildLargeGrid(context, options)
                       : _buildMobileGrid(context, options),
                 ),
               ],
@@ -141,16 +152,18 @@ class _MainPanelScreenState extends State<MainPanelScreen> {
     );
   }
 
-  // ─── GRID WEB: 3 columnas, tarjetas compactas, centrado ──────────────────────
+  // ─── GRID TABLET / DESKTOP: centrado con columnas dinámicas ──────────────────
 
-  Widget _buildWebGrid(BuildContext context, PanelOptions options) {
+  Widget _buildLargeGrid(BuildContext context, PanelOptions options) {
+    final columns = Responsive.isDesktop(context) ? 3 : 3;
+    final maxWidth = Responsive.isDesktop(context) ? 900.0 : 700.0;
+
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(Responsive.horizontalPadding(context)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Título de sección
             Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: Row(
@@ -164,12 +177,12 @@ class _MainPanelScreenState extends State<MainPanelScreen> {
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  const Text(
+                  Text(
                     'Gestión Académica',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: UAGRMTheme.textDark,
+                      color: Theme.of(context).textTheme.titleLarge?.color ?? UAGRMTheme.textDark,
                     ),
                   ),
                 ],
@@ -177,11 +190,11 @@ class _MainPanelScreenState extends State<MainPanelScreen> {
             ),
 
             WebCenteredLayout(
-              maxWidth: 900,
+              maxWidth: maxWidth,
               child: GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 3,
+                crossAxisCount: columns,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
                 childAspectRatio: 1.6,

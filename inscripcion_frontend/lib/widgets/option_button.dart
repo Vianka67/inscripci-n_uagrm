@@ -1,6 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
+import 'package:inscripcion_frontend/utils/responsive_helper.dart';
 
 class OptionButton extends StatelessWidget {
   final IconData icon;
@@ -22,24 +22,26 @@ class OptionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconSize = kIsWeb ? 28.0 : 28.0;
-    final containerSize = kIsWeb ? 44.0 : 56.0;
-    final fontSize = kIsWeb ? 12.0 : 13.0;
+    final isLarge = Responsive.isTabletOrDesktop(context);
+    final iconSize = 28.0;
+    final containerSize = isLarge ? 44.0 : 56.0;
+    final fontSize = isLarge ? 12.0 : 13.0;
+    final radius = isLarge ? 8.0 : 12.0;
 
     return Material(
-      color: Colors.white,
-      elevation: isAvailable ? (kIsWeb ? 1 : 2) : 0,
-      borderRadius: BorderRadius.circular(kIsWeb ? 8 : 12),
+      color: Theme.of(context).colorScheme.surface,
+      elevation: isAvailable ? (isLarge ? 1 : 2) : 0,
+      borderRadius: BorderRadius.circular(radius),
       child: InkWell(
         onTap: isAvailable ? onTap : null,
-        borderRadius: BorderRadius.circular(kIsWeb ? 8 : 12),
-        hoverColor: kIsWeb ? UAGRMTheme.primaryBlue.withOpacity(0.04) : null,
+        borderRadius: BorderRadius.circular(radius),
+        hoverColor: isLarge ? UAGRMTheme.primaryBlue.withOpacity(0.04) : null,
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(kIsWeb ? 8 : 12),
+            borderRadius: BorderRadius.circular(radius),
             border: Border.all(
               color: isAvailable
-                  ? (kIsWeb ? Colors.grey.shade200 : Colors.transparent)
+                  ? (isLarge ? Colors.grey.shade200 : Colors.transparent)
                   : Colors.grey.shade300,
             ),
           ),
@@ -54,7 +56,7 @@ class OptionButton extends StatelessWidget {
                       height: containerSize,
                       decoration: BoxDecoration(
                         color: isAvailable
-                            ? UAGRMTheme.primaryBlue.withOpacity(kIsWeb ? 0.08 : 0.1)
+                            ? UAGRMTheme.primaryBlue.withOpacity(isLarge ? 0.08 : 0.1)
                             : Colors.grey.shade100,
                         shape: BoxShape.circle,
                       ),
@@ -64,9 +66,9 @@ class OptionButton extends StatelessWidget {
                         size: iconSize,
                       ),
                     ),
-                    SizedBox(height: kIsWeb ? 8 : 12),
+                    SizedBox(height: isLarge ? 8 : 12),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: kIsWeb ? 6 : 8),
+                      padding: EdgeInsets.symmetric(horizontal: isLarge ? 6 : 8),
                       child: Text(
                         isAvailable ? title : 'No disponible',
                         textAlign: TextAlign.center,
@@ -75,7 +77,7 @@ class OptionButton extends StatelessWidget {
                         style: TextStyle(
                           fontSize: fontSize,
                           fontWeight: FontWeight.w600,
-                          color: isAvailable ? UAGRMTheme.textDark : Colors.grey,
+                          color: isAvailable ? Theme.of(context).textTheme.bodyLarge?.color : Colors.grey,
                         ),
                       ),
                     ),

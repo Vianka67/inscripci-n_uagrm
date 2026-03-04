@@ -1,18 +1,36 @@
-import 'package:flutter/foundation.dart';
+import 'package:inscripcion_frontend/utils/responsive_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 import 'package:inscripcion_frontend/providers/registration_provider.dart';
 import 'package:inscripcion_frontend/utils/time_formatter.dart';
+import 'package:inscripcion_frontend/utils/pdf_generator.dart';
 import 'package:inscripcion_frontend/widgets/web_page_header.dart';
 
-class EnrollmentSlipScreen extends StatelessWidget {
+class EnrollmentSlipScreen extends StatefulWidget {
   const EnrollmentSlipScreen({super.key});
 
+  @override
+  State<EnrollmentSlipScreen> createState() => _EnrollmentSlipScreenState();
+}
+
+class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
+  // Periodo seleccionado (null = periodo actual/más reciente)
+  String? selectedPeriodCodigo;
+
+  final String getHistoricalPeriodsQuery = """
+    query GetHistorialPeriodos(\$registro: String!) {
+      historialPeriodosEstudiante(registro: \$registro) {
+        codigo
+        nombre
+      }
+    }
+  """;
+
   final String getEnrollmentQuery = """
-    query GetEnrollment(\$registro: String!, \$codigoCarrera: String) {
-      inscripcionCompleta(registro: \$registro, codigoCarrera: \$codigoCarrera) {
+    query GetEnrollment(\$registro: String!, \$codigoCarrera: String, \$codigoPeriodo: String) {
+      inscripcionCompleta(registro: \$registro, codigoCarrera: \$codigoCarrera, codigoPeriodo: \$codigoPeriodo) {
         id
         estudiante {
           registro
@@ -50,9 +68,10 @@ class EnrollmentSlipScreen extends StatelessWidget {
     final studentRegister = provider.studentRegister;
     final codigoCarrera = provider.selectedCareer?.code;
 
-    if (kIsWeb) {
+    final bool isTabletOrDesktop = Responsive.isTabletOrDesktop(context);
+    if (isTabletOrDesktop) {
       return Scaffold(
-        backgroundColor: const Color(0xFFF4F6F9),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -62,11 +81,17 @@ class EnrollmentSlipScreen extends StatelessWidget {
                 icon: Icons.description_outlined,
                 subtitle: 'Comprobante oficial de materias inscritas',
               ),
+              // Selector de periodo histórico
+              _buildPeriodSelector(studentRegister ?? ''),
               Expanded(
                 child: Query(
                   options: QueryOptions(
                     document: gql(getEnrollmentQuery),
-                    variables: {'registro': studentRegister ?? '', 'codigoCarrera': codigoCarrera},
+                    variables: {
+                      'registro': studentRegister ?? '',
+                      'codigoCarrera': codigoCarrera,
+                      'codigoPeriodo': selectedPeriodCodigo,
+                    },
                     fetchPolicy: FetchPolicy.networkOnly,
                   ),
                   builder: (QueryResult result, {VoidCallback? refetch, FetchMore? fetchMore}) {
@@ -87,20 +112,86 @@ class EnrollmentSlipScreen extends StatelessWidget {
     // Móvil: layout original
     return Scaffold(
       appBar: AppBar(title: const Text('Boleta de Inscripción'), centerTitle: true),
-      body: Query(
-        options: QueryOptions(
-          document: gql(getEnrollmentQuery),
-          variables: {'registro': studentRegister ?? '', 'codigoCarrera': codigoCarrera},
-          fetchPolicy: FetchPolicy.networkOnly,
-        ),
-        builder: (QueryResult result, {VoidCallback? refetch, FetchMore? fetchMore}) {
-          if (result.hasException) return _buildError(context, result.exception.toString(), refetch);
-          if (result.isLoading) return const Center(child: CircularProgressIndicator());
-          final data = result.data?['inscripcionCompleta'];
-          if (data == null) return _buildEmpty();
-          return _buildMobileBoleta(context, data, provider);
-        },
+      body: Column(
+        children: [
+          _buildPeriodSelector(studentRegister ?? ''),
+          Expanded(
+            child: Query(
+              options: QueryOptions(
+                document: gql(getEnrollmentQuery),
+                variables: {
+                  'registro': studentRegister ?? '',
+                  'codigoCarrera': codigoCarrera,
+                  'codigoPeriodo': selectedPeriodCodigo,
+                },
+                fetchPolicy: FetchPolicy.networkOnly,
+              ),
+              builder: (QueryResult result, {VoidCallback? refetch, FetchMore? fetchMore}) {
+                if (result.hasException) return _buildError(context, result.exception.toString(), refetch);
+                if (result.isLoading) return const Center(child: CircularProgressIndicator());
+                final data = result.data?['inscripcionCompleta'];
+                if (data == null) return _buildEmpty();
+                return _buildMobileBoleta(context, data, provider);
+              },
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildPeriodSelector(String registro) {
+    return Query(
+      options: QueryOptions(
+        document: gql(getHistoricalPeriodsQuery),
+        variables: {'registro': registro},
+        fetchPolicy: FetchPolicy.cacheFirst,
+      ),
+      builder: (QueryResult result, {VoidCallback? refetch, FetchMore? fetchMore}) {
+        final periods = (result.data?['historialPeriodosEstudiante'] as List<dynamic>?) ?? [];
+
+        if (periods.isEmpty && !result.isLoading) {
+          // Si no hay historial disponible, no mostrar el selector
+          return const SizedBox.shrink();
+        }
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          color: UAGRMTheme.primaryBlue.withOpacity(0.06),
+          child: Row(
+            children: [
+              const Icon(Icons.history, size: 18, color: UAGRMTheme.primaryBlue),
+              const SizedBox(width: 8),
+              const Text('Periodo:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+              const SizedBox(width: 12),
+              if (result.isLoading)
+                const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+              else
+                DropdownButton<String?>(
+                  value: selectedPeriodCodigo,
+                  underline: const SizedBox.shrink(),
+                  isDense: true,
+                  hint: const Text('Actual', style: TextStyle(fontSize: 13)),
+                  items: [
+                    const DropdownMenuItem<String?>(
+                      value: null,
+                      child: Text('Actual', style: TextStyle(fontSize: 13)),
+                    ),
+                    ...periods.map((p) {
+                      final codigo = p['codigo']?.toString() ?? '';
+                      final nombre = p['nombre']?.toString() ?? codigo;
+                      return DropdownMenuItem<String?>(
+                        value: codigo,
+                        child: Text(nombre, style: const TextStyle(fontSize: 13)),
+                      );
+                    }),
+                  ],
+                  onChanged: (val) => setState(() => selectedPeriodCodigo = val),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -157,6 +248,16 @@ class EnrollmentSlipScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: const Text('INSCRITO', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: UAGRMTheme.successGreen)),
+                          ),
+                          const SizedBox(width: 12),
+                          IconButton(
+                            icon: const Icon(Icons.print, color: Colors.white, size: 20),
+                            tooltip: 'Descargar / Imprimir PDF',
+                            onPressed: () => PdfGenerator.generateAndPrintBoleta(
+                              data: data,
+                              carreraNombre: carreraNombre,
+                              carreraCodigo: carreraCodigo,
+                            ),
                           ),
                         ],
                       ),
@@ -325,6 +426,22 @@ class EnrollmentSlipScreen extends StatelessWidget {
           _buildAcademicTable(materias, modalidad),
           const SizedBox(height: 16),
           _buildSummary(materias),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.picture_as_pdf),
+            label: const Text('Descargar / Imprimir PDF'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: UAGRMTheme.primaryBlue,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () => PdfGenerator.generateAndPrintBoleta(
+              data: data,
+              carreraNombre: carreraNombre,
+              carreraCodigo: carreraCodigo,
+            ),
+          ),
         ],
       ),
     );

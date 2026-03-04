@@ -1,11 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 import 'package:inscripcion_frontend/models/career.dart';
 import 'package:inscripcion_frontend/providers/registration_provider.dart';
-import 'package:inscripcion_frontend/widgets/web_layout.dart';
+import 'package:inscripcion_frontend/utils/responsive_helper.dart';
 
 class CareerSelectionScreen extends StatefulWidget {
   const CareerSelectionScreen({super.key});
@@ -31,11 +30,12 @@ class _CareerSelectionScreenState extends State<CareerSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<RegistrationProvider>();
+    final isLarge = Responsive.isTabletOrDesktop(context);
 
     return Scaffold(
-      backgroundColor: kIsWeb ? const Color(0xFFF4F6F9) : Colors.white,
+      backgroundColor: isLarge ? const Color(0xFFF4F6F9) : Colors.white,
       appBar: AppBar(
-        title: kIsWeb
+        title: isLarge
             ? const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -54,7 +54,7 @@ class _CareerSelectionScreenState extends State<CareerSelectionScreen> {
                   ),
                 ],
               ),
-        bottom: kIsWeb
+        bottom: isLarge
             ? null
             : PreferredSize(
                 preferredSize: const Size.fromHeight(60),
@@ -98,10 +98,12 @@ class _CareerSelectionScreenState extends State<CareerSelectionScreen> {
 
           final List carrerasData = result.data?['misCarreras'] ?? [];
 
-          if (kIsWeb) {
+          if (isLarge) {
+            // Tablet + Desktop: lista centrada con ancho máximo
+            final maxW = Responsive.isDesktop(context) ? 600.0 : 500.0;
             return Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 600),
+                constraints: BoxConstraints(maxWidth: maxW),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -166,6 +168,7 @@ class _CareerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.watch<RegistrationProvider>();
     final isSelected = provider.selectedCareer?.code == career.code;
+    final isLarge = Responsive.isTabletOrDesktop(context);
 
     return GestureDetector(
       onTap: () async {
@@ -177,13 +180,13 @@ class _CareerCard extends StatelessWidget {
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        margin: EdgeInsets.only(bottom: kIsWeb ? 10 : 16),
+        margin: EdgeInsets.only(bottom: isLarge ? 10 : 16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(kIsWeb ? 8 : 12),
+          borderRadius: BorderRadius.circular(isLarge ? 8 : 12),
           border: isSelected
               ? Border.all(color: UAGRMTheme.primaryBlue, width: 2)
-              : Border.all(color: kIsWeb ? Colors.grey.shade200 : Colors.transparent),
+              : Border.all(color: isLarge ? Colors.grey.shade200 : Colors.transparent),
           boxShadow: [
             BoxShadow(
               color: isSelected ? UAGRMTheme.primaryBlue.withOpacity(0.2) : Colors.black.withOpacity(0.05),
@@ -192,12 +195,12 @@ class _CareerCard extends StatelessWidget {
             ),
           ],
         ),
-        padding: EdgeInsets.all(kIsWeb ? 14 : 20),
+        padding: EdgeInsets.all(isLarge ? 14 : 20),
         child: Row(
           children: [
             Container(
-              width: kIsWeb ? 40 : 56,
-              height: kIsWeb ? 40 : 56,
+              width: isLarge ? 40 : 56,
+              height: isLarge ? 40 : 56,
               decoration: BoxDecoration(
                 color: Colors.grey[100],
                 shape: BoxShape.circle,
@@ -205,10 +208,10 @@ class _CareerCard extends StatelessWidget {
               child: Icon(
                 Icons.book,
                 color: UAGRMTheme.primaryBlue,
-                size: kIsWeb ? 22 : 30,
+                size: isLarge ? 22 : 30,
               ),
             ),
-            SizedBox(width: kIsWeb ? 12 : 16),
+            SizedBox(width: isLarge ? 12 : 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,7 +219,7 @@ class _CareerCard extends StatelessWidget {
                   Text(
                     career.name,
                     style: TextStyle(
-                      fontSize: kIsWeb ? 14 : 16,
+                      fontSize: isLarge ? 14 : 16,
                       fontWeight: FontWeight.bold,
                       color: UAGRMTheme.textDark,
                     ),
@@ -225,7 +228,7 @@ class _CareerCard extends StatelessWidget {
                   Text(
                     career.faculty,
                     style: TextStyle(
-                      fontSize: kIsWeb ? 12 : 14,
+                      fontSize: isLarge ? 12 : 14,
                       color: UAGRMTheme.textGrey,
                     ),
                   ),

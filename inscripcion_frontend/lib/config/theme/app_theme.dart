@@ -132,4 +132,87 @@ class UAGRMTheme {
       behavior: SnackBarBehavior.floating,
     ),
   );
+
+  // ─── DARK THEME ─────────────────────────────────────────────────────────────
+  static const Color darkBackground = Color(0xFF121212);
+  static const Color darkSurface = Color(0xFF1E1E1E);
+  static const Color darkCard = Color(0xFF252525);
+  static const Color darkText = Color(0xFFECECEC);
+  static const Color darkTextSecondary = Color(0xFFAAAAAA);
+
+  static final ThemeData darkThemeData = ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    colorScheme: const ColorScheme.dark(
+      primary: primaryBlue,
+      background: darkBackground,
+      surface: darkSurface,
+      onPrimary: Colors.white,
+      onBackground: darkText,
+      onSurface: darkText,
+      error: errorRed,
+    ),
+    scaffoldBackgroundColor: darkBackground,
+
+    textTheme: TextTheme(
+      displayLarge: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold, color: darkText),
+      displayMedium: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold, color: darkText),
+      titleLarge: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: darkText),
+      bodyLarge: GoogleFonts.roboto(fontSize: 16, color: darkText),
+      bodyMedium: GoogleFonts.roboto(fontSize: 14, color: darkTextSecondary),
+      labelLarge: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+    ),
+
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: primaryBlue,
+        foregroundColor: Colors.white,
+        elevation: 2,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        textStyle: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600),
+      ),
+    ),
+
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: const Color(0xFF2A2A2A),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: primaryBlue, width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: errorRed, width: 1),
+      ),
+      labelStyle: const TextStyle(color: darkTextSecondary),
+      hintStyle: TextStyle(color: darkTextSecondary.withOpacity(0.7)),
+    ),
+
+    cardTheme: CardThemeData(
+      color: darkCard,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: EdgeInsets.zero,
+    ),
+
+    appBarTheme: AppBarTheme(
+      backgroundColor: const Color(0xFF0D1B2A),
+      foregroundColor: Colors.white,
+      elevation: 0,
+      centerTitle: true,
+      titleTextStyle: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+      iconTheme: const IconThemeData(color: Colors.white),
+    ),
+
+    snackBarTheme: SnackBarThemeData(
+      backgroundColor: darkCard,
+      contentTextStyle: GoogleFonts.roboto(color: Colors.white),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      behavior: SnackBarBehavior.floating,
+    ),
+  );
 }

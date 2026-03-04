@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 import 'package:inscripcion_frontend/providers/registration_provider.dart';
 import 'package:inscripcion_frontend/widgets/web_page_header.dart';
+import 'package:inscripcion_frontend/utils/responsive_helper.dart';
 
 class EnrollmentDatesScreen extends StatefulWidget {
   const EnrollmentDatesScreen({super.key});
@@ -40,7 +41,6 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
     }
   """;
 
-  // Datos de ejemplo
   final List<Map<String, dynamic>> datesData = [
     {
       'periodoHabilitado': '2025-1',
@@ -53,13 +53,12 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<RegistrationProvider>();
-    final studentRegister = provider.studentRegister;
+    final isLarge = Responsive.isTabletOrDesktop(context);
+    final content = _buildContent(isLarge);
 
-    final content = _buildContent();
-
-    if (kIsWeb) {
+    if (isLarge) {
       return Scaffold(
-        backgroundColor: const Color(0xFFF4F6F9),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -72,9 +71,11 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
               Expanded(
                 child: Center(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 800),
+                    constraints: BoxConstraints(
+                      maxWidth: Responsive.isDesktop(context) ? 800 : 640,
+                    ),
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(24),
+                      padding: EdgeInsets.all(Responsive.horizontalPadding(context)),
                       child: content,
                     ),
                   ),
@@ -99,7 +100,6 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Banner móvil
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -129,11 +129,11 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(bool isLarge) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (kIsWeb) ...[
+        if (isLarge) ...[
           const Text(
             'Periodos de Inscripción',
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: UAGRMTheme.textDark),
@@ -145,14 +145,13 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             border: Border.all(color: Colors.grey.shade300, width: 1),
-            borderRadius: BorderRadius.circular(kIsWeb ? 8 : 8),
-            boxShadow: kIsWeb
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: isLarge
                 ? [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))]
                 : null,
           ),
           child: Column(
             children: [
-              // Encabezado tabla
               Container(
                 decoration: const BoxDecoration(
                   color: UAGRMTheme.primaryBlue,
@@ -161,14 +160,13 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                 child: Row(
                   children: [
-                    _headerCell('PERIODO', flex: 2, isWeb: kIsWeb),
-                    _headerCell('FECHA DE INICIO', flex: 2, isWeb: kIsWeb),
-                    _headerCell('FECHA FIN', flex: 2, isWeb: kIsWeb),
-                    _headerCell('ESTADO', flex: 2, isWeb: kIsWeb),
+                    _headerCell('PERIODO', flex: 2),
+                    _headerCell('FECHA DE INICIO', flex: 2),
+                    _headerCell('FECHA FIN', flex: 2),
+                    _headerCell('ESTADO', flex: 2),
                   ],
                 ),
               ),
-              // Filas
               ...datesData.asMap().entries.map((entry) {
                 final isEven = entry.key % 2 == 0;
                 final item = entry.value;
@@ -176,7 +174,7 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
                 final isHabilitado = estado == 'HABILITADO';
                 return Container(
                   decoration: BoxDecoration(
-                    color: kIsWeb
+                    color: isLarge
                         ? (isEven ? Colors.white : const Color(0xFFFAFAFA))
                         : (isEven ? Colors.grey.shade300 : Colors.grey.shade400),
                     border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
@@ -184,13 +182,13 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                   child: Row(
                     children: [
-                      Expanded(flex: 2, child: Text(item['periodoHabilitado'] ?? '', style: TextStyle(fontSize: kIsWeb ? 13 : 12), textAlign: TextAlign.center)),
-                      Expanded(flex: 2, child: Text(item['fechaInicio'] ?? '', style: TextStyle(fontSize: kIsWeb ? 13 : 12), textAlign: TextAlign.center)),
-                      Expanded(flex: 2, child: Text(item['fechaFin'] ?? '', style: TextStyle(fontSize: kIsWeb ? 13 : 12), textAlign: TextAlign.center)),
+                      Expanded(flex: 2, child: Text(item['periodoHabilitado'] ?? '', style: TextStyle(fontSize: isLarge ? 13 : 12), textAlign: TextAlign.center)),
+                      Expanded(flex: 2, child: Text(item['fechaInicio'] ?? '', style: TextStyle(fontSize: isLarge ? 13 : 12), textAlign: TextAlign.center)),
+                      Expanded(flex: 2, child: Text(item['fechaFin'] ?? '', style: TextStyle(fontSize: isLarge ? 13 : 12), textAlign: TextAlign.center)),
                       Expanded(
                         flex: 2,
                         child: Center(
-                          child: kIsWeb
+                          child: isLarge
                               ? Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                                   decoration: BoxDecoration(
@@ -222,7 +220,7 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
     );
   }
 
-  Widget _headerCell(String text, {required int flex, required bool isWeb}) {
+  Widget _headerCell(String text, {required int flex}) {
     return Expanded(
       flex: flex,
       child: Text(

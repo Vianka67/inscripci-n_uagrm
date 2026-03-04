@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:inscripcion_frontend/utils/responsive_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
@@ -30,9 +30,10 @@ class EnabledSubjectsScreen extends StatelessWidget {
     final provider = context.watch<RegistrationProvider>();
     final studentRegister = provider.studentRegister;
 
-    if (kIsWeb) {
+    final bool isTabletOrDesktop = Responsive.isTabletOrDesktop(context);
+    if (isTabletOrDesktop) {
       return Scaffold(
-        backgroundColor: const Color(0xFFF4F6F9),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -43,7 +44,7 @@ class EnabledSubjectsScreen extends StatelessWidget {
                 subtitle: 'Materias disponibles para inscripción este periodo',
               ),
               Expanded(
-                child: _buildQuery(context, provider, studentRegister, isWeb: true),
+                child: _buildQuery(context, provider, studentRegister, isWeb: isTabletOrDesktop),
               ),
             ],
           ),
@@ -53,7 +54,7 @@ class EnabledSubjectsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Materias Habilitadas'), centerTitle: true),
-      body: _buildQuery(context, provider, studentRegister, isWeb: false),
+      body: _buildQuery(context, provider, studentRegister, isWeb: isTabletOrDesktop),
     );
   }
 

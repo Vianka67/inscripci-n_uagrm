@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:inscripcion_frontend/utils/responsive_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
@@ -56,7 +56,9 @@ class _SemesterSelectionScreenState extends State<SemesterSelectionScreen> {
     final int semesterCount = career?.durationSemesters ?? 9;
     final List<String> semesters = List.generate(semesterCount, (i) => 'SEMESTRE ${i + 1}');
 
-    if (kIsWeb) return _buildWebLayout(context, provider, career, semesters);
+    final bool isTabletOrDesktop = Responsive.isTabletOrDesktop(context);
+    if (isTabletOrDesktop) return _buildWebLayout(context, provider, career, semesters);
+    return _buildMobileLayout(context, provider, career, semesters);
     return _buildMobileLayout(context, provider, career, semesters);
   }
 
@@ -64,7 +66,7 @@ class _SemesterSelectionScreenState extends State<SemesterSelectionScreen> {
 
   Widget _buildWebLayout(BuildContext context, dynamic provider, dynamic career, List<String> semesters) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F9),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

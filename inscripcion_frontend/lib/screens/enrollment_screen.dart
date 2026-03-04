@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:inscripcion_frontend/utils/responsive_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -168,9 +169,10 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     final studentRegister = provider.studentRegister;
     final codigoCarrera = provider.selectedCareer?.code;
 
-    if (kIsWeb) {
+    final bool isTabletOrDesktop = Responsive.isTabletOrDesktop(context);
+    if (isTabletOrDesktop) {
       return Scaffold(
-        backgroundColor: const Color(0xFFF4F6F9),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -537,7 +539,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.grey.shade300, width: 1),
-            boxShadow: kIsWeb ? [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))] : null,
+            boxShadow: Responsive.isTabletOrDesktop(context) ? [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))] : null,
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
@@ -563,18 +565,48 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                           value: isSelected,
                           activeColor: UAGRMTheme.primaryBlue,
                           onChanged: (val) {
-                            setState(() {
-                              if (val == true) {
+                            if (val == true) {
+                              // Verificar choque de horario antes de agregar
+                              final firstGroup = map[code]!.isNotEmpty ? map[code]![0] : null;
+                              if (firstGroup != null) {
+                                // Excluir el grupo propio (si ya estaba) de la validación
+                                final othersMap = Map<String, dynamic>.from(selectedGroupsPerSubject);
+                                othersMap.remove(code);
+                                final clashMsg = ScheduleValidator.checkClash(
+                                  firstGroup['horario'] ?? '',
+                                  firstGroup['materiaNombre'] ?? code,
+                                  othersMap,
+                                );
+                                if (clashMsg != null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Row(
+                                        children: [
+                                          const Icon(Icons.warning_amber_rounded, color: Colors.white),
+                                          const SizedBox(width: 10),
+                                          Expanded(child: Text(clashMsg, style: const TextStyle(fontSize: 13))),
+                                        ],
+                                      ),
+                                      backgroundColor: Colors.orange.shade800,
+                                      behavior: SnackBarBehavior.floating,
+                                      duration: const Duration(seconds: 5),
+                                    ),
+                                  );
+                                  return; // No agregar si hay choque
+                                }
+                              }
+                              setState(() {
                                 selectedSubjectCodes.add(code);
-                                // Auto-seleccionar el primer grupo disponible
                                 if (map[code]!.isNotEmpty) {
                                   selectedGroupsPerSubject[code] = map[code]![0];
                                 }
-                              } else {
+                              });
+                            } else {
+                              setState(() {
                                 selectedSubjectCodes.remove(code);
                                 selectedGroupsPerSubject.remove(code);
-                              }
-                            });
+                              });
+                            }
                           },
                         ),
                       ),
@@ -617,7 +649,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.grey.shade300, width: 1),
-            boxShadow: kIsWeb ? [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))] : null,
+            boxShadow: Responsive.isTabletOrDesktop(context) ? [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))] : null,
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),

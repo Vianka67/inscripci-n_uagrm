@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 import 'package:inscripcion_frontend/providers/registration_provider.dart';
 import 'package:inscripcion_frontend/widgets/web_page_header.dart';
+import 'package:inscripcion_frontend/utils/responsive_helper.dart';
 
 class BlockedStatusScreen extends StatefulWidget {
   const BlockedStatusScreen({super.key});
@@ -48,11 +49,11 @@ class _BlockedStatusScreenState extends State<BlockedStatusScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<RegistrationProvider>();
+    final isLarge = Responsive.isTabletOrDesktop(context);
 
-    if (kIsWeb) {
+    if (isLarge) {
       return Scaffold(
-        backgroundColor: const Color(0xFFF4F6F9),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -65,9 +66,11 @@ class _BlockedStatusScreenState extends State<BlockedStatusScreen> {
               Expanded(
                 child: Center(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 800),
+                    constraints: BoxConstraints(
+                      maxWidth: Responsive.isDesktop(context) ? 800 : 640,
+                    ),
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(24),
+                      padding: EdgeInsets.all(Responsive.horizontalPadding(context)),
                       child: _buildWebContent(),
                     ),
                   ),
@@ -121,7 +124,6 @@ class _BlockedStatusScreenState extends State<BlockedStatusScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Banner de estado
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -164,8 +166,6 @@ class _BlockedStatusScreenState extends State<BlockedStatusScreen> {
           ),
         ),
         const SizedBox(height: 20),
-
-        // Tabla
         if (isBlocked) ...[
           const Text('Detalle de Bloqueos',
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: UAGRMTheme.textDark)),
@@ -179,7 +179,6 @@ class _BlockedStatusScreenState extends State<BlockedStatusScreen> {
             ),
             child: Column(
               children: [
-                // Header
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: const BoxDecoration(
@@ -193,7 +192,6 @@ class _BlockedStatusScreenState extends State<BlockedStatusScreen> {
                     ],
                   ),
                 ),
-                // Fila
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   child: Row(

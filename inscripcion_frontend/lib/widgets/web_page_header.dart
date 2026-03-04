@@ -1,9 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
+import 'package:inscripcion_frontend/utils/responsive_helper.dart';
 
-/// Header de página web con fondo azul, título y subtítulo en blanco.
-/// En móvil, devuelve vacío (se usa el AppBar nativo de cada screen).
+/// Header de página con fondo azul, título y subtítulo en blanco.
+/// Se muestra en tablet y desktop. En móvil devuelve vacío (se usa el AppBar nativo).
 class WebPageHeader extends StatelessWidget {
   final String title;
   final IconData icon;
@@ -20,11 +20,16 @@ class WebPageHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!kIsWeb) return const SizedBox.shrink();
+    if (Responsive.isMobile(context)) return const SizedBox.shrink();
+
+    final isTablet = Responsive.isTablet(context);
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+      padding: EdgeInsets.symmetric(
+        horizontal: isTablet ? 20 : 24,
+        vertical: isTablet ? 14 : 18,
+      ),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [UAGRMTheme.primaryBlue, Color(0xFF1565C0)],
@@ -36,13 +41,13 @@ class WebPageHeader extends StatelessWidget {
         children: [
           // Ícono con fondo blanco semitransparente
           Container(
-            width: 38,
-            height: 38,
+            width: isTablet ? 32 : 38,
+            height: isTablet ? 32 : 38,
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.15),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: Colors.white, size: 20),
+            child: Icon(icon, color: Colors.white, size: isTablet ? 17 : 20),
           ),
           const SizedBox(width: 14),
 
@@ -52,40 +57,41 @@ class WebPageHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Breadcrumb
-                Row(
-                  children: [
-                    InkWell(
-                      onTap: () => Navigator.pop(context),
-                      child: Text(
-                        'Panel',
+                // Breadcrumb (solo en desktop)
+                if (!isTablet)
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () => Navigator.pop(context),
+                        child: Text(
+                          'Panel',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white.withOpacity(0.75),
+                          ),
+                        ),
+                      ),
+                      Text(
+                        ' › $title',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white.withOpacity(0.75),
                         ),
                       ),
-                    ),
-                    Text(
-                      ' › $title',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white.withOpacity(0.75),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 3),
-                // Título principal en blanco
+                    ],
+                  ),
+                if (!isTablet) const SizedBox(height: 3),
+                // Título principal
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 18,
+                  style: TextStyle(
+                    fontSize: isTablet ? 16 : 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                // Subtítulo en blanco semitransparente
-                if (subtitle != null) ...[
+                // Subtítulo
+                if (subtitle != null && !isTablet) ...[
                   const SizedBox(height: 2),
                   Text(
                     subtitle!,
@@ -102,16 +108,22 @@ class WebPageHeader extends StatelessWidget {
           // Acciones opcionales
           if (actions != null) ...actions!,
 
-          // Botón volver — blanco sobre azul
+          // Botón volver
           const SizedBox(width: 12),
           OutlinedButton.icon(
             onPressed: () => Navigator.pop(context),
             icon: const Icon(Icons.arrow_back, size: 14, color: Colors.white),
-            label: const Text('Volver', style: TextStyle(fontSize: 13, color: Colors.white)),
+            label: Text(
+              isTablet ? 'Volver' : 'Volver',
+              style: const TextStyle(fontSize: 13, color: Colors.white),
+            ),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.white,
               side: const BorderSide(color: Colors.white60),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: EdgeInsets.symmetric(
+                horizontal: isTablet ? 10 : 12,
+                vertical: 8,
+              ),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
             ),
           ),
@@ -121,7 +133,8 @@ class WebPageHeader extends StatelessWidget {
   }
 }
 
-/// Contenedor de contenido web centrado con fondo gris y max-width.
+/// Contenedor de contenido centrado con fondo gris y max-width.
+/// Se aplica en tablet y desktop. En móvil es transparente.
 class WebContentArea extends StatelessWidget {
   final Widget child;
   final double maxWidth;
@@ -136,10 +149,10 @@ class WebContentArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!kIsWeb) return child;
+    if (Responsive.isMobile(context)) return child;
     return Expanded(
       child: Container(
-        color: const Color(0xFFF4F6F9),
+        color: Theme.of(context).scaffoldBackgroundColor,
         child: Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: maxWidth),
