@@ -3,7 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 class UAGRMTheme {
   // Paleta de colores oficial
-  static const Color primaryBlue = Color(0xFF1976D2);
+  static const Color primaryBlue = Color(0xFF003366);
+  static const Color primaryRed = Color(0xFFCC0000); // Rojo clásico bandera
+  static const Color secondaryBlue = Color(0xFF0099CC);
   static const Color backgroundWhite = Color(0xFFFFFFFF);
   static const Color textDark = Color(0xFF2D2D2D);
   static const Color textGrey = Color(0xFF757575);

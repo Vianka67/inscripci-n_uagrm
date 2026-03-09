@@ -123,9 +123,10 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF1565C0), Color(0xFF1E88E5), Color(0xFF42A5F5)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [UAGRMTheme.primaryBlue, UAGRMTheme.primaryBlue, UAGRMTheme.primaryRed, UAGRMTheme.primaryRed],
+                  stops: [0.0, 0.5, 0.5, 1.0],
                 ),
               ),
               child: Center(
@@ -133,20 +134,41 @@ class _LoginScreenState extends State<LoginScreen> {
                   padding: const EdgeInsets.all(48),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(18),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Container(
+                          width: 140,
+                          height: 140,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Image.asset(
+                              'assets/images/image_0.jpeg',
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Icon(Icons.school, size: 80, color: UAGRMTheme.primaryBlue);
+                              },
+                            ),
+                          ),
                         ),
-                        child: const Icon(Icons.school, size: 48, color: UAGRMTheme.primaryBlue),
                       ),
                       const SizedBox(height: 32),
                       const Text(
                         'Universidad Autónoma\nGabriel René Moreno',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 28,
@@ -166,18 +188,33 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 20),
                       const Text(
                         'Sistema de Gestión de Inscripción\nAcadémica en línea',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white70,
                           fontSize: 15,
                           height: 1.5,
                         ),
                       ),
-                      const SizedBox(height: 48),
-                      _buildFeatureItem(Icons.check_circle_outline, 'Inscripción en línea'),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildFeatureItem(Icons.check_circle_outline, 'Inscripción en línea'),
+                        ],
+                      ),
                       const SizedBox(height: 12),
-                      _buildFeatureItem(Icons.calendar_month_outlined, 'Consulta de fechas'),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildFeatureItem(Icons.calendar_month_outlined, 'Consulta de fechas'),
+                        ],
+                      ),
                       const SizedBox(height: 12),
-                      _buildFeatureItem(Icons.description_outlined, 'Boleta digital'),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildFeatureItem(Icons.description_outlined, 'Boleta digital'),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -228,7 +265,8 @@ class _LoginScreenState extends State<LoginScreen> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [UAGRMTheme.primaryBlue, Color(0xFF1565C0)],
+              colors: [UAGRMTheme.primaryBlue, UAGRMTheme.primaryBlue, UAGRMTheme.primaryRed, UAGRMTheme.primaryRed],
+              stops: [0.0, 0.5, 0.5, 1.0],
             ),
           ),
           child: Center(
@@ -240,13 +278,30 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      width: 100,
-                      height: 100,
+                      width: 130,
+                      height: 130,
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.15),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
                       ),
-                      child: const Icon(Icons.school, size: 60, color: UAGRMTheme.primaryBlue),
+                      clipBehavior: Clip.antiAlias,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Image.asset(
+                          'assets/images/image_0.jpeg',
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(Icons.school, size: 70, color: UAGRMTheme.primaryBlue);
+                          },
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 24),
                     const Text(
