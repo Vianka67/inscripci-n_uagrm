@@ -133,7 +133,7 @@ class EnabledSubjectsScreen extends StatelessWidget {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: Colors.grey.shade300, width: 1),
-                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
+                        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
                       ),
                       child: Column(
                         children: [
@@ -179,9 +179,9 @@ class EnabledSubjectsScreen extends StatelessWidget {
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                         decoration: BoxDecoration(
-                                          color: subject.isRequired ? UAGRMTheme.primaryBlue.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                                          color: subject.isRequired ? UAGRMTheme.primaryBlue.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
                                           borderRadius: BorderRadius.circular(20),
-                                          border: Border.all(color: subject.isRequired ? UAGRMTheme.primaryBlue.withOpacity(0.4) : Colors.grey.shade300),
+                                          border: Border.all(color: subject.isRequired ? UAGRMTheme.primaryBlue.withValues(alpha: 0.4) : Colors.grey.shade300),
                                         ),
                                         child: Text(
                                           subject.isRequired ? 'Obligatoria' : 'Electiva',
@@ -222,7 +222,7 @@ class EnabledSubjectsScreen extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: UAGRMTheme.primaryBlue.withOpacity(0.1),
+                    color: UAGRMTheme.primaryBlue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(Icons.book, color: UAGRMTheme.primaryBlue),
@@ -263,9 +263,9 @@ class EnabledSubjectsScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

@@ -1,10 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
-import 'package:inscripcion_frontend/providers/registration_provider.dart';
 import 'package:inscripcion_frontend/widgets/web_page_header.dart';
 import 'package:inscripcion_frontend/utils/responsive_helper.dart';
 
@@ -52,7 +49,6 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<RegistrationProvider>();
     final isLarge = Responsive.isTabletOrDesktop(context);
     final content = _buildContent(isLarge);
 
@@ -147,7 +143,7 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
             border: Border.all(color: Colors.grey.shade300, width: 1),
             borderRadius: BorderRadius.circular(8),
             boxShadow: isLarge
-                ? [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))]
+                ? [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))]
                 : null,
           ),
           child: Column(
@@ -192,7 +188,7 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
                               ? Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                                   decoration: BoxDecoration(
-                                    color: isHabilitado ? UAGRMTheme.successGreen.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
+                                    color: isHabilitado ? UAGRMTheme.successGreen.withValues(alpha: 0.1) : Colors.orange.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(20),
                                     border: Border.all(color: isHabilitado ? UAGRMTheme.successGreen : Colors.orange),
                                   ),

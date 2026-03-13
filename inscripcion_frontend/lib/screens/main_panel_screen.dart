@@ -79,7 +79,7 @@ class _MainPanelScreenState extends State<MainPanelScreen> {
         backgroundColor: UAGRMTheme.primaryBlue,
         onPressed: () => context.read<ThemeProvider>().toggle(),
         child: Consumer<ThemeProvider>(
-          builder: (_, tp, __) => Icon(
+          builder: (_, tp, _) => Icon(
             tp.isDark ? Icons.light_mode : Icons.dark_mode,
             color: Colors.white,
           ),

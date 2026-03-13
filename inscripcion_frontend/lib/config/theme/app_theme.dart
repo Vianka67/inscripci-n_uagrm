@@ -17,10 +17,8 @@ class UAGRMTheme {
     useMaterial3: true,
     colorScheme: ColorScheme.light(
       primary: primaryBlue,
-      background: backgroundWhite,
       surface: backgroundWhite,
       onPrimary: Colors.white,
-      onBackground: textDark,
       onSurface: textDark,
       error: errorRed,
     ),
@@ -97,7 +95,7 @@ class UAGRMTheme {
         borderSide: const BorderSide(color: errorRed, width: 1),
       ),
       labelStyle: TextStyle(color: textGrey),
-      hintStyle: TextStyle(color: textGrey.withOpacity(0.7)),
+      hintStyle: TextStyle(color: textGrey.withValues(alpha: 0.7)),
     ),
 
     // Estilo de Cards
@@ -147,10 +145,8 @@ class UAGRMTheme {
     brightness: Brightness.dark,
     colorScheme: const ColorScheme.dark(
       primary: primaryBlue,
-      background: darkBackground,
       surface: darkSurface,
       onPrimary: Colors.white,
-      onBackground: darkText,
       onSurface: darkText,
       error: errorRed,
     ),
@@ -191,7 +187,7 @@ class UAGRMTheme {
         borderSide: const BorderSide(color: errorRed, width: 1),
       ),
       labelStyle: const TextStyle(color: darkTextSecondary),
-      hintStyle: TextStyle(color: darkTextSecondary.withOpacity(0.7)),
+      hintStyle: TextStyle(color: darkTextSecondary.withValues(alpha: 0.7)),
     ),
 
     cardTheme: CardThemeData(

@@ -13,7 +13,6 @@ class SemesterSelectionScreen extends StatefulWidget {
 
 class _SemesterSelectionScreenState extends State<SemesterSelectionScreen> {
   final TextEditingController _registerController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -59,7 +58,6 @@ class _SemesterSelectionScreenState extends State<SemesterSelectionScreen> {
     final bool isTabletOrDesktop = Responsive.isTabletOrDesktop(context);
     if (isTabletOrDesktop) return _buildWebLayout(context, provider, career, semesters);
     return _buildMobileLayout(context, provider, career, semesters);
-    return _buildMobileLayout(context, provider, career, semesters);
   }
 
   // ─── WEB LAYOUT ──────────────────────────────────────────────────────────────
@@ -84,7 +82,7 @@ class _SemesterSelectionScreenState extends State<SemesterSelectionScreen> {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: UAGRMTheme.primaryBlue.withOpacity(0.1),
+                      color: UAGRMTheme.primaryBlue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(Icons.school, color: UAGRMTheme.primaryBlue, size: 20),
@@ -181,7 +179,7 @@ class _SemesterSelectionScreenState extends State<SemesterSelectionScreen> {
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(color: Colors.grey.shade200),
-                                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6, offset: const Offset(0, 2))],
+                                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 6, offset: const Offset(0, 2))],
                                 ),
                                 padding: const EdgeInsets.all(16),
                                 child: Column(
@@ -253,7 +251,7 @@ class _SemesterSelectionScreenState extends State<SemesterSelectionScreen> {
           child: InkWell(
             borderRadius: BorderRadius.circular(6),
             onTap: () => context.read<RegistrationProvider>().selectSemester(semester),
-            hoverColor: UAGRMTheme.primaryBlue.withOpacity(0.06),
+            hoverColor: UAGRMTheme.primaryBlue.withValues(alpha: 0.06),
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(6),

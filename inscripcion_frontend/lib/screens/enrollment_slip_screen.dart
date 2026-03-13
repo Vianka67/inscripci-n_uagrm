@@ -157,7 +157,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
 
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          color: UAGRMTheme.primaryBlue.withOpacity(0.06),
+          color: UAGRMTheme.primaryBlue.withValues(alpha: 0.06),
           child: Row(
             children: [
               const Icon(Icons.history, size: 18, color: UAGRMTheme.primaryBlue),
@@ -220,7 +220,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: Colors.grey.shade200),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 12, offset: const Offset(0, 4))],
+                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 12, offset: const Offset(0, 4))],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -292,7 +292,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                       decoration: BoxDecoration(
-                        color: UAGRMTheme.primaryBlue.withOpacity(0.04),
+                        color: UAGRMTheme.primaryBlue.withValues(alpha: 0.04),
                         border: Border(top: BorderSide(color: Colors.grey.shade200)),
                         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(9)),
                       ),
@@ -532,7 +532,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
     final totalCreditos = materias.fold<int>(0, (sum, item) => sum + ((item['materia']?['creditos'] as int?) ?? 0));
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: UAGRMTheme.primaryBlue.withOpacity(0.07), borderRadius: BorderRadius.circular(8), border: Border.all(color: UAGRMTheme.primaryBlue.withOpacity(0.3))),
+      decoration: BoxDecoration(color: UAGRMTheme.primaryBlue.withValues(alpha: 0.07), borderRadius: BorderRadius.circular(8), border: Border.all(color: UAGRMTheme.primaryBlue.withValues(alpha: 0.3))),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [

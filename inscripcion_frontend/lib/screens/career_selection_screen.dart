@@ -189,7 +189,7 @@ class _CareerCard extends StatelessWidget {
               : Border.all(color: isLarge ? Colors.grey.shade200 : Colors.transparent),
           boxShadow: [
             BoxShadow(
-              color: isSelected ? UAGRMTheme.primaryBlue.withOpacity(0.2) : Colors.black.withOpacity(0.05),
+              color: isSelected ? UAGRMTheme.primaryBlue.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.05),
               blurRadius: isSelected ? 8 : 4,
               offset: const Offset(0, 2),
             ),

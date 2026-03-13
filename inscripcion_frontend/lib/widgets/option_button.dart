@@ -35,7 +35,7 @@ class OptionButton extends StatelessWidget {
       child: InkWell(
         onTap: isAvailable ? onTap : null,
         borderRadius: BorderRadius.circular(radius),
-        hoverColor: isLarge ? UAGRMTheme.primaryBlue.withOpacity(0.04) : null,
+        hoverColor: isLarge ? UAGRMTheme.primaryBlue.withValues(alpha: 0.04) : null,
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(radius),
@@ -56,7 +56,7 @@ class OptionButton extends StatelessWidget {
                       height: containerSize,
                       decoration: BoxDecoration(
                         color: isAvailable
-                            ? UAGRMTheme.primaryBlue.withOpacity(isLarge ? 0.08 : 0.1)
+                            ? UAGRMTheme.primaryBlue.withValues(alpha: isLarge ? 0.08 : 0.1)
                             : Colors.grey.shade100,
                         shape: BoxShape.circle,
                       ),

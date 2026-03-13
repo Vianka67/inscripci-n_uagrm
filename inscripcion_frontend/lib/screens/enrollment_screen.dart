@@ -246,7 +246,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
                     const SizedBox(height: 4),
                     Text('Elige el periodo académico para continuar con la inscripción.',
-                        style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.85))),
+                        style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.85))),
                   ],
                 ),
               ),
@@ -264,14 +264,14 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: isActive ? UAGRMTheme.primaryBlue.withOpacity(0.3) : Colors.grey.shade200),
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6, offset: const Offset(0, 2))],
+                      border: Border.all(color: isActive ? UAGRMTheme.primaryBlue.withValues(alpha: 0.3) : Colors.grey.shade200),
+                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 6, offset: const Offset(0, 2))],
                     ),
                     child: Row(
                       children: [
                         Container(
                           width: 36, height: 36,
-                          decoration: BoxDecoration(color: UAGRMTheme.primaryBlue.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                          decoration: BoxDecoration(color: UAGRMTheme.primaryBlue.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
                           child: const Icon(Icons.calendar_today, color: UAGRMTheme.primaryBlue, size: 18),
                         ),
                         const SizedBox(width: 12),
@@ -449,7 +449,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: current == 'TODOS' ? Colors.white : UAGRMTheme.primaryBlue.withOpacity(0.1),
+            color: current == 'TODOS' ? Colors.white : UAGRMTheme.primaryBlue.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
                 color: current == 'TODOS' ? Colors.grey.shade300 : UAGRMTheme.primaryBlue),
@@ -654,7 +654,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.grey.shade300, width: 1),
-            boxShadow: Responsive.isTabletOrDesktop(context) ? [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))] : null,
+            boxShadow: Responsive.isTabletOrDesktop(context) ? [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))] : null,
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
@@ -692,7 +692,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                               : !hayCupo
                                   ? Colors.grey.shade100
                                   : isSelected
-                                      ? UAGRMTheme.primaryBlue.withOpacity(0.05)
+                                      ? UAGRMTheme.primaryBlue.withValues(alpha: 0.05)
                                       : Colors.white,
                           border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
                         ),
@@ -798,7 +798,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                         ],
                       );
                     }).toList();
-                  }).toList(),
+                  }),
                 ],
               ),
             ),
@@ -824,7 +824,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: Colors.grey.shade300, width: 1),
-            boxShadow: Responsive.isTabletOrDesktop(context) ? [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))] : null,
+            boxShadow: Responsive.isTabletOrDesktop(context) ? [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))] : null,
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
@@ -919,7 +919,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: UAGRMTheme.successGreen.withOpacity(0.1),
+        color: UAGRMTheme.successGreen.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: UAGRMTheme.successGreen),
       ),

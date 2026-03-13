@@ -1,10 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
-import 'package:inscripcion_frontend/providers/registration_provider.dart';
 import 'package:inscripcion_frontend/widgets/web_page_header.dart';
 import 'package:inscripcion_frontend/utils/responsive_helper.dart';
 
@@ -127,10 +124,10 @@ class _BlockedStatusScreenState extends State<BlockedStatusScreen> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isBlocked ? UAGRMTheme.errorRed.withOpacity(0.06) : UAGRMTheme.successGreen.withOpacity(0.06),
+            color: isBlocked ? UAGRMTheme.errorRed.withValues(alpha: 0.06) : UAGRMTheme.successGreen.withValues(alpha: 0.06),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isBlocked ? UAGRMTheme.errorRed.withOpacity(0.3) : UAGRMTheme.successGreen.withOpacity(0.3),
+              color: isBlocked ? UAGRMTheme.errorRed.withValues(alpha: 0.3) : UAGRMTheme.successGreen.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
@@ -175,7 +172,7 @@ class _BlockedStatusScreenState extends State<BlockedStatusScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.grey.shade200),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
             ),
             child: Column(
               children: [
@@ -203,7 +200,7 @@ class _BlockedStatusScreenState extends State<BlockedStatusScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.orange.withOpacity(0.1),
+                              color: Colors.orange.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(color: Colors.orange.shade300),
                             ),

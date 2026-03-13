@@ -79,10 +79,9 @@ class _LoginScreenState extends State<LoginScreen> {
           return;
         }
 
-        final provider = context.read<RegistrationProvider>();
-        provider.setStudentRegister(_registroController.text);
-
         if (mounted) {
+          final provider = context.read<RegistrationProvider>();
+          provider.setStudentRegister(_registroController.text);
           if (carrerasData.length == 1) {
             final data = carrerasData[0]['carrera'];
             final career = Career.fromJson(data);
@@ -146,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.15),
+                                color: Colors.black.withValues(alpha: 0.15),
                                 blurRadius: 10,
                                 offset: const Offset(0, 5),
                               ),
@@ -285,7 +284,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
+                            color: Colors.black.withValues(alpha: 0.15),
                             blurRadius: 10,
                             offset: const Offset(0, 5),
                           ),
@@ -422,7 +421,7 @@ class _LoginScreenState extends State<LoginScreen> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 24,
               offset: const Offset(0, 8),
             ),

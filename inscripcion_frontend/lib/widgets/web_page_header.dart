@@ -44,7 +44,7 @@ class WebPageHeader extends StatelessWidget {
             width: isTablet ? 32 : 38,
             height: isTablet ? 32 : 38,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
+              color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: Colors.white, size: isTablet ? 17 : 20),
@@ -67,7 +67,7 @@ class WebPageHeader extends StatelessWidget {
                           'Panel',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.white.withOpacity(0.75),
+                            color: Colors.white.withValues(alpha: 0.75),
                           ),
                         ),
                       ),
@@ -75,7 +75,7 @@ class WebPageHeader extends StatelessWidget {
                         ' › $title',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.white.withOpacity(0.75),
+                          color: Colors.white.withValues(alpha: 0.75),
                         ),
                       ),
                     ],
@@ -97,7 +97,7 @@ class WebPageHeader extends StatelessWidget {
                     subtitle!,
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.white.withOpacity(0.80),
+                      color: Colors.white.withValues(alpha: 0.80),
                     ),
                   ),
                 ],
