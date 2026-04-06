@@ -1,0 +1,669 @@
+import 'package:inscripcion_frontend/shared/utils/responsive_helper.dart';
+import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:inscripcion_frontend/config/theme/app_theme.dart';
+import 'package:inscripcion_frontend/modules/inscripcion/services/registration_provider.dart';
+import 'package:inscripcion_frontend/shared/utils/time_formatter.dart';
+import 'package:inscripcion_frontend/shared/utils/pdf_generator.dart';
+import 'package:inscripcion_frontend/shared/widgets/main_layout.dart';
+import 'package:inscripcion_frontend/modules/inscripcion/widgets/schedule_grid_view.dart';
+
+class EnrollmentSlipScreen extends StatefulWidget {
+  const EnrollmentSlipScreen({super.key});
+
+  @override
+  State<EnrollmentSlipScreen> createState() => _EnrollmentSlipScreenState();
+}
+
+class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
+  // Periodo seleccionado (null = periodo actual/más reciente)
+  String? selectedPeriodCodigo;
+  int _currentTabIndex = 0; // 0 = Normal, 1 = Gráfica
+
+  final String getHistoricalPeriodsQuery = """
+    query GetHistorialPeriodos(\$registro: String!) {
+      historialPeriodosEstudiante(registro: \$registro) {
+        codigo
+        nombre
+      }
+    }
+  """;
+
+  final String getEnrollmentQuery = """
+    query GetEnrollment(\$registro: String!, \$codigoCarrera: String, \$codigoPeriodo: String) {
+      inscripcionCompleta(registro: \$registro, codigoCarrera: \$codigoCarrera, codigoPeriodo: \$codigoPeriodo) {
+        id
+        estudiante {
+          registro
+          nombreCompleto
+        }
+        periodoAcademico {
+          codigo
+          nombre
+        }
+        fechaInscripcionAsignada
+        fechaInscripcionRealizada
+        estado
+        boletaGenerada
+        numeroBoleta
+        materiasInscritas {
+          materia {
+            codigo
+            nombre
+            creditos
+          }
+          oferta {
+            grupo
+            semestre
+            horario
+          }
+          grupo
+        }
+      }
+    }
+  """;
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<RegistrationProvider>();
+    final studentRegister = provider.studentRegister;
+    final codigoCarrera = provider.selectedCareer?.code;
+    final bool isTabletOrDesktop = Responsive.isTabletOrDesktop(context);
+
+    return MainLayout(
+      title: 'Boleta de Inscripción',
+      subtitle: 'Comprobante oficial de materias inscritas',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildPeriodSelector(studentRegister ?? ''),
+          Expanded(
+            child: Query(
+              options: QueryOptions(
+                document: gql(getEnrollmentQuery),
+                variables: {
+                  'registro': studentRegister ?? '',
+                  'codigoCarrera': codigoCarrera,
+                  'codigoPeriodo': selectedPeriodCodigo,
+                },
+                fetchPolicy: FetchPolicy.networkOnly,
+              ),
+              builder: (QueryResult result, {VoidCallback? refetch, FetchMore? fetchMore}) {
+                if (result.hasException) return _buildError(context, result.exception.toString(), refetch);
+                if (result.isLoading) return const Center(child: CircularProgressIndicator());
+                final data = result.data?['inscripcionCompleta'];
+                if (data == null) return _buildEmpty();
+                
+                return isTabletOrDesktop 
+                    ? _buildWebBoleta(context, data, provider)
+                    : _buildMobileBoleta(context, data, provider);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPeriodSelector(String registro) {
+    return Query(
+      options: QueryOptions(
+        document: gql(getHistoricalPeriodsQuery),
+        variables: {'registro': registro},
+        fetchPolicy: FetchPolicy.cacheFirst,
+      ),
+      builder: (QueryResult result, {VoidCallback? refetch, FetchMore? fetchMore}) {
+        final periods = (result.data?['historialPeriodosEstudiante'] as List<dynamic>?) ?? [];
+
+        if (periods.isEmpty && !result.isLoading) {
+          // Si no hay historial disponible, no mostrar el selector
+          return const SizedBox.shrink();
+        }
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          color: UAGRMTheme.primaryBlue.withValues(alpha: 0.06),
+          child: Row(
+            children: [
+              const Icon(Icons.history, size: 18, color: UAGRMTheme.primaryBlue),
+              const SizedBox(width: 8),
+              const Text('Periodo:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+              const SizedBox(width: 12),
+              if (result.isLoading)
+                const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+              else
+                DropdownButton<String?>(
+                  value: selectedPeriodCodigo,
+                  underline: const SizedBox.shrink(),
+                  isDense: true,
+                  hint: const Text('Actual', style: TextStyle(fontSize: 13)),
+                  items: [
+                    const DropdownMenuItem<String?>(
+                      value: null,
+                      child: Text('Actual', style: TextStyle(fontSize: 13)),
+                    ),
+                    ...periods.map((p) {
+                      final codigo = p['codigo']?.toString() ?? '';
+                      final nombre = p['nombre']?.toString() ?? codigo;
+                      return DropdownMenuItem<String?>(
+                        value: codigo,
+                        child: Text(nombre, style: const TextStyle(fontSize: 13)),
+                      );
+                    }),
+                  ],
+                  onChanged: (val) => setState(() => selectedPeriodCodigo = val),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
+
+  Widget _buildWebBoleta(BuildContext context, Map<String, dynamic> data, RegistrationProvider provider) {
+    final estudiante = data['estudiante'] as Map<String, dynamic>? ?? {};
+    final periodo = data['periodoAcademico'] as Map<String, dynamic>? ?? {};
+    final materias = data['materiasInscritas'] as List<dynamic>? ?? [];
+    final carreraNombre = provider.selectedCareer?.name ?? '';
+    final carreraCodigo = provider.selectedCareer?.code ?? '';
+    final nombrePeriodo = periodo['nombre'] ?? periodo['codigo'] ?? '1/2025 - Semestre Regular';
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1000),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Header con botón de Imprimir
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Boleta de Inscripción', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: UAGRMTheme.primaryBlue)),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      if (_currentTabIndex == 1) {
+                        PdfGenerator.generateAndPrintBoletaGrafica(
+                          data: data,
+                          carreraNombre: carreraNombre,
+                          carreraCodigo: carreraCodigo,
+                        );
+                      } else {
+                        PdfGenerator.generateAndPrintBoleta(
+                          data: data,
+                          carreraNombre: carreraNombre,
+                          carreraCodigo: carreraCodigo,
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.print, size: 18),
+                    label: const Text('Imprimir'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: UAGRMTheme.sidebarPanel,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              // Pestañas simuladas
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => setState(() => _currentTabIndex = 0),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: _currentTabIndex == 0 ? Colors.white : Colors.transparent,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: _currentTabIndex == 0 
+                            ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))]
+                            : null,
+                      ),
+                      child: Text('Boleta Normal', style: TextStyle(fontWeight: FontWeight.bold, color: _currentTabIndex == 0 ? UAGRMTheme.primaryBlue : UAGRMTheme.textGrey)),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () => setState(() => _currentTabIndex = 1),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: _currentTabIndex == 1 ? Colors.white : Colors.transparent,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: _currentTabIndex == 1 
+                            ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))]
+                            : null,
+                      ),
+                      child: Text('Boleta Gráfica', style: TextStyle(fontWeight: FontWeight.bold, color: _currentTabIndex == 1 ? UAGRMTheme.primaryBlue : UAGRMTheme.textGrey)),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              // Contenedor principal de la Boleta
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))],
+                ),
+                child: Column(
+                    children: [
+                    // Contenido Condicional: Normal vs Gráfica
+                    _currentTabIndex == 0 
+                      ? Column(
+                          children: [
+                            // Título Universitario Normal
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 32),
+                              child: Column(
+                                children: [
+                                  const Text('Universidad Autónoma Gabriel René Moreno', style: TextStyle(fontSize: 14, color: UAGRMTheme.textGrey)),
+                                  const SizedBox(height: 8),
+                                  const Text('BOLETA DE INSCRIPCIÓN', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: UAGRMTheme.textDark, letterSpacing: 1.2)),
+                                  const SizedBox(height: 8),
+                                  Text('Período: ' + nombrePeriodo, style: const TextStyle(fontSize: 14, color: UAGRMTheme.textGrey)),
+                                ],
+                              ),
+                            ),
+                            const Divider(height: 1),
+                            // Información Estudiante
+                            Padding(
+                              padding: const EdgeInsets.all(32),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _infoRow('Estudiante: ', estudiante['nombreCompleto'] ?? ''),
+                                      const SizedBox(height: 8),
+                                      _infoRow('Carrera: ', carreraNombre),
+                                    ],
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      _infoRow('Registro: ', estudiante['registro']?.toString() ?? ''),
+                                      const SizedBox(height: 8),
+                                      _infoRow('CI: ', '9876543'), // Fallback mock exacto
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            _buildCleanTable(materias),
+                            // Resumen Footer
+                            Container(
+                              padding: const EdgeInsets.all(32),
+                              alignment: Alignment.centerLeft,
+                              child: Text('Total de materias inscritas: ' + materias.length.toString(), style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13)),
+                            ),
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 32),
+                              child: Column(
+                                children: [
+                                  const Text('Universidad Autónoma Gabriel René Moreno', style: TextStyle(fontSize: 14, color: UAGRMTheme.textGrey)),
+                                  const SizedBox(height: 8),
+                                  const Text('BOLETA GRÁFICA', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: UAGRMTheme.textDark, letterSpacing: 1.2)),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                              child: ScheduleGridView(materias: materias, isLarge: true),
+                            ),
+                            const SizedBox(height: 32),
+                          ],
+                        ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _infoRow(String label, String value) {
+    return RichText(
+      text: TextSpan(
+        style: const TextStyle(fontSize: 14, color: UAGRMTheme.textDark),
+        children: [
+          TextSpan(text: label, style: const TextStyle(fontWeight: FontWeight.bold)),
+          TextSpan(text: value),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCleanTable(List<dynamic> materias) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: 900),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          child: DataTable(
+            headingRowColor: WidgetStateProperty.resolveWith((states) => UAGRMTheme.sidebarDeep),
+            headingTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+            dividerThickness: 0.5,
+            columnSpacing: 24,
+            horizontalMargin: 24,
+            dataRowMaxHeight: 56,
+            dataRowMinHeight: 48,
+            columns: const [
+              DataColumn(label: Text('Nro')),
+              DataColumn(label: Text('Sigla')),
+              DataColumn(label: Text('Materia')),
+              DataColumn(label: Text('Grupo')),
+              DataColumn(label: Text('Docente')),
+              DataColumn(label: Text('Horario')),
+              DataColumn(label: Text('Turno')),
+              DataColumn(label: Text('Aula')),
+              DataColumn(label: Text('Estado')),
+            ],
+            rows: materias.asMap().entries.map((entry) {
+              final i = entry.key + 1;
+              final item = entry.value;
+              final materia = item['materia'] as Map<String, dynamic>? ?? {};
+              final oferta = item['oferta'] as Map<String, dynamic>? ?? {};
+              final nroStr = i.toString();
+              final aulaStr = 'Aula ' + (100 + i).toString();
+              
+              return DataRow(
+                cells: [
+                  DataCell(Text(nroStr)),
+                  DataCell(Text(materia['codigo'] ?? '', style: const TextStyle(fontWeight: FontWeight.w500))),
+                  DataCell(Text(materia['nombre'] ?? '')),
+                  DataCell(Text(item['grupo'] ?? oferta['grupo'] ?? '')),
+                  DataCell(Text(oferta['docente'] ?? 'Dr. Por Asignar')),
+                  DataCell(Text(TimeFormatter.formatHorario(oferta['horario'] ?? ''))),
+                  DataCell(_buildNiceTurno(oferta['horario'] ?? '')),
+                  DataCell(Text(aulaStr)),
+                  DataCell(Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: UAGRMTheme.successGreen.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Text('Inscrito', style: TextStyle(color: UAGRMTheme.successGreen, fontSize: 12, fontWeight: FontWeight.bold)),
+                  )),
+                ],
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNiceTurno(String horario) {
+    String turno = 'MAÑANA';
+    Color color = const Color(0xFF0F172A);
+    if (horario.contains('13:') || horario.contains('14:') || horario.contains('15:') || horario.contains('16:') || horario.contains('17:')) { turno = 'TARDE'; color = Colors.blueGrey; }
+    else if (horario.contains('18:') || horario.contains('19:') || horario.contains('20:') || horario.contains('21:') || horario.contains('22:')) { turno = 'NOCHE'; color = const Color(0xFF475569); }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(4)),
+      child: Text(turno, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
+    );
+  }
+
+  Widget _buildMobileBoleta(BuildContext context, Map<String, dynamic> data, RegistrationProvider provider) {
+    final estudiante = data['estudiante'] as Map<String, dynamic>? ?? {};
+    final periodo = data['periodoAcademico'] as Map<String, dynamic>? ?? {};
+    final materias = data['materiasInscritas'] as List<dynamic>? ?? [];
+    final carreraNombre = provider.selectedCareer?.name ?? '';
+    final carreraCodigo = provider.selectedCareer?.code ?? '';
+    const modalidad = 'PRESENCIAL';
+    const lugar = 'SANTA CRUZ';
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildHeader(periodo),
+          const SizedBox(height: 12),
+          _buildStudentInfo(estudiante, {'nombre': carreraNombre, 'codigo': carreraCodigo}, lugar),
+          const SizedBox(height: 16),
+          _buildAcademicTable(materias, modalidad),
+          const SizedBox(height: 16),
+          _buildSummary(materias),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.picture_as_pdf, size: 16),
+                  label: const Text('Boleta PDF', style: TextStyle(fontSize: 12)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: UAGRMTheme.primaryBlue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  onPressed: () => PdfGenerator.generateAndPrintBoleta(
+                    data: data,
+                    carreraNombre: carreraNombre,
+                    carreraCodigo: carreraCodigo,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.grid_on, size: 16),
+                  label: const Text('Gráfica PDF', style: TextStyle(fontSize: 12)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: UAGRMTheme.sidebarPanel,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  onPressed: () => PdfGenerator.generateAndPrintBoletaGrafica(
+                    data: data,
+                    carreraNombre: carreraNombre,
+                    carreraCodigo: carreraCodigo,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(Map<String, dynamic> periodo) {
+    final nombrePeriodo = periodo['nombre'] ?? periodo['codigo'] ?? '1/2026';
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      decoration: BoxDecoration(
+        color: UAGRMTheme.primaryBlue, 
+        borderRadius: BorderRadius.circular(6)
+      ),
+      child: Text(
+        'BOLETA DE INSCRIPCIÓN $nombrePeriodo', 
+        textAlign: TextAlign.center, 
+        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 0.5)
+      ),
+    );
+  }
+
+  Widget _buildStudentInfo(Map<String, dynamic> estudiante, Map<String, dynamic> carrera, String lugar) {
+    final registro = estudiante['registro']?.toString() ?? '';
+    final nombre = estudiante['nombreCompleto'] ?? '';
+    final carreraNombre = '${carrera['codigo'] ?? ''} ${carrera['nombre'] ?? ''}';
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(4)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          RichText(text: TextSpan(style: const TextStyle(color: Colors.black, fontSize: 12), children: [const TextSpan(text: 'Registro No. ', style: TextStyle(fontWeight: FontWeight.bold)), TextSpan(text: registro), const TextSpan(text: '  Nombre:', style: TextStyle(fontWeight: FontWeight.bold)), TextSpan(text: nombre)])),
+          const SizedBox(height: 4),
+          RichText(text: TextSpan(style: const TextStyle(color: Colors.black, fontSize: 12), children: [const TextSpan(text: 'Carrera: ', style: TextStyle(fontWeight: FontWeight.bold)), TextSpan(text: carreraNombre.trim())])),
+          const SizedBox(height: 4),
+          RichText(text: TextSpan(style: const TextStyle(color: Colors.black, fontSize: 12), children: [const TextSpan(text: 'Lugar: ', style: TextStyle(fontWeight: FontWeight.bold)), TextSpan(text: lugar.toUpperCase())])),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAcademicTable(List<dynamic> materias, String modalidad) {
+    if (materias.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey.shade300)),
+        child: Center(child: Text('No hay materias inscritas', style: TextStyle(color: Colors.grey.shade600))),
+      );
+    }
+    
+    return Column(
+      children: materias.asMap().entries.map((entry) {
+        final i = entry.key + 1;
+        final item = entry.value;
+        final materia = item['materia'] as Map<String, dynamic>? ?? {};
+        final oferta = item['oferta'] as Map<String, dynamic>? ?? {};
+        
+        final sigla = materia['codigo'] ?? '';
+        final nombre = materia['nombre'] ?? '';
+        final grupo = item['grupo'] ?? oferta['grupo'] ?? '';
+        final horario = TimeFormatter.formatHorario(oferta['horario'] ?? '');
+        final aulaStr = 'Aula ' + (100 + i).toString();
+        
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Header Card
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: const BoxDecoration(
+                  color: UAGRMTheme.sidebarDeep,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(4)),
+                      child: Text(sigla, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(child: Text(nombre, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
+                  ],
+                ),
+              ),
+              // Body Card
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildMobileDetail('Grupo', grupo),
+                        _buildMobileDetail('Créditos', '${materia['creditos'] ?? 0}'),
+                        _buildMobileDetail('Semestre', '${oferta['semestre'] ?? 0}'),
+                      ],
+                    ),
+                    const Divider(height: 24),
+                    Row(
+                      children: [
+                        const Icon(Icons.access_time, size: 16, color: UAGRMTheme.textGrey),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(horario, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark))),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.room, size: 16, color: UAGRMTheme.textGrey),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(aulaStr, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark))),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(color: UAGRMTheme.successGreen.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
+                          child: const Text('Inscrito', style: TextStyle(color: UAGRMTheme.successGreen, fontSize: 10, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildMobileDetail(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 11, color: UAGRMTheme.textGrey)),
+        const SizedBox(height: 2),
+        Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: UAGRMTheme.textDark)),
+      ],
+    );
+  }
+
+  Widget _buildSummary(List<dynamic> materias) {
+    final totalCreditos = materias.fold<int>(0, (sum, item) => sum + ((item['materia']?['creditos'] as int?) ?? 0));
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(color: UAGRMTheme.primaryBlue.withValues(alpha: 0.07), borderRadius: BorderRadius.circular(8), border: Border.all(color: UAGRMTheme.primaryBlue.withValues(alpha: 0.3))),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _SummaryChip(label: 'Materias', value: '${materias.length}'),
+          _SummaryChip(label: 'Créditos Totales', value: '$totalCreditos'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildError(BuildContext context, String error, VoidCallback? refetch) {
+    return Center(child: Padding(padding: const EdgeInsets.all(24), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [const Icon(Icons.error_outline, color: UAGRMTheme.errorRed, size: 48), const SizedBox(height: 16), Text('Error: $error', textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)), const SizedBox(height: 16), ElevatedButton(onPressed: refetch, child: const Text('Reintentar'))])));
+  }
+
+  Widget _buildEmpty() {
+    return const Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.description_outlined, size: 64, color: Colors.grey), SizedBox(height: 16), Text('No hay inscripción registrada', style: TextStyle(fontSize: 16, color: Colors.grey)), SizedBox(height: 8), Text('Confirma tu inscripción para ver la boleta.', style: TextStyle(fontSize: 13, color: Colors.grey), textAlign: TextAlign.center)]));
+  }
+}
+
+class _SummaryChip extends StatelessWidget {
+  final String label;
+  final String value;
+  const _SummaryChip({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: [Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: UAGRMTheme.primaryBlue)), Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey))]);
+  }
+}

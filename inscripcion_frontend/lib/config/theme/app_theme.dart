@@ -13,6 +13,14 @@ class UAGRMTheme {
   static const Color successGreen = Color(0xFF388E3C);
   static const Color warningOrange = Color(0xFFFF9800);
 
+  // Paleta del Sidebar / Navegación (Navy Dark)
+  static const Color sidebarBg = Color(0xFF0F172A);       // Fondo principal del sidebar
+  static const Color sidebarDeep = Color(0xFF0B1A2B);     // Cabeceras de tablas y botones primarios
+  static const Color sidebarPanel = Color(0xFF1E293B);    // Paneles / tarjetas internas
+  static const Color sidebarHover = Color(0xFF334155);    // Hover / selección suave
+  static const Color sidebarActiveRed = Color(0xFFDC0000);// Botón activo rojo
+  static const Color sidebarActiveRedHover = Color(0xFFB91C1C); // Hover botón rojo
+
   static final ThemeData themeData = ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme.light(
@@ -133,7 +141,6 @@ class UAGRMTheme {
     ),
   );
 
-  // ─── DARK THEME ─────────────────────────────────────────────────────────────
   static const Color darkBackground = Color(0xFF121212);
   static const Color darkSurface = Color(0xFF1E1E1E);
   static const Color darkCard = Color(0xFF252525);

@@ -1,0 +1,150 @@
+﻿[        ] Artifact Instance of 'FlutterWebSdk' is not required, skipping update.
+[   +2 ms] Artifact Instance of 'LegacyCanvasKitRemover' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterSdk' is not required, skipping update.
+[        ] Artifact Instance of 'WindowsEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerDebugSymbols' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FontSubsetArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'PubDependencies' is not required, skipping update.
+[   +1 ms] executing: [C:\src\flutter\flutter/] git -c log.showSignature=false log HEAD -n 1 --pretty=format:%ad --date=iso
+[ +108 ms] Exit code 0 from: git -c log.showSignature=false log HEAD -n 1 --pretty=format:%ad --date=iso
+[        ] 2026-02-27 17:09:06 -0500
+[  +57 ms] Artifact Instance of 'AndroidGenSnapshotArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidInternalBuildArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterWebSdk' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterEngineStamp' is not required, skipping update.
+[        ] Artifact Instance of 'LegacyCanvasKitRemover' is not required, skipping update.
+[   +6 ms] Artifact Instance of 'WindowsEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerDebugSymbols' is not required, skipping update.
+[ +279 ms] Artifact Instance of 'AndroidGenSnapshotArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidInternalBuildArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IOSEngineArtifacts' is not required, skipping update.
+[   +1 ms] Artifact Instance of 'FlutterEngineStamp' is not required, skipping update.
+[   +6 ms] Artifact Instance of 'WindowsEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerDebugSymbols' is not required, skipping update.
+[ +127 ms] executing: [C:\Users\User-DTIC\inscripci-n_uagrm\inscripcion_frontend/] C:\src\flutter\flutter\bin\cache\dart-sdk\bin\dart pub --suppress-analytics --directory . get --example
+Resolving dependencies...
+Downloading packages...
+  connectivity_plus 6.1.5 (7.0.0 available)
+  gql_dedupe_link 2.0.4-alpha+1715521079596 (4.0.0 available)
+  graphql 5.2.3 (5.2.4 available)
+  graphql_flutter 5.2.1 (5.3.0 available)
+  image 4.5.4 (4.8.0 available)
+  matcher 0.12.18 (0.12.19 available)
+  meta 1.17.0 (1.18.1 available)
+  normalize 0.9.1 (0.10.0 available)
+  pdf 3.11.3 (3.12.0 available)
+  printing 5.14.2 (5.14.3 available)
+  test_api 0.7.9 (0.7.10 available)
+Got dependencies!
+11 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+[+1093 ms] Found plugin shared_preferences at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences-2.5.4\
+[  +11 ms] Found plugin shared_preferences_windows at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_windows-2.4.1\
+[  +11 ms] Found plugin path_provider_windows at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_windows-2.3.0\
+[  +15 ms] Found plugin shared_preferences_web at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_web-2.4.3\
+[   +8 ms] Found plugin shared_preferences_linux at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_linux-2.4.1\
+[   +5 ms] Found plugin path_provider_linux at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_linux-2.2.1\
+[   +7 ms] Found plugin shared_preferences_foundation at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_foundation-2.5.6\
+[   +9 ms] Found plugin shared_preferences_android at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_android-2.4.21\
+[  +14 ms] Found plugin printing at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\printing-5.14.2\
+[  +63 ms] Found plugin path_provider at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider-2.1.5\
+[   +4 ms] Found plugin path_provider_foundation at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_foundation-2.6.0\
+[  +33 ms] Found plugin path_provider_android at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_android-2.2.22\
+[  +56 ms] Found plugin connectivity_plus at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\connectivity_plus-6.1.5\
+[ +127 ms] Found plugin shared_preferences at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences-2.5.4\
+[   +4 ms] Found plugin shared_preferences_windows at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_windows-2.4.1\
+[   +7 ms] Found plugin path_provider_windows at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_windows-2.3.0\
+[  +12 ms] Found plugin shared_preferences_web at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_web-2.4.3\
+[   +6 ms] Found plugin shared_preferences_linux at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_linux-2.4.1\
+[   +4 ms] Found plugin path_provider_linux at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_linux-2.2.1\
+[   +6 ms] Found plugin shared_preferences_foundation at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_foundation-2.5.6\
+[   +5 ms] Found plugin shared_preferences_android at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_android-2.4.21\
+[  +13 ms] Found plugin printing at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\printing-5.14.2\
+[  +52 ms] Found plugin path_provider at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider-2.1.5\
+[   +3 ms] Found plugin path_provider_foundation at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_foundation-2.6.0\
+[  +26 ms] Found plugin path_provider_android at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_android-2.2.22\
+[  +45 ms] Found plugin connectivity_plus at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\connectivity_plus-6.1.5\
+[  +32 ms] Skipping generating web_plugin_registrant.dart because it is up-to-date.
+[  +50 ms] Found plugin shared_preferences at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences-2.5.4\
+[   +2 ms] Found plugin shared_preferences_windows at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_windows-2.4.1\
+[   +5 ms] Found plugin path_provider_windows at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_windows-2.3.0\
+[   +7 ms] Found plugin shared_preferences_web at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_web-2.4.3\
+[   +6 ms] Found plugin shared_preferences_linux at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_linux-2.4.1\
+[   +2 ms] Found plugin path_provider_linux at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_linux-2.2.1\
+[   +3 ms] Found plugin shared_preferences_foundation at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_foundation-2.5.6\
+[   +1 ms] Found plugin shared_preferences_android at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_android-2.4.21\
+[   +4 ms] Found plugin printing at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\printing-5.14.2\
+[  +28 ms] Found plugin path_provider at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider-2.1.5\
+[   +2 ms] Found plugin path_provider_foundation at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_foundation-2.6.0\
+[  +15 ms] Found plugin path_provider_android at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_android-2.2.22\
+[  +30 ms] Found plugin connectivity_plus at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\connectivity_plus-6.1.5\
+[  +16 ms] Generating C:\Users\User-DTIC\inscripci-n_uagrm\inscripcion_frontend\android\app\src\main\java\io\flutter\plugins\GeneratedPluginRegistrant.java
+[   +3 ms] Skipping generating GeneratedPluginRegistrant.java because it is up-to-date.
+[   +6 ms] Skipping generating generated_plugin_registrant.h because it is up-to-date.
+[   +2 ms] Skipping generating generated_plugin_registrant.cc because it is up-to-date.
+[   +3 ms] Skipping generating generated_plugins.cmake because it is up-to-date.
+[   +3 ms] Skipping generating GeneratedPluginRegistrant.h because it is up-to-date.
+[   +2 ms] Skipping generating GeneratedPluginRegistrant.m because it is up-to-date.
+[ +176 ms] Launching lib\main.dart on Edge in debug mode...
+[ +225 ms] Initializing file store
+[   +5 ms] Done initializing file store
+[  +39 ms] Skipping target: gen_localizations
+[   +5 ms] Skipping target: gen_dart_plugin_registrant
+[   +2 ms] Skipping target: _composite
+[   +6 ms] complete
+[   +3 ms] Updating assets
+[   +5 ms] runHooks() with {TargetFile: C:\Users\User-DTIC\inscripci-n_uagrm\inscripcion_frontend\lib\main.dart, BuildMode: debug} and TargetPlatform.web_javascript
+[        ] runHooks() - will perform dart build
+[   +3 ms] Initializing file store
+[   +1 ms] Done initializing file store
+[  +34 ms] Skipping target: dart_build
+[   +1 ms] Persisting file store
+[   +5 ms] Done persisting file store
+[  +14 ms] runHooks() - done
+[ +655 ms] Waiting for connection from debug service on Edge...
+[ +123 ms] Found plugin shared_preferences at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences-2.5.4\
+[   +2 ms] Found plugin shared_preferences_windows at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_windows-2.4.1\
+[   +6 ms] Found plugin path_provider_windows at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_windows-2.3.0\
+[  +10 ms] Found plugin shared_preferences_web at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_web-2.4.3\
+[  +17 ms] Found plugin shared_preferences_linux at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_linux-2.4.1\
+[   +2 ms] Found plugin path_provider_linux at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_linux-2.2.1\
+[   +3 ms] Found plugin shared_preferences_foundation at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_foundation-2.5.6\
+[   +1 ms] Found plugin shared_preferences_android at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_android-2.4.21\
+[   +4 ms] Found plugin printing at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\printing-5.14.2\
+[  +34 ms] Found plugin path_provider at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider-2.1.5\
+[   +2 ms] Found plugin path_provider_foundation at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_foundation-2.6.0\
+[  +21 ms] Found plugin path_provider_android at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_android-2.2.22\
+[  +40 ms] Found plugin connectivity_plus at C:\Users\User-DTIC\AppData\Local\Pub\Cache\hosted\pub.dev\connectivity_plus-6.1.5\
+[  +79 ms] shaderc command: [C:\src\flutter\flutter\bin\cache\artifacts\engine\windows-x64\impellerc.exe, --sksl, --iplr, --json, --sl=build\flutter_assets\shaders/ink_sparkle.frag, --spirv=build\flutter_assets\shaders/ink_sparkle.frag.spirv, --input=C:\src\flutter\flutter\packages\flutter\lib\src\material\shaders\ink_sparkle.frag, --input-type=frag, --include=C:\src\flutter\flutter\packages\flutter\lib\src\material\shaders, --include=C:\src\flutter\flutter\bin\cache\artifacts\engine\windows-x64\shader_lib]
+[   +2 ms] shaderc command: [C:\src\flutter\flutter\bin\cache\artifacts\engine\windows-x64\impellerc.exe, --sksl, --iplr, --json, --sl=build\flutter_assets\shaders/stretch_effect.frag, --spirv=build\flutter_assets\shaders/stretch_effect.frag.spirv, --input=C:\src\flutter\flutter\packages\flutter\lib\src\material\shaders\stretch_effect.frag, --input-type=frag, --include=C:\src\flutter\flutter\packages\flutter\lib\src\material\shaders, --include=C:\src\flutter\flutter\bin\cache\artifacts\engine\windows-x64\shader_lib]
+[ +888 ms] <- reset
+[   +6 ms] C:\src\flutter\flutter\bin\cache\dart-sdk\bin\dartaotruntime.exe C:\src\flutter\flutter\bin\cache\dart-sdk\bin\snapshots\frontend_server_aot.dart.snapshot --sdk-root C:\src\flutter\flutter\bin\cache\flutter_web_sdk/ --incremental --target=dartdevc --experimental-emit-debug-metadata -DFLUTTER_VERSION=3.41.3 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=48c32af034 -DFLUTTER_ENGINE_REVISION=327ed81450 -DFLUTTER_DART_VERSION=3.11.1 --output-dill C:\Users\USER-D~1\AppData\Local\Temp\flutter_tools.cc2b259e\flutter_tool.42227954\app.dill --packages C:\Users\User-DTIC\inscripci-n_uagrm\inscripcion_frontend\.dart_tool\package_config.json -Ddart.vm.profile=false -Ddart.vm.product=false --enable-asserts --track-widget-creation --filesystem-root C:\Users\USER-D~1\AppData\Local\Temp\flutter_tools.cc2b259e\flutter_tools.db980cbf --filesystem-scheme org-dartlang-app --initialize-from-dill build\b2f7e7edd35b3c8d4f463bb8b035ecd8.cache.dill.track.dill --platform file:///C:/src/flutter/flutter/bin/cache/flutter_web_sdk/kernel/ddc_outline.dill --verbosity=error --dartdevc-canary --dartdevc-module-format=ddc
+[  +18 ms] <- compile org-dartlang-app:/web_entrypoint.dart
+[+76579 ms] Waiting for connection from debug service on Edge... (completed in 88,0s)
+[   +5 ms] Synced 0.0MB.
+[   +9 ms] "flutter run" took 91.564ms.
+[   +2 ms] Running 3 shutdown hooks
+[  +44 ms] Shutdown hooks complete
+[ +235 ms] exiting with code 1

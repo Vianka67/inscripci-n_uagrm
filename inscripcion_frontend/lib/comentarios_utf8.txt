@@ -1,0 +1,163 @@
+﻿config\theme\app_theme.dart:  // Paleta de colores oficial
+config\theme\app_theme.dart:  static const Color primaryRed = Color(0xFFCC0000); // Rojo cl├â┬ísico bandera
+config\theme\app_theme.dart:    // Tipograf├â┬¡a
+config\theme\app_theme.dart:    // Estilo de botones
+config\theme\app_theme.dart:    // Estilo de Inputs
+config\theme\app_theme.dart:    // Estilo de Cards
+config\theme\app_theme.dart:    // AppBar personalizada
+config\theme\app_theme.dart:    // Snacks
+config\theme\app_theme.dart:  // ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼ DARK THEME ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+main.dart:  // Configurar barra de estado para que sea legible
+main.dart:      statusBarColor: Colors.transparent, // Barra transparente
+main.dart:      statusBarIconBrightness: Brightness.dark, // Iconos oscuros (para fondo claro)
+main.dart:      statusBarBrightness: Brightness.light, // Para iOS
+modules\inscripcion\models\career.dart:      durationSemesters: json['duracionSemestres'] ?? 9, // Default 9 semestres
+modules\inscripcion\models\student.dart:  final String status; // ACTIVO, BLOQUEADO
+modules\inscripcion\models\student.dart:      enabledSubjects: true, // Defaulting to true as it's not in options
+modules\inscripcion\pages\blocked_status_screen.dart:    // M├â┬│vil: dise├â┬▒o original
+modules\inscripcion\pages\career_selection_screen.dart:            // Tablet + Desktop: lista centrada con ancho m├â┬íximo
+modules\inscripcion\pages\career_selection_screen.dart:          // M├â┬│vil: lista original
+modules\inscripcion\pages\enabled_subjects_screen.dart:                    // Resumen
+modules\inscripcion\pages\enabled_subjects_screen.dart:                    // Tabla web
+modules\inscripcion\pages\enabled_subjects_screen.dart:                          // Header
+modules\inscripcion\pages\enabled_subjects_screen.dart:                          // Filas
+modules\inscripcion\pages\enabled_subjects_screen.dart:        // M├â┬│vil: dise├â┬▒o original con cards
+modules\inscripcion\pages\enrollment_dates_screen.dart:    // M├â┬│vil: dise├â┬▒o original
+modules\inscripcion\pages\enrollment_screen.dart:  // Filtros
+modules\inscripcion\pages\enrollment_screen.dart:  // Selecci├â┬│n de materias y grupos
+modules\inscripcion\pages\enrollment_screen.dart:  Map<String, dynamic> selectedGroupsPerSubject = {}; // materia_codigo -> oferta_data
+modules\inscripcion\pages\enrollment_screen.dart:  // Estado de confirmaci├â┬│n: null = no confirmado, true/false = en proceso/resultado
+modules\inscripcion\pages\enrollment_screen.dart:              // --- Barra azul de t├â┬¡tulo ---
+modules\inscripcion\pages\enrollment_screen.dart:              // --- Lista de periodos ---
+modules\inscripcion\pages\enrollment_screen.dart:        // Filtros (solo visibles si no est├â┬í confirmado)
+modules\inscripcion\pages\enrollment_screen.dart:        // Contenido Principal
+modules\inscripcion\pages\enrollment_screen.dart:              // Agrupar ofertas por materia
+modules\inscripcion\pages\enrollment_screen.dart:                    // === ESTADO: SELECCI├âÔÇ£N (antes de confirmar) ===
+modules\inscripcion\pages\enrollment_screen.dart:                    // === ESTADO: CONFIRMADO (solo muestra tabla de grupos confirmados) ===
+modules\inscripcion\pages\enrollment_screen.dart:  /// Devuelve true si al menos un grupo de la materia tiene cupos disponibles
+modules\inscripcion\pages\enrollment_screen.dart:  /// Muestra un SnackBar en la parte SUPERIOR de la pantalla
+modules\inscripcion\pages\enrollment_screen.dart:  /// Encabezado "Seleccionar Todas las Materias" ├óÔé¼ÔÇØ ahora con l├â┬│gica real
+modules\inscripcion\pages\enrollment_screen.dart:    // Solo contar las materias que tienen cupos disponibles
+modules\inscripcion\pages\enrollment_screen.dart:                      int autoTurno = 0;   // asignadas en un turno alternativo
+modules\inscripcion\pages\enrollment_screen.dart:                      int sinCupo = 0;     // sin ning├â┬║n grupo disponible
+modules\inscripcion\pages\enrollment_screen.dart:                        if (newCodes.contains(code)) continue; // ya estaba seleccionada
+modules\inscripcion\pages\enrollment_screen.dart:                        // Filtrar grupos con cupo disponible
+modules\inscripcion\pages\enrollment_screen.dart:                          continue; // sin cupo en ning├â┬║n turno
+modules\inscripcion\pages\enrollment_screen.dart:                        // Buscar el primer grupo con cupo que no choque
+modules\inscripcion\pages\enrollment_screen.dart:                        // Primero intentar el primer grupo disponible
+modules\inscripcion\pages\enrollment_screen.dart:                          // El primer grupo choca: buscar en los dem├â┬ís grupos con cupo
+modules\inscripcion\pages\enrollment_screen.dart:                          // Todos los grupos con cupo chocan con el horario actual
+modules\inscripcion\pages\enrollment_screen.dart:                          // Igualmente asignar el primero con cupo (el usuario puede ajustar)
+modules\inscripcion\pages\enrollment_screen.dart:                      // Notificaciones post-setState
+modules\inscripcion\pages\enrollment_screen.dart:                      // Deseleccionar todas
+modules\inscripcion\pages\enrollment_screen.dart:                  0: FixedColumnWidth(50),  // Checkbox
+modules\inscripcion\pages\enrollment_screen.dart:                  1: FixedColumnWidth(80),  // Sigla
+modules\inscripcion\pages\enrollment_screen.dart:                  2: FixedColumnWidth(200), // Nombre
+modules\inscripcion\pages\enrollment_screen.dart:                  3: FixedColumnWidth(60),  // Grupo
+modules\inscripcion\pages\enrollment_screen.dart:                  4: FixedColumnWidth(150), // Docente
+modules\inscripcion\pages\enrollment_screen.dart:                  5: FixedColumnWidth(170), // Horario
+modules\inscripcion\pages\enrollment_screen.dart:                  6: FixedColumnWidth(60),  // Cupos
+modules\inscripcion\pages\enrollment_screen.dart:                              ? Colors.grey.shade100 // Otro grupo de esta misma materia ya est├â┬í elegido
+modules\inscripcion\pages\enrollment_screen.dart:                                            // Verificar cupos (redundante pero seguro)
+modules\inscripcion\pages\enrollment_screen.dart:                                            // Verificar choque de horario (excluyendo la materia actual si se est├â┬í cambiando de grupo)
+modules\inscripcion\pages\enrollment_screen.dart:                                            othersMap.remove(code); // Si ya ten├â┬¡a un grupo, no choca consigo mismo
+modules\inscripcion\pages\enrollment_screen.dart:  /// Tabla de grupos confirmados ├óÔé¼ÔÇØ solo se muestra DESPU├âÔÇ░S de confirmar
+modules\inscripcion\pages\enrollment_screen.dart:  /// Banner de ├â┬®xito tras confirmar
+modules\inscripcion\pages\enrollment_screen.dart:  /// Bot├â┬│n para reiniciar y hacer una nueva selecci├â┬│n
+modules\inscripcion\pages\enrollment_slip_screen.dart:  // Periodo seleccionado (null = periodo actual/m├â┬ís reciente)
+modules\inscripcion\pages\enrollment_slip_screen.dart:              // Selector de periodo hist├â┬│rico
+modules\inscripcion\pages\enrollment_slip_screen.dart:    // M├â┬│vil: layout original
+modules\inscripcion\pages\enrollment_slip_screen.dart:          // Si no hay historial disponible, no mostrar el selector
+modules\inscripcion\pages\enrollment_slip_screen.dart:  // ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼ BOLETA WEB ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+modules\inscripcion\pages\enrollment_slip_screen.dart:              // Tarjeta boleta estilo documento
+modules\inscripcion\pages\enrollment_slip_screen.dart:                    // Encabezado boleta
+modules\inscripcion\pages\enrollment_slip_screen.dart:                    // Datos del estudiante
+modules\inscripcion\pages\enrollment_slip_screen.dart:                    // Divider
+modules\inscripcion\pages\enrollment_slip_screen.dart:                    // Tabla de materias
+modules\inscripcion\pages\enrollment_slip_screen.dart:                    // Resumen
+modules\inscripcion\pages\enrollment_slip_screen.dart:          // Header
+modules\inscripcion\pages\enrollment_slip_screen.dart:  // ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼ BOLETA M├âÔÇ£VIL (original) ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+modules\inscripcion\pages\login_screen.dart:          // ignore: avoid_print
+modules\inscripcion\pages\login_screen.dart:    // Mobile: columna ├â┬║nica; Tablet + Desktop: dos columnas
+modules\inscripcion\pages\login_screen.dart:  // ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼ LAYOUT AMPLIO (Tablet + Desktop) ├óÔé¼ÔÇØ 2 columnas ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+modules\inscripcion\pages\login_screen.dart:          // Columna izquierda: branding
+modules\inscripcion\pages\login_screen.dart:          // Columna derecha: formulario
+modules\inscripcion\pages\login_screen.dart:  // ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼ LAYOUT M├âÔÇ£VIL (original) ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+modules\inscripcion\pages\login_screen.dart:  // ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼ FORMULARIO COMPARTIDO ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+modules\inscripcion\pages\main_panel_screen.dart:  // ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼ GRID TABLET / DESKTOP: centrado con columnas din├â┬ímicas ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+modules\inscripcion\pages\main_panel_screen.dart:  // ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼ GRID M├âÔÇ£VIL: 2 columnas, original ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+modules\inscripcion\pages\main_panel_screen.dart:  // ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼ OPCIONES COMPARTIDAS ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+modules\inscripcion\pages\semester_selection_screen.dart:  // ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼ WEB LAYOUT ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+modules\inscripcion\pages\semester_selection_screen.dart:            // Header compacto
+modules\inscripcion\pages\semester_selection_screen.dart:            // Contenido centrado
+modules\inscripcion\pages\semester_selection_screen.dart:                        // Columna izquierda: grid de semestres
+modules\inscripcion\pages\semester_selection_screen.dart:                        // Columna derecha: registro + bot├â┬│n
+modules\inscripcion\pages\semester_selection_screen.dart:  // ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼ M├âÔÇ£VIL: dise├â┬▒o original ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+modules\inscripcion\services\graphql_service.dart:  // IP de tu computadora en la red WiFi (obtenida con 'ipconfig')
+modules\inscripcion\services\graphql_service.dart:    // Si es web (Chrome), usa localhost
+modules\inscripcion\services\graphql_service.dart:      return 'http://localhost:8000/graphql/';
+modules\inscripcion\services\graphql_service.dart:    // Si es m├â┬│vil, usa la IP de la red local
+modules\inscripcion\services\graphql_service.dart:    return 'http://$_localNetworkIp:8000/graphql/';
+modules\inscripcion\widgets\student_info_header.dart:  // ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼ HEADER DESKTOP: barra horizontal completa ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+modules\inscripcion\widgets\student_info_header.dart:          // Avatar
+modules\inscripcion\widgets\student_info_header.dart:          // Nombre y registro
+modules\inscripcion\widgets\student_info_header.dart:          // Chips de informaci├â┬│n
+modules\inscripcion\widgets\student_info_header.dart:          // Badge de estado
+modules\inscripcion\widgets\student_info_header.dart:  // ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼ HEADER TABLET: barra horizontal compacta (sin chips, solo nombre y estado) ├óÔÇØÔé¼
+modules\inscripcion\widgets\student_info_header.dart:          // Avatar
+modules\inscripcion\widgets\student_info_header.dart:          // Nombre y registro
+modules\inscripcion\widgets\student_info_header.dart:          // Semestre y modalidad como chips peque├â┬▒os
+modules\inscripcion\widgets\student_info_header.dart:          // Badge de estado
+modules\inscripcion\widgets\student_info_header.dart:  // ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼ HEADER M├âÔÇ£VIL: dise├â┬▒o original ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+modules\inscripcion\widgets\student_info_header.dart:// ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼ Badge de estado (compartido entre desktop y tablet) ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+modules\inscripcion\widgets\student_info_header.dart:// ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼ Chip de info para tablet/desktop ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+modules\inscripcion\widgets\student_info_header.dart:// ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼ Mini card para m├â┬│vil (original) ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+modules\inscripcion\widgets\web_page_header.dart:/// Header de p├â┬ígina con fondo azul, t├â┬¡tulo y subt├â┬¡tulo en blanco.
+modules\inscripcion\widgets\web_page_header.dart:/// Se muestra en tablet y desktop. En m├â┬│vil devuelve vac├â┬¡o (se usa el AppBar nativo).
+modules\inscripcion\widgets\web_page_header.dart:          // ├â┬ìcono con fondo blanco semitransparente
+modules\inscripcion\widgets\web_page_header.dart:          // T├â┬¡tulo y subt├â┬¡tulo
+modules\inscripcion\widgets\web_page_header.dart:                // Breadcrumb (solo en desktop)
+modules\inscripcion\widgets\web_page_header.dart:                // T├â┬¡tulo principal
+modules\inscripcion\widgets\web_page_header.dart:                // Subt├â┬¡tulo
+modules\inscripcion\widgets\web_page_header.dart:          // Acciones opcionales
+modules\inscripcion\widgets\web_page_header.dart:          // Bot├â┬│n volver
+modules\inscripcion\widgets\web_page_header.dart:/// Contenedor de contenido centrado con fondo gris y max-width.
+modules\inscripcion\widgets\web_page_header.dart:/// Se aplica en tablet y desktop. En m├â┬│vil es transparente.
+shared\utils\pdf_generator.dart:    // A├▒adir p├ígina con el formato A4
+shared\utils\pdf_generator.dart:    // Intentar mostrar o descargar el PDF
+shared\utils\responsive_helper.dart:/// Sistema de breakpoints responsivo para la app UAGRM.
+shared\utils\responsive_helper.dart:///
+shared\utils\responsive_helper.dart:/// Breakpoints:
+shared\utils\responsive_helper.dart:///   Mobile  : ancho < 600 px
+shared\utils\responsive_helper.dart:///   Tablet  : 600 px ├óÔÇ░┬ñ ancho < 1024 px
+shared\utils\responsive_helper.dart:///   Desktop : ancho ├óÔÇ░┬Ñ 1024 px
+shared\utils\responsive_helper.dart:  // ├óÔÇØÔé¼├óÔÇØÔé¼ Breakpoints ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+shared\utils\responsive_helper.dart:  // ├óÔÇØÔé¼├óÔÇØÔé¼ Checks ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+shared\utils\responsive_helper.dart:  /// true para tablet Y desktop (├â┬║salo donde cualquier pantalla grande funciona)
+shared\utils\responsive_helper.dart:  // ├óÔÇØÔé¼├óÔÇØÔé¼ Valor seg├â┬║n breakpoint ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+shared\utils\responsive_helper.dart:  /// Devuelve [mobile], [tablet] o [desktop] seg├â┬║n el ancho de pantalla.
+shared\utils\responsive_helper.dart:  // ├óÔÇØÔé¼├óÔÇØÔé¼ Helpers de padding / grid ├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼├óÔÇØÔé¼
+shared\utils\responsive_helper.dart:  /// Padding horizontal recomendado seg├â┬║n el tama├â┬▒o de pantalla.
+shared\utils\responsive_helper.dart:  /// N├â┬║mero de columnas para un grid seg├â┬║n el tama├â┬▒o de pantalla.
+shared\utils\responsive_helper.dart:  /// Ancho m├â┬íximo del contenido principal.
+shared\utils\time_formatter.dart:  /// Convierte un horario de formato 24h a AM/PM
+shared\utils\time_formatter.dart:  /// Ejemplo: "Lun-Mie-Vie 07:00-09:00" -> "Lun-Mie-Vie 07:00 AM - 09:00 AM"
+shared\utils\time_formatter.dart:  /// Ejemplo: "Lun-Mie 14:00-16:00" -> "Lun-Mie 02:00 PM - 04:00 PM"
+shared\utils\time_formatter.dart:    // Regex para encontrar patrones de HH:mm
+shared\utils\time_formatter.dart:    }).replaceAll('-', ' - '); // Mejorar legibilidad del gui├│n
+shared\utils\time_formatter.dart:  final int dayIndex; // 1 = Lunes, 6 = S├íbado
+shared\utils\time_formatter.dart:  final int startMinutes; // Minutos desde las 00:00 (ej. 07:00 = 420)
+shared\utils\time_formatter.dart:  final int endMinutes; // Minutos desde las 00:00
+shared\utils\time_formatter.dart:    // Verifica si [start1, end1) choca con [start2, end2)
+shared\utils\time_formatter.dart:  /// Parsea un horario tipo "Lu-Mi-Vi 07:00-09:15" a intervalos num├®ricos manejables.
+shared\utils\time_formatter.dart:    // A veces puede venir separado por punto y coma si hay m├ís de un turno ej. "Lu 07:00-09:15; Mi 07:00-09:15"
+shared\utils\time_formatter.dart:      // Buscar las horas (ej. 07:00-09:15)
+shared\utils\time_formatter.dart:      // Extraer los d├¡as quitando la parte de la hora
+shared\utils\time_formatter.dart:    // Normalizar a CamelCase o buscar prefijos comunes
+shared\utils\time_formatter.dart:  /// Revisa si `newSchedule` choca con una lista de `existingSchedules`.
+shared\utils\time_formatter.dart:  /// Retorna un mensaje de error con el cruce detectado, o `null` si todo est├í OK.
+shared\utils\time_formatter.dart:    return null; // No hay choques
+shared\widgets\web_layout.dart:/// Centra el contenido con un ancho m├â┬íximo en tablet y desktop.
+shared\widgets\web_layout.dart:/// En m├â┬│vil pasa el hijo tal cual.
+shared\widgets\web_layout.dart:/// Fondo de p├â┬ígina web con color gris claro (F4F6F9).
+shared\widgets\web_layout.dart:/// En m├â┬│vil es transparente.
