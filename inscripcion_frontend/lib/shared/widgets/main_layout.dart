@@ -131,14 +131,16 @@ class MainLayout extends StatelessWidget {
     final sidebarContent = Container(
       width: 280,
       color: UAGRMTheme.sidebarBg, // #0F172A - Azul muy oscuro
-      child: Column(
-        children: [
-          // Logo superior
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: UAGRMTheme.sidebarPanel)),
-            ),
+      child: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            // Logo superior
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: UAGRMTheme.sidebarPanel)),
+              ),
             child: Row(
               children: [
                 const Icon(Icons.school, color: UAGRMTheme.primaryRed, size: 28),
@@ -283,6 +285,7 @@ class MainLayout extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
 

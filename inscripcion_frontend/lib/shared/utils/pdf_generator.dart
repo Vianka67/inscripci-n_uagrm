@@ -47,6 +47,26 @@ class _PdfLayout {
     required this.isLandscape,
   });
 
+  /// Fábrica basada en formato de System Spooler
+  factory _PdfLayout.fromFormat(PdfPageFormat format) {
+    final bool landscape = format.width > format.height;
+    final double mH = landscape ? 24.0 : 40.0;
+    final double mV = landscape ? 18.0 : 28.0;
+    return _PdfLayout(
+      pageFormat: format,
+      margin: pw.EdgeInsets.symmetric(horizontal: mH, vertical: mV),
+      contentWidth: (format.width - mH * 2).clamp(1.0, 9999.0),
+      contentHeight: (format.height - mV * 2).clamp(1.0, 9999.0),
+      titleSize: landscape ? 16.0 : 15.0,
+      subSize: 9.0,
+      bodySize: landscape ? 9.5 : 9.0,
+      tableSize: landscape ? 9.0 : 8.0,
+      vGapSM: landscape ? 6.0 : 8.0,
+      vGapMD: landscape ? 10.0 : 14.0,
+      isLandscape: landscape,
+    );
+  }
+
   /// Fábrica: construye el layout para la orientación pedida.
   factory _PdfLayout.from({required bool landscape}) {
     // A4 en puntos: 595.28 × 841.89 pt
@@ -106,13 +126,15 @@ class PdfGenerator {
     final headerBg = PdfColor.fromHex('#0b1a2b');
 
     await Printing.layoutPdf(
-      onLayout: (_) async {
+      format: layout.pageFormat,
+      onLayout: (PdfPageFormat spoolerFormat) async {
+        final dynamicLayout = _PdfLayout.fromFormat(spoolerFormat);
         final pdf = pw.Document();
 
         pdf.addPage(
           pw.Page(
-            pageFormat: layout.pageFormat,
-            margin: layout.margin,
+            pageFormat: dynamicLayout.pageFormat,
+            margin: dynamicLayout.margin,
             build: (_) => pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.stretch,
               children: [
@@ -123,7 +145,7 @@ class PdfGenerator {
                   estudiante: estudiante,
                   carreraCodigo: carreraCodigo,
                   carreraNombre: carreraNombre,
-                  layout: layout,
+                  layout: dynamicLayout,
                   docColors: docColors,
                 ),
 
@@ -131,19 +153,19 @@ class PdfGenerator {
                 _buildBoletaTable(
                   materias,
                   docColors,
-                  layout.tableSize,
+                  dynamicLayout.tableSize,
                   headerBg,
-                  isLandscape: layout.isLandscape,
-                  contentWidth: layout.contentWidth,
+                  isLandscape: dynamicLayout.isLandscape,
+                  contentWidth: dynamicLayout.contentWidth,
                 ),
 
-                pw.SizedBox(height: layout.vGapSM),
+                pw.SizedBox(height: dynamicLayout.vGapSM),
                 pw.Center(
                   child: pw.Text(
                     'Total de materias inscritas: ${materias.length}',
                     style: pw.TextStyle(
                         fontWeight: pw.FontWeight.bold,
-                        fontSize: layout.bodySize,
+                        fontSize: dynamicLayout.bodySize,
                         color: docColors['textDark']),
                   ),
                 ),
@@ -349,25 +371,28 @@ class PdfGenerator {
     // Layout pre-calculado — determinístico
     final layout = _PdfLayout.from(landscape: landscape);
 
-    // Reservas verticales fijas
-    final headerH = layout.titleSize + layout.subSize * 2 + layout.vGapMD + layout.vGapSM * 2 + 50.0;
-    const legendLineH = 18.0;
-    const gapBelowTitle = 6.0;
-    const gapAboveLegend = 4.0;
-
-    final legendLines = ((materias.length / 4) + 1).ceil().clamp(1, 4);
-    final legendH = legendLineH * legendLines;
-
-    final gridH = (layout.contentHeight - headerH - legendH - gapBelowTitle - gapAboveLegend)
-        .clamp(landscape ? 260.0 : 380.0, 9999.0);
-
     await Printing.layoutPdf(
-      onLayout: (_) async {
+      format: layout.pageFormat,
+      onLayout: (PdfPageFormat spoolerFormat) async {
+        final dynamicLayout = _PdfLayout.fromFormat(spoolerFormat);
         final pdf = pw.Document();
+
+        // Reservas verticales fijas
+        final headerH = dynamicLayout.titleSize + dynamicLayout.subSize * 2 + dynamicLayout.vGapMD + dynamicLayout.vGapSM * 2 + 50.0;
+        const legendLineH = 18.0;
+        const gapBelowTitle = 6.0;
+        const gapAboveLegend = 4.0;
+
+        final legendLines = ((materias.length / 4) + 1).ceil().clamp(1, 4);
+        final legendH = legendLineH * legendLines;
+
+        final gridH = (dynamicLayout.contentHeight - headerH - legendH - gapBelowTitle - gapAboveLegend)
+            .clamp(landscape ? 260.0 : 380.0, 9999.0);
+
         pdf.addPage(
           pw.Page(
-            pageFormat: layout.pageFormat,
-            margin: layout.margin,
+            pageFormat: dynamicLayout.pageFormat,
+            margin: dynamicLayout.margin,
             build: (_) => pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.stretch,
               children: [
@@ -377,24 +402,24 @@ class PdfGenerator {
                   estudiante: estudiante,
                   carreraCodigo: carreraCodigo,
                   carreraNombre: carreraNombre,
-                  layout: layout,
+                  layout: dynamicLayout,
                   docColors: docColors,
                 ),
 
                 // ── Grilla horaria ───────────────────────────────────────
                 pw.SizedBox(
-                  width: layout.contentWidth,
+                  width: dynamicLayout.contentWidth,
                   height: gridH,
                   child: _buildGraphicGrid(
                     materias,
-                    layout.contentWidth,
+                    dynamicLayout.contentWidth,
                     gridH,
                   ),
                 ),
                 pw.SizedBox(height: gapAboveLegend),
 
                 // ── Leyenda ──────────────────────────────────────────────
-                _buildGraphicLegend(materias, layout.subSize),
+                _buildGraphicLegend(materias, dynamicLayout.subSize),
               ],
             ),
           ),
@@ -627,27 +652,40 @@ class PdfGenerator {
     };
 
     await Printing.layoutPdf(
-      onLayout: (PdfPageFormat format) async {
+      format: layout.pageFormat,
+      onLayout: (PdfPageFormat spoolerFormat) async {
+        final dynamicLayout = _PdfLayout.fromFormat(spoolerFormat);
         final pdf = pw.Document();
+
         pdf.addPage(
           pw.Page(
-            pageFormat: finalFormat,
-            margin: layout.margin,
+            pageFormat: dynamicLayout.pageFormat,
+            margin: dynamicLayout.margin,
             build: (pw.Context ctx) {
-              final double col1 = landscape ? 100 : 80;
-              final double col2 = landscape ? 80 : 60;
-              final double col4 = landscape ? 100 : 80;
+              final colWidths = dynamicLayout.isLandscape
+                  ? {
+                      0: pw.FixedColumnWidth(dynamicLayout.contentWidth * 0.15),
+                      1: pw.FixedColumnWidth(dynamicLayout.contentWidth * 0.10),
+                      2: pw.FixedColumnWidth(dynamicLayout.contentWidth * 0.60),
+                      3: pw.FixedColumnWidth(dynamicLayout.contentWidth * 0.15),
+                    }
+                  : {
+                      0: pw.FixedColumnWidth(dynamicLayout.contentWidth * 0.14),
+                      1: pw.FixedColumnWidth(dynamicLayout.contentWidth * 0.10),
+                      2: pw.FixedColumnWidth(dynamicLayout.contentWidth * 0.61),
+                      3: pw.FixedColumnWidth(dynamicLayout.contentWidth * 0.15),
+                    };
               
               return pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.stretch,
                 children: [
-                  _buildDocumentHeader(
+                    _buildDocumentHeader(
                     titulo: 'CALENDARIO ACADÉMICO 2025',
                     periodo: periodo,
                     estudiante: estudiante,
                     carreraCodigo: carreraCodigo,
                     carreraNombre: carreraNombre,
-                    layout: layout,
+                    layout: dynamicLayout,
                     docColors: docColors,
                   ),
                   pw.TableHelper.fromTextArray(
@@ -661,25 +699,20 @@ class PdfGenerator {
                             ])
                         .toList(),
                     headerStyle: pw.TextStyle(
-                        color: PdfColor.fromHex('#0b1a2b'),
+                        color: PdfColors.white,
                         fontWeight: pw.FontWeight.bold,
-                        fontSize: layout.tableSize + 1),
+                        fontSize: dynamicLayout.tableSize + 1),
                     headerDecoration: pw.BoxDecoration(
-                        color: PdfColor.fromHex('#EFF6FF')),
-                    cellStyle: pw.TextStyle(fontSize: layout.tableSize),
+                        color: PdfColor.fromHex('#0b1a2b')),
+                    cellStyle: pw.TextStyle(fontSize: dynamicLayout.tableSize),
                     cellAlignment: pw.Alignment.centerLeft,
                     rowDecoration: const pw.BoxDecoration(
                         border: pw.Border(
                             bottom: pw.BorderSide(
                                 color: PdfColors.grey300, width: 0.5))),
                     cellPadding: pw.EdgeInsets.symmetric(
-                        vertical: layout.vGapSM, horizontal: 6),
-                    columnWidths: {
-                      0: pw.FixedColumnWidth(col1),
-                      1: pw.FixedColumnWidth(col2),
-                      2: const pw.FlexColumnWidth(3),
-                      3: pw.FixedColumnWidth(col4),
-                    },
+                        vertical: dynamicLayout.vGapSM, horizontal: 6),
+                    columnWidths: colWidths,
                   ),
                 ],
               );

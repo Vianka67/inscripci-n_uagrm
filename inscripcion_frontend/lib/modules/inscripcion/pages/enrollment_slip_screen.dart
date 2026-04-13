@@ -496,7 +496,13 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
           const SizedBox(height: 12),
           _buildStudentInfo(estudiante, {'nombre': carreraNombre, 'codigo': carreraCodigo}, lugar),
           const SizedBox(height: 16),
-          _buildAcademicTable(materias, modalidad),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: 900,
+              child: _buildCleanTable(materias),
+            ),
+          ),
           const SizedBox(height: 16),
           _buildSummary(materias),
           const SizedBox(height: 24),
@@ -582,98 +588,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
     );
   }
 
-  Widget _buildAcademicTable(List<dynamic> materias, String modalidad) {
-    if (materias.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey.shade300)),
-        child: Center(child: Text('No hay materias inscritas', style: TextStyle(color: Colors.grey.shade600))),
-      );
-    }
-    
-    return Column(
-      children: materias.asMap().entries.map((entry) {
-        final i = entry.key + 1;
-        final item = entry.value;
-        final materia = item['materia'] as Map<String, dynamic>? ?? {};
-        final oferta = item['oferta'] as Map<String, dynamic>? ?? {};
-        
-        final sigla = materia['codigo'] ?? '';
-        final nombre = materia['nombre'] ?? '';
-        final grupo = item['grupo'] ?? oferta['grupo'] ?? '';
-        final horario = TimeFormatter.formatHorario(oferta['horario'] ?? '');
-        final aulaStr = 'Aula ' + (100 + i).toString();
-        
-        return StandardTableContainer(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Header Card
-              StandardTableHeader(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(4)),
-                    child: Text(sigla, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(child: Text(nombre, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
-                ],
-              ),
-              // Body Card
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildMobileDetail('Grupo', grupo),
-                        _buildMobileDetail('Créditos', '${materia['creditos'] ?? 0}'),
-                        _buildMobileDetail('Semestre', '${oferta['semestre'] ?? 0}'),
-                      ],
-                    ),
-                    const Divider(height: 24),
-                    Row(
-                      children: [
-                        const Icon(Icons.access_time, size: 16, color: UAGRMTheme.textGrey),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(horario, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark))),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.room, size: 16, color: UAGRMTheme.textGrey),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(aulaStr, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark))),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(color: UAGRMTheme.successGreen.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
-                          child: const Text('Inscrito', style: TextStyle(color: UAGRMTheme.successGreen, fontSize: 10, fontWeight: FontWeight.bold)),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-  }
 
-  Widget _buildMobileDetail(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontSize: 11, color: UAGRMTheme.textGrey)),
-        const SizedBox(height: 2),
-        Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: UAGRMTheme.textDark)),
-      ],
-    );
-  }
 
   Widget _buildSummary(List<dynamic> materias) {
     final totalCreditos = materias.fold<int>(0, (sum, item) => sum + ((item['materia']?['creditos'] as int?) ?? 0));

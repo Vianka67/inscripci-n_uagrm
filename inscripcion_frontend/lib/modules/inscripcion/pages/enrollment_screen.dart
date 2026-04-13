@@ -596,9 +596,12 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                        'Inscripción - $selectedPeriod Semestre Regular',
-                                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: UAGRMTheme.textDark),
+                                      Expanded(
+                                        child: Text(
+                                          'Inscripción - $selectedPeriod Semestre Regular',
+                                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: UAGRMTheme.textDark),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                       ),
                                       OutlinedButton.icon(
                                         onPressed: () => Navigator.of(context).pop(),
@@ -1335,32 +1338,40 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
               ],
             ),
           ),
-          const Spacer(),
-          // Botón Limpiar
-          TextButton.icon(
-            onPressed: () => setState(() {
-              selectedSubjectCodes.clear();
-              selectedGroupsPerSubject.clear();
-            }),
-            icon: const Icon(Icons.clear, size: 16),
-            label: const Text('Limpiar', style: TextStyle(fontSize: 13)),
-            style: TextButton.styleFrom(foregroundColor: UAGRMTheme.textGrey),
-          ),
           const SizedBox(width: 8),
-          ElevatedButton(
-            onPressed: () => setState(() => _isReviewing = true),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              child: Text(
-                'Confirmar Grupos Seleccionados',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: UAGRMTheme.sidebarDeep,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              elevation: 0,
+          Expanded(
+            child: Wrap(
+              alignment: WrapAlignment.end,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                TextButton.icon(
+                  onPressed: () => setState(() {
+                    selectedSubjectCodes.clear();
+                    selectedGroupsPerSubject.clear();
+                  }),
+                  icon: const Icon(Icons.clear, size: 16),
+                  label: const Text('Limpiar', style: TextStyle(fontSize: 13)),
+                  style: TextButton.styleFrom(foregroundColor: UAGRMTheme.textGrey),
+                ),
+                ElevatedButton(
+                  onPressed: () => setState(() => _isReviewing = true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: UAGRMTheme.sidebarDeep,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 0,
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                    child: Text(
+                      'Confirmar',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

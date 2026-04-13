@@ -15,7 +15,7 @@ SECRET_KEY = 'django-insecure-dev-key-change-in-production'
 # ADVERTENCIA DE SEGURIDAD: ¡no habilites debug en un entorno de producción!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0,*,192.168.0.116').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0,*,192.168.0.117').split(',')
 
 # Definición de aplicaciones
 INSTALLED_APPS = [

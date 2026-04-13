@@ -4,7 +4,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 
 class GraphQLService {
   // IP de tu computadora en la red WiFi (obtenida con 'ipconfig')
-  static const String _localNetworkIp = '192.168.0.116';
+  static const String _localNetworkIp = '192.168.0.117';
   
   static String get _graphqlEndpoint {
     // Si es web (Chrome), usa localhost
