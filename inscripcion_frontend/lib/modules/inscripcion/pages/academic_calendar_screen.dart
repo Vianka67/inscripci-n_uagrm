@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 import 'package:inscripcion_frontend/shared/widgets/main_layout.dart';
+import 'package:inscripcion_frontend/shared/widgets/standard_table.dart';
+import 'package:inscripcion_frontend/shared/widgets/app_ui_kit.dart';
 import 'package:inscripcion_frontend/shared/utils/pdf_generator.dart';
+import 'package:provider/provider.dart';
+import 'package:inscripcion_frontend/modules/inscripcion/services/registration_provider.dart';
 
 class AcademicCalendarScreen extends StatefulWidget {
   const AcademicCalendarScreen({super.key});
@@ -13,6 +17,8 @@ class AcademicCalendarScreen extends StatefulWidget {
 }
 
 class _AcademicCalendarScreenState extends State<AcademicCalendarScreen> {
+  bool _landscape = false;
+
   @override
   void initState() {
     super.initState();
@@ -69,6 +75,8 @@ class _AcademicCalendarScreenState extends State<AcademicCalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<RegistrationProvider>(context);
+    
     return MainLayout(
       title: 'Calendario Académico',
       subtitle: 'Consulta las fechas clave del semestre actual',
@@ -77,27 +85,23 @@ class _AcademicCalendarScreenState extends State<AcademicCalendarScreen> {
           constraints: const BoxConstraints(maxWidth: 900),
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
-            child: _buildCalendarCard(),
+            child: _buildCalendarCard(provider),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildCalendarCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+  Widget _buildCalendarCard(RegistrationProvider provider) {
+    final Map<String, dynamic> estudiante = {
+      'nombreCompleto': 'Estudiante UAGRM',
+      'registro': provider.studentRegister ?? '219005678',
+    };
+    final carreraNombre = provider.selectedCareer?.name ?? 'No especificada';
+    final carreraCodigo = provider.selectedCareer?.code ?? 'N/A';
+    final periodo = provider.selectedSemester ?? '1/2026 Semestre Regular';
+
+    return AppTableCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -122,9 +126,48 @@ class _AcademicCalendarScreenState extends State<AcademicCalendarScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
+                    Tooltip(
+                      message: _landscape ? 'Cambiar a Vertical (Portrait)' : 'Cambiar a Horizontal (Landscape)',
+                      child: InkWell(
+                        onTap: () => setState(() => _landscape = !_landscape),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: UAGRMTheme.primaryBlue.withValues(alpha: 0.4)),
+                            borderRadius: BorderRadius.circular(8),
+                            color: _landscape
+                                ? UAGRMTheme.primaryBlue.withValues(alpha: 0.08)
+                                : Colors.transparent,
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                _landscape ? Icons.stay_current_landscape : Icons.stay_current_portrait,
+                                size: 18,
+                                color: UAGRMTheme.primaryBlue,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                _landscape ? 'Horizontal' : 'Vertical',
+                                style: const TextStyle(fontSize: 13, color: UAGRMTheme.primaryBlue, fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     ElevatedButton.icon(
                       onPressed: () {
-                        PdfGenerator.generateAndPrintCalendario(_calendarEvents);
+                        PdfGenerator.generateAndPrintCalendario(
+                          _calendarEvents,
+                          landscape: _landscape,
+                          estudiante: estudiante,
+                          carreraNombre: carreraNombre,
+                          carreraCodigo: carreraCodigo,
+                          periodo: periodo,
+                        );
                       },
                       icon: const Icon(Icons.print, size: 18),
                       label: const Text('Imprimir'),
@@ -145,72 +188,37 @@ class _AcademicCalendarScreenState extends State<AcademicCalendarScreen> {
               ],
             ),
           ),
-          const Divider(height: 1),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 800),
-              child: DataTable(
-                headingRowColor: WidgetStateProperty.resolveWith((states) => UAGRMTheme.sidebarDeep),
-                headingTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-                dividerThickness: 0.5,
-                columnSpacing: 24,
-                columns: const [
-                  DataColumn(label: Text('Fecha')),
-                  DataColumn(label: Text('Día')),
-                  DataColumn(label: Text('Evento / Actividad')),
-                  DataColumn(label: Text('Tipo')),
-                ],
-                rows: _calendarEvents.map((event) => _buildEventRow(event)).toList(),
-              ),
-            ),
+          AppTableHeader(
+            children: const [
+              SizedBox(width: 80, child: AppHeaderCell('Fecha')),
+              SizedBox(width: 80, child: AppHeaderCell('Día')),
+              Expanded(child: AppHeaderCell('Evento / Actividad')),
+              SizedBox(width: 120, child: AppHeaderCell('Tipo', textAlign: TextAlign.center)),
+            ],
+          ),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _calendarEvents.length,
+            separatorBuilder: (context, index) => Divider(height: 1, color: Colors.grey.shade100),
+            itemBuilder: (context, index) => _buildEventRow(_calendarEvents[index]),
           ),
         ],
       ),
     );
   }
 
-  DataRow _buildEventRow(Map<String, dynamic> event) {
-    Color badgeColor;
-    Color textColor;
-    
-    switch (event['type']) {
-      case 'Académico':
-        badgeColor = UAGRMTheme.sidebarPanel;
-        textColor = Colors.white;
-        break;
-      case 'Examen':
-        badgeColor = UAGRMTheme.primaryRed;
-        textColor = Colors.white;
-        break;
-      default:
-        badgeColor = const Color(0xFFF3F4F6); // Light grey
-        textColor = const Color(0xFF4B5563); // Darker grey text
-    }
-
-    return DataRow(
-      cells: [
-        DataCell(Text('${event['month']} ${event['day']}', style: const TextStyle(fontWeight: FontWeight.bold))),
-        DataCell(Text('Lunes')), // We can improve this with actual date parsing if needed
-        DataCell(Text(event['title'])),
-        DataCell(
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: badgeColor,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              event['type'],
-              style: TextStyle(
-                color: textColor,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-      ],
+  Widget _buildEventRow(Map<String, dynamic> event) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      child: Row(
+        children: [
+          SizedBox(width: 80, child: Text('${event['month']} ${event['day']}', style: const TextStyle(fontWeight: FontWeight.bold, color: UAGRMTheme.textDark, fontSize: 13))),
+          const SizedBox(width: 80, child: Text('Lunes', style: TextStyle(color: UAGRMTheme.textGrey, fontSize: 13))),
+          Expanded(child: Text(event['title'], style: const TextStyle(color: UAGRMTheme.textDark, fontSize: 13))),
+          SizedBox(width: 120, child: AppProcessBadge(event['type'] ?? '')),
+        ],
+      ),
     );
   }
 }

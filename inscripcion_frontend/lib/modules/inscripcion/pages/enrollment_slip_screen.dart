@@ -8,6 +8,8 @@ import 'package:inscripcion_frontend/shared/utils/time_formatter.dart';
 import 'package:inscripcion_frontend/shared/utils/pdf_generator.dart';
 import 'package:inscripcion_frontend/shared/widgets/main_layout.dart';
 import 'package:inscripcion_frontend/modules/inscripcion/widgets/schedule_grid_view.dart';
+import 'package:inscripcion_frontend/shared/widgets/standard_table.dart';
+import 'package:inscripcion_frontend/shared/widgets/app_ui_kit.dart';
 
 class EnrollmentSlipScreen extends StatefulWidget {
   const EnrollmentSlipScreen({super.key});
@@ -19,7 +21,8 @@ class EnrollmentSlipScreen extends StatefulWidget {
 class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
   // Periodo seleccionado (null = periodo actual/más reciente)
   String? selectedPeriodCodigo;
-  int _currentTabIndex = 0; // 0 = Normal, 1 = Gráfica
+  int _currentTabIndex = 0;   // 0 = Normal, 1 = Gráfica
+  bool _landscape = false;    // false = portrait (vertical), true = landscape (horizontal)
 
   final String getHistoricalPeriodsQuery = """
     query GetHistorialPeriodos(\$registro: String!) {
@@ -93,7 +96,8 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
                 if (result.hasException) return _buildError(context, result.exception.toString(), refetch);
                 if (result.isLoading) return const Center(child: CircularProgressIndicator());
                 final data = result.data?['inscripcionCompleta'];
-                if (data == null) return _buildEmpty();
+                // Si no hay inscripción real, mostrar demo con datos de muestra
+                if (data == null) return _buildDemoBoletaOrEmpty(context, provider, isTabletOrDesktop);
                 
                 return isTabletOrDesktop 
                     ? _buildWebBoleta(context, data, provider)
@@ -179,35 +183,75 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Header con botón de Imprimir
+              // Header con botón de Imprimir + toggle de orientación
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Boleta de Inscripción', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: UAGRMTheme.primaryBlue)),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      if (_currentTabIndex == 1) {
-                        PdfGenerator.generateAndPrintBoletaGrafica(
-                          data: data,
-                          carreraNombre: carreraNombre,
-                          carreraCodigo: carreraCodigo,
-                        );
-                      } else {
-                        PdfGenerator.generateAndPrintBoleta(
-                          data: data,
-                          carreraNombre: carreraNombre,
-                          carreraCodigo: carreraCodigo,
-                        );
-                      }
-                    },
-                    icon: const Icon(Icons.print, size: 18),
-                    label: const Text('Imprimir'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: UAGRMTheme.sidebarPanel,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
+                  const Text('Boleta de Inscripción',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: UAGRMTheme.primaryBlue)),
+                  Row(
+                    children: [
+                      // Toggle Portrait / Landscape
+                      Tooltip(
+                        message: _landscape ? 'Cambiar a Vertical (Portrait)' : 'Cambiar a Horizontal (Landscape)',
+                        child: InkWell(
+                          onTap: () => setState(() => _landscape = !_landscape),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: UAGRMTheme.primaryBlue.withValues(alpha: 0.4)),
+                              borderRadius: BorderRadius.circular(8),
+                              color: _landscape
+                                  ? UAGRMTheme.primaryBlue.withValues(alpha: 0.08)
+                                  : Colors.transparent,
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  _landscape ? Icons.stay_current_landscape : Icons.stay_current_portrait,
+                                  size: 18,
+                                  color: UAGRMTheme.primaryBlue,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  _landscape ? 'Horizontal' : 'Vertical',
+                                  style: const TextStyle(fontSize: 13, color: UAGRMTheme.primaryBlue, fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          if (_currentTabIndex == 1) {
+                            PdfGenerator.generateAndPrintBoletaGrafica(
+                              data: data,
+                              carreraNombre: carreraNombre,
+                              carreraCodigo: carreraCodigo,
+                              landscape: _landscape,
+                            );
+                          } else {
+                            PdfGenerator.generateAndPrintBoleta(
+                              data: data,
+                              carreraNombre: carreraNombre,
+                              carreraCodigo: carreraCodigo,
+                              landscape: _landscape,
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.print, size: 18),
+                        label: const Text('Imprimir'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: UAGRMTheme.sidebarPanel,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -248,13 +292,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
               ),
               const SizedBox(height: 16),
               // Contenedor principal de la Boleta
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4))],
-                ),
+              StandardTableContainer(
                 child: Column(
                     children: [
                     // Contenido Condicional: Normal vs Gráfica
@@ -352,76 +390,92 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
   }
 
   Widget _buildCleanTable(List<dynamic> materias) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 900),
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          child: DataTable(
-            headingRowColor: WidgetStateProperty.resolveWith((states) => UAGRMTheme.sidebarDeep),
-            headingTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-            dividerThickness: 0.5,
-            columnSpacing: 24,
-            horizontalMargin: 24,
-            dataRowMaxHeight: 56,
-            dataRowMinHeight: 48,
-            columns: const [
-              DataColumn(label: Text('Nro')),
-              DataColumn(label: Text('Sigla')),
-              DataColumn(label: Text('Materia')),
-              DataColumn(label: Text('Grupo')),
-              DataColumn(label: Text('Docente')),
-              DataColumn(label: Text('Horario')),
-              DataColumn(label: Text('Turno')),
-              DataColumn(label: Text('Aula')),
-              DataColumn(label: Text('Estado')),
+    if (materias.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(32),
+        alignment: Alignment.center,
+        child: const Text('No hay materias inscritas', style: TextStyle(color: UAGRMTheme.textGrey)),
+      );
+    }
+    return AppTableCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header
+          AppTableHeader(
+            children: const [
+              SizedBox(width: 40, child: AppHeaderCell('Nro')),
+              SizedBox(width: 80, child: AppHeaderCell('Sigla')),
+              Expanded(flex: 3, child: AppHeaderCell('Materia')),
+              SizedBox(width: 50, child: AppHeaderCell('Grupo')),
+              Expanded(flex: 2, child: AppHeaderCell('Docente')),
+              Expanded(flex: 2, child: AppHeaderCell('Horario')),
+              SizedBox(width: 80, child: AppHeaderCell('Turno')),
+              SizedBox(width: 80, child: AppHeaderCell('Aula')),
+              SizedBox(width: 80, child: AppHeaderCell('Estado', textAlign: TextAlign.center)),
             ],
-            rows: materias.asMap().entries.map((entry) {
-              final i = entry.key + 1;
-              final item = entry.value;
+          ),
+          // Rows
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: materias.length,
+            separatorBuilder: (context, index) => Divider(height: 1, color: Colors.grey.shade100),
+            itemBuilder: (context, index) {
+              final item = materias[index];
+              final i = index + 1;
               final materia = item['materia'] as Map<String, dynamic>? ?? {};
               final oferta = item['oferta'] as Map<String, dynamic>? ?? {};
               final nroStr = i.toString();
               final aulaStr = 'Aula ' + (100 + i).toString();
-              
-              return DataRow(
-                cells: [
-                  DataCell(Text(nroStr)),
-                  DataCell(Text(materia['codigo'] ?? '', style: const TextStyle(fontWeight: FontWeight.w500))),
-                  DataCell(Text(materia['nombre'] ?? '')),
-                  DataCell(Text(item['grupo'] ?? oferta['grupo'] ?? '')),
-                  DataCell(Text(oferta['docente'] ?? 'Dr. Por Asignar')),
-                  DataCell(Text(TimeFormatter.formatHorario(oferta['horario'] ?? ''))),
-                  DataCell(_buildNiceTurno(oferta['horario'] ?? '')),
-                  DataCell(Text(aulaStr)),
-                  DataCell(Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: UAGRMTheme.successGreen.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Text('Inscrito', style: TextStyle(color: UAGRMTheme.successGreen, fontSize: 12, fontWeight: FontWeight.bold)),
-                  )),
-                ],
+               
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Row(
+                  children: [
+                    SizedBox(width: 40, child: Text(nroStr, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark))),
+                    SizedBox(width: 80, child: Text(materia['codigo'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: UAGRMTheme.textDark))),
+                    Expanded(flex: 3, child: Text(materia['nombre'] ?? '', style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark))),
+                    SizedBox(width: 50, child: Text(item['grupo'] ?? oferta['grupo'] ?? '', style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark))),
+                    Expanded(flex: 2, child: Text(oferta['docente'] ?? 'Dr. Por Asignar', style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark))),
+                    Expanded(flex: 2, child: Text(TimeFormatter.formatHorario(oferta['horario'] ?? ''), style: const TextStyle(fontSize: 13, color: UAGRMTheme.textGrey))),
+                    SizedBox(width: 80, child: _buildNiceTurno(oferta['horario'] ?? '')),
+                    SizedBox(width: 80, child: Text(aulaStr, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textGrey))),
+                    const SizedBox(width: 80, child: AppEstadoBadge('Inscrito')),
+                  ],
+                ),
               );
-            }).toList(),
+            },
           ),
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildNiceTurno(String horario) {
-    String turno = 'MAÑANA';
-    Color color = const Color(0xFF0F172A);
-    if (horario.contains('13:') || horario.contains('14:') || horario.contains('15:') || horario.contains('16:') || horario.contains('17:')) { turno = 'TARDE'; color = Colors.blueGrey; }
-    else if (horario.contains('18:') || horario.contains('19:') || horario.contains('20:') || horario.contains('21:') || horario.contains('22:')) { turno = 'NOCHE'; color = const Color(0xFF475569); }
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(4)),
-      child: Text(turno, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
-    );
+    return AppTurnoBadge(horario);
+  }
+
+  /// Boleta de demostración cuando no hay inscripción confirmada.
+  Widget _buildDemoBoletaOrEmpty(BuildContext context, RegistrationProvider provider, bool isTabletOrDesktop) {
+    final demoData = <String, dynamic>{
+      'estudiante': {
+        'nombreCompleto': 'Estudiante UAGRM',
+        'registro': provider.studentRegister ?? '000000',
+      },
+      'periodoAcademico': {'nombre': '1/2026 Semestre Regular', 'codigo': '1/2026'},
+      'materiasInscritas': [
+        {'materia': {'codigo': 'MAT-101', 'nombre': 'Matemática I',    'creditos': 6}, 'oferta': {'grupo': 'A', 'semestre': 1, 'horario': 'L-M-V 07:00-09:00', 'docente': 'Ing. Carlos López'}, 'grupo': 'A'},
+        {'materia': {'codigo': 'FIS-101', 'nombre': 'Física I',         'creditos': 5}, 'oferta': {'grupo': 'B', 'semestre': 1, 'horario': 'M-J 14:00-16:00',   'docente': 'Lic. Ana Flores'},   'grupo': 'B'},
+        {'materia': {'codigo': 'INF-210', 'nombre': 'Programación I',   'creditos': 4}, 'oferta': {'grupo': 'A', 'semestre': 2, 'horario': 'L-M-V 09:00-11:00', 'docente': 'Ing. Luis Pérez'},   'grupo': 'A'},
+        {'materia': {'codigo': 'EST-101', 'nombre': 'Estadística',      'creditos': 5}, 'oferta': {'grupo': 'C', 'semestre': 2, 'horario': 'M-J 18:00-20:00',   'docente': 'Mg. Rosa Vargas'},   'grupo': 'C'},
+      ],
+    };
+    if (isTabletOrDesktop) {
+      return _buildWebBoleta(context, demoData, provider);
+    } else {
+      return _buildMobileBoleta(context, demoData, provider);
+    }
   }
 
   Widget _buildMobileBoleta(BuildContext context, Map<String, dynamic> data, RegistrationProvider provider) {
@@ -462,6 +516,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
                     data: data,
                     carreraNombre: carreraNombre,
                     carreraCodigo: carreraCodigo,
+                    landscape: _landscape,
                   ),
                 ),
               ),
@@ -480,6 +535,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
                     data: data,
                     carreraNombre: carreraNombre,
                     carreraCodigo: carreraCodigo,
+                    landscape: _landscape,
                   ),
                 ),
               ),
@@ -548,35 +604,21 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
         final horario = TimeFormatter.formatHorario(oferta['horario'] ?? '');
         final aulaStr = 'Aula ' + (100 + i).toString();
         
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))],
-          ),
+        return StandardTableContainer(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Header Card
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                decoration: const BoxDecoration(
-                  color: UAGRMTheme.sidebarDeep,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(4)),
-                      child: Text(sigla, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(child: Text(nombre, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
-                  ],
-                ),
+              StandardTableHeader(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(4)),
+                    child: Text(sigla, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text(nombre, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
+                ],
               ),
               // Body Card
               Padding(

@@ -3,6 +3,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 import 'package:inscripcion_frontend/shared/widgets/standard_table.dart';
+import 'package:inscripcion_frontend/shared/widgets/app_ui_kit.dart';
 import 'package:inscripcion_frontend/modules/inscripcion/models/subject.dart';
 import 'package:inscripcion_frontend/modules/inscripcion/services/registration_provider.dart';
 import 'package:inscripcion_frontend/shared/utils/responsive_helper.dart';
@@ -111,14 +112,14 @@ class EnabledSubjectsScreen extends StatelessWidget {
               StandardTableContainer(
                 child: Column(
                   children: [
-                    // Header
-                    StandardTableHeader(
+                    // Header — usa AppTableHeader centralizado
+                    AppTableHeader(
                       children: [
-                        SizedBox(width: isWeb ? 80 : 60, child: const StandardHeaderCell('CÓDIGO')),
-                        const Expanded(child: StandardHeaderCell('ASIGNATURA')),
-                        SizedBox(width: isWeb ? 80 : 60, child: const StandardHeaderCell('CRÉDS', textAlign: TextAlign.center)),
-                        if (isWeb) SizedBox(width: 80, child: const StandardHeaderCell('NIVEL', textAlign: TextAlign.center)),
-                        SizedBox(width: isWeb ? 100 : 80, child: const StandardHeaderCell('TIPO', textAlign: TextAlign.center)),
+                        SizedBox(width: isWeb ? 80 : 60, child: const AppHeaderCell('CÓDIGO')),
+                        const Expanded(child: AppHeaderCell('ASIGNATURA')),
+                        SizedBox(width: isWeb ? 80 : 60, child: const AppHeaderCell('CRÉDS', textAlign: TextAlign.center)),
+                        if (isWeb) const SizedBox(width: 80, child: AppHeaderCell('NIVEL', textAlign: TextAlign.center)),
+                        SizedBox(width: isWeb ? 100 : 80, child: const AppHeaderCell('TIPO', textAlign: TextAlign.center)),
                       ],
                     ),
                     
@@ -140,22 +141,10 @@ class EnabledSubjectsScreen extends StatelessWidget {
                                 if (isWeb) SizedBox(width: 80, child: Text('${subject.semester}', style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13), textAlign: TextAlign.center)),
                                 SizedBox(
                                   width: isWeb ? 100 : 80,
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: subject.isRequired ? UAGRMTheme.errorRed.withValues(alpha: 0.1) : UAGRMTheme.successGreen.withValues(alpha: 0.1),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(
-                                        subject.isRequired ? 'OBLIG.' : 'ELECT.',
-                                        style: TextStyle(
-                                          color: subject.isRequired ? UAGRMTheme.errorRed : UAGRMTheme.successGreen,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
+                                  child: Center(
+                                    child: AppEstadoBadge(
+                                      subject.isRequired ? 'Obligatoria' : 'Electiva',
+                                      color: subject.isRequired ? UAGRMTheme.errorRed : UAGRMTheme.successGreen,
                                     ),
                                   ),
                                 ),

@@ -5,6 +5,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 import 'package:inscripcion_frontend/shared/widgets/standard_table.dart';
+import 'package:inscripcion_frontend/shared/widgets/app_ui_kit.dart';
 import 'package:inscripcion_frontend/modules/inscripcion/services/registration_provider.dart';
 import 'package:inscripcion_frontend/shared/widgets/main_layout.dart';
 
@@ -296,17 +297,17 @@ class _MaestroOfertasScreenState extends State<MaestroOfertasScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
         // Table Header
-        StandardTableHeader(
+        AppTableHeader(
           children: const [
-            SizedBox(width: 80, child: StandardHeaderCell('Sigla')),
-            Expanded(flex: 3, child: StandardHeaderCell('Materia')),
-            SizedBox(width: 50, child: StandardHeaderCell('Nivel')),
-            SizedBox(width: 50, child: StandardHeaderCell('Grupo')),
-            SizedBox(width: 90, child: StandardHeaderCell('Turno')),
-            Expanded(flex: 2, child: StandardHeaderCell('Docente')),
-            Expanded(flex: 2, child: StandardHeaderCell('Horario')),
-            SizedBox(width: 50, child: StandardHeaderCell('Cupos', textAlign: TextAlign.center)),
-            SizedBox(width: 50, child: StandardHeaderCell('Inscr', textAlign: TextAlign.center)),
+            SizedBox(width: 80,  child: AppHeaderCell('Sigla')),
+            Expanded(flex: 3,   child: AppHeaderCell('Materia')),
+            SizedBox(width: 50,  child: AppHeaderCell('Nivel')),
+            SizedBox(width: 50,  child: AppHeaderCell('Grupo')),
+            SizedBox(width: 110, child: AppHeaderCell('Turno')),
+            Expanded(flex: 2,   child: AppHeaderCell('Docente')),
+            Expanded(flex: 2,   child: AppHeaderCell('Horario')),
+            SizedBox(width: 60,  child: AppHeaderCell('Cupos', textAlign: TextAlign.center)),
+            SizedBox(width: 50,  child: AppHeaderCell('Inscr', textAlign: TextAlign.center)),
           ],
         ),
         // Table Body Scrollable
@@ -336,18 +337,20 @@ class _MaestroOfertasScreenState extends State<MaestroOfertasScreen> {
               final cupoActual = item['cupoActual']?.toString() ?? '0';
               
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 child: Row(
                   children: [
-                    SizedBox(width: 80, child: Text(sigla, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: UAGRMTheme.textDark))),
-                    Expanded(flex: 3, child: Text(nombre, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark))),
-                    SizedBox(width: 50, child: Text(semestre, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textGrey))),
-                    SizedBox(width: 50, child: Text(grupo, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13, color: UAGRMTheme.textDark))),
-                    SizedBox(width: 90, child: _buildTurnoBadge(turno)),
-                    Expanded(flex: 2, child: Text(docente, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark))),
-                    Expanded(flex: 2, child: Text(horario, style: const TextStyle(fontSize: 12, color: UAGRMTheme.textGrey), maxLines: 2, overflow: TextOverflow.ellipsis)),
-                    SizedBox(width: 50, child: _buildCuposText(cuposDisp)),
-                    SizedBox(width: 50, child: Text(cupoActual, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark), textAlign: TextAlign.center)),
+                    SizedBox(width: 80,  child: Text(sigla, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: UAGRMTheme.textDark))),
+                    Expanded(flex: 3,   child: Text(nombre, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark))),
+                    SizedBox(width: 50,  child: Text(semestre, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textGrey))),
+                    SizedBox(width: 50,  child: Text(grupo, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13, color: UAGRMTheme.textDark))),
+                    // Turno: usa AppTurnoBadge centralizado
+                    SizedBox(width: 110, child: Align(alignment: Alignment.centerLeft, child: AppTurnoBadge(horario))),
+                    Expanded(flex: 2,   child: Text(docente, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark))),
+                    Expanded(flex: 2,   child: Text(horario, style: const TextStyle(fontSize: 12, color: UAGRMTheme.textGrey), maxLines: 2, overflow: TextOverflow.ellipsis)),
+                    // Cupos: usa AppCupoBadge centralizado
+                    SizedBox(width: 60,  child: Center(child: AppCupoBadge(cuposDisp))),
+                    SizedBox(width: 50,  child: Text(cupoActual, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark), textAlign: TextAlign.center)),
                   ],
                 ),
               );
@@ -363,49 +366,5 @@ class _MaestroOfertasScreenState extends State<MaestroOfertasScreen> {
     );
   }
 
-  Widget _buildTurnoBadge(String turno) {
-    Color bg;
-    Color fg;
-    String cleanTurno = turno.toUpperCase();
-
-    if (cleanTurno.contains('MAÑANA') || cleanTurno.contains('MANANA')) {
-      bg = const Color(0xFF0F172A); // Navy muy oscuro
-      fg = Colors.white;
-      cleanTurno = 'Mañana';
-    } else if (cleanTurno.contains('TARDE')) {
-      bg = const Color(0xFFF1F5F9); // Slate-100 Gris muy claro
-      fg = const Color(0xFF475569); // Slate-600
-      cleanTurno = 'Tarde';
-    } else if (cleanTurno.contains('NOCHE')) {
-      bg = const Color(0xFFE2E8F0); // Slate-200
-      fg = const Color(0xFF334155); // Slate-700
-      cleanTurno = 'Noche';
-    } else {
-      bg = const Color(0xFFF1F5F9);
-      fg = const Color(0xFF64748B);
-      cleanTurno = turno.isEmpty ? 'ND' : turno;
-    }
-
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(16)),
-        child: Text(cleanTurno, style: TextStyle(color: fg, fontSize: 11, fontWeight: FontWeight.w600)),
-      ),
-    );
-  }
-
-  Widget _buildCuposText(int cupos) {
-    bool hasCupos = cupos > 0;
-    return Text(
-      '$cupos',
-      style: TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.bold,
-        color: hasCupos ? UAGRMTheme.successGreen : UAGRMTheme.errorRed,
-      ),
-      textAlign: TextAlign.center,
-    );
-  }
 }
+

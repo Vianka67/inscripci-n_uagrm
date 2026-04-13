@@ -9,6 +9,11 @@ import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 import 'package:inscripcion_frontend/modules/inscripcion/services/registration_provider.dart';
 import 'package:inscripcion_frontend/modules/inscripcion/models/career.dart';
 import 'package:inscripcion_frontend/shared/utils/time_formatter.dart';
+import 'package:inscripcion_frontend/shared/widgets/standard_table.dart';
+import 'package:inscripcion_frontend/shared/widgets/schedule_validator.dart';
+import 'package:inscripcion_frontend/modules/inscripcion/widgets/schedule_grid_view.dart';
+import 'package:inscripcion_frontend/shared/utils/pdf_generator.dart';
+import 'package:inscripcion_frontend/shared/widgets/app_ui_kit.dart';
 
 class EnrollmentScreen extends StatefulWidget {
   const EnrollmentScreen({super.key});
@@ -240,31 +245,25 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Encabezado
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0B1A2B),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Row(
+              StandardTableContainer(
+                child: Column(
                   children: [
-                    Icon(Icons.school_outlined, color: Colors.white, size: 24),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Seleccionar Carrera',
-                              style: TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white)),
-                          SizedBox(height: 2),
-                          Text('Elige la carrera para inscribir materias',
-                              style: TextStyle(fontSize: 12, color: Colors.white60)),
-                        ],
-                      ),
+                    StandardTableHeader(
+                      children: const [
+                        Icon(Icons.school_outlined, color: Colors.white, size: 24),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              StandardHeaderCell('Seleccionar Carrera'),
+                              SizedBox(height: 2),
+                              Text('Elige la carrera para inscribir materias',
+                                  style: TextStyle(fontSize: 12, color: Colors.white60)),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -805,39 +804,38 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       );
     }
     
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Table(
-        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-        border: TableBorder(horizontalInside: BorderSide(color: Colors.grey.shade200)),
-        columnWidths: const {
-          0: FixedColumnWidth(60),  // Check
-          1: FixedColumnWidth(80),  // Sigla
-          2: FixedColumnWidth(200), // Nombre
-          3: FixedColumnWidth(60),  // Grupo
-          4: FixedColumnWidth(80),  // Turno
-          5: FixedColumnWidth(150), // Docente
-          6: FixedColumnWidth(180), // Horario
-          7: FixedColumnWidth(80),  // Cupos
-        },
-        children: [
-          // Header Table
-          TableRow(
-            decoration: const BoxDecoration(
-              color: UAGRMTheme.sidebarDeep,
+    return StandardTableContainer(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Column(
+          children: [
+            AppTableHeader(
+              children: const [
+                SizedBox(width: 60),
+                SizedBox(width: 80,  child: AppHeaderCell('Sigla')),
+                SizedBox(width: 210, child: AppHeaderCell('Materia')),
+                SizedBox(width: 60,  child: AppHeaderCell('Grupo')),
+                SizedBox(width: 120, child: AppHeaderCell('Turno')),
+                SizedBox(width: 150, child: AppHeaderCell('Docente')),
+                SizedBox(width: 180, child: AppHeaderCell('Horario')),
+                SizedBox(width: 110, child: AppHeaderCell('Cupos', textAlign: TextAlign.center)),
+              ],
             ),
-            children: [
-              const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: SizedBox()),
-              _buildBlueHeader('Sigla'),
-              _buildBlueHeader('Materia'),
-              _buildBlueHeader('Grupo'),
-              _buildBlueHeader('Turno'),
-              _buildBlueHeader('Docente'),
-              _buildBlueHeader('Horario'),
-              _buildBlueHeader('Cupos'),
-            ],
-          ),
-          // Filas
+            Table(
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              border: TableBorder(horizontalInside: BorderSide(color: Colors.grey.shade200)),
+              columnWidths: const {
+                0: FixedColumnWidth(60),   // Check
+                1: FixedColumnWidth(80),   // Sigla
+                2: FixedColumnWidth(210),  // Nombre
+                3: FixedColumnWidth(60),   // Grupo
+                4: FixedColumnWidth(120),  // Turno  ← MÁS ANCHO
+                5: FixedColumnWidth(150),  // Docente
+                6: FixedColumnWidth(180),  // Horario
+                7: FixedColumnWidth(110),  // Cupos   ← MÁS ANCHO
+              },
+              children: [
+                // Filas
           ...ofertas.map((o) {
             final code = o['materiaCodigo'] ?? '';
             final hayCupo = (o['cuposDisponibles'] ?? 0) > 0;
@@ -903,17 +901,17 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                 _buildCleanCellText(o['grupo'] ?? '', hayCupo),
                 TableCell(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: _buildTurnoBadge(o['turno'] ?? o['horario'] ?? ''),
+                      child: AppTurnoBadge(o['horario']?.toString() ?? ''),
                     ),
                   ),
                 ),
                 _buildCleanCellText(o['docente'] ?? '', hayCupo),
                 TableCell(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                     child: Text(
                       TimeFormatter.formatHorario(o['horario'] ?? ''), 
                       style: TextStyle(fontSize: 12, color: hayCupo ? UAGRMTheme.textGrey : Colors.grey.shade400)
@@ -922,31 +920,19 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                 ),
                 TableCell(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: !hayCupo ? UAGRMTheme.errorRed.withValues(alpha: 0.1) : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          !hayCupo ? 'Sin cupo' : '${o['cuposDisponibles']}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: !hayCupo ? UAGRMTheme.errorRed : UAGRMTheme.successGreen,
-                          ),
-                        ),
-                      ),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                    child: Center(
+                      child: AppCupoBadge(o['cuposDisponibles'] as int? ?? 0),
                     ),
                   ),
                 ),
               ],
             );
           }).toList(),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -981,13 +967,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   }
 
   Widget _buildReviewSelectionCard(String registro, String codigoCarrera) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-        boxShadow: Responsive.isTabletOrDesktop(context) ? [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))] : null,
-      ),
+    return StandardTableContainer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -997,66 +977,67 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
           ),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: Table(
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              columnWidths: const {
-                0: FixedColumnWidth(80),  // Sigla
-                1: FixedColumnWidth(200), // Materia
-                2: FixedColumnWidth(60),  // Grupo
-                3: FixedColumnWidth(80),  // Turno
-                4: FixedColumnWidth(150), // Docente
-                5: FixedColumnWidth(180), // Horario
-                6: FixedColumnWidth(100), // Aula
-              },
+            child: Column(
               children: [
-                TableRow(
-                  decoration: const BoxDecoration(
-                    color: UAGRMTheme.sidebarDeep,
-                  ),
+                StandardTableHeader(
                   children: [
-                    _buildBlueHeader('Sigla'),
-                    _buildBlueHeader('Materia'),
-                    _buildBlueHeader('Grupo'),
-                    _buildBlueHeader('Turno'),
-                    _buildBlueHeader('Docente'),
-                    _buildBlueHeader('Horario'),
-                    _buildBlueHeader('Aula'),
+                    SizedBox(width: 80, child: const StandardHeaderCell('Sigla')),
+                    SizedBox(width: 200, child: const StandardHeaderCell('Materia')),
+                    SizedBox(width: 60, child: const StandardHeaderCell('Grupo')),
+                    SizedBox(width: 80, child: const StandardHeaderCell('Turno')),
+                    SizedBox(width: 150, child: const StandardHeaderCell('Docente')),
+                    SizedBox(width: 180, child: const StandardHeaderCell('Horario')),
+                    SizedBox(width: 100, child: const StandardHeaderCell('Aula')),
                   ],
                 ),
-                ...selectedSubjectCodes.map((code) {
-                  final g = selectedGroupsPerSubject[code];
-                  if (g == null) return const TableRow(children: [SizedBox(), SizedBox(), SizedBox(), SizedBox(), SizedBox(), SizedBox(), SizedBox()]);
-                  return TableRow(
-                    decoration: BoxDecoration(
-                      border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
-                    ),
-                    children: [
-                      _buildCleanCellText(code, true),
-                      _buildCleanCellText(g['materiaNombre'] ?? '', true),
-                      _buildCleanCellText(g['grupo'] ?? '', true),
-                      TableCell(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(g['turno'] ?? 'ND', style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark)),
-                          ),
+                Table(
+                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                  columnWidths: const {
+                    0: FixedColumnWidth(80),  // Sigla
+                    1: FixedColumnWidth(200), // Materia
+                    2: FixedColumnWidth(60),  // Grupo
+                    3: FixedColumnWidth(80),  // Turno
+                    4: FixedColumnWidth(150), // Docente
+                    5: FixedColumnWidth(180), // Horario
+                    6: FixedColumnWidth(100), // Aula
+                  },
+                  children: [
+                    ...selectedSubjectCodes.map((code) {
+                      final g = selectedGroupsPerSubject[code];
+                      if (g == null) return const TableRow(children: [SizedBox(), SizedBox(), SizedBox(), SizedBox(), SizedBox(), SizedBox(), SizedBox()]);
+                      return TableRow(
+                        decoration: BoxDecoration(
+                          border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
                         ),
-                      ),
-                      _buildCleanCellText(g['docente'] ?? '', true),
-                      TableCell(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                          child: Text(
-                            TimeFormatter.formatHorario(g['horario'] ?? ''), 
-                            style: const TextStyle(fontSize: 12, color: UAGRMTheme.textDark)
+                        children: [
+                          _buildCleanCellText(code, true),
+                          _buildCleanCellText(g['materiaNombre'] ?? '', true),
+                          _buildCleanCellText(g['grupo'] ?? '', true),
+                          TableCell(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(g['turno'] ?? 'ND', style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark)),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      _buildCleanCellText('Aula 101', true), // Dummy placeholder matching the screenshot
-                    ],
-                  );
-                }).toList(),
+                          _buildCleanCellText(g['docente'] ?? '', true),
+                          TableCell(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                              child: Text(
+                                TimeFormatter.formatHorario(g['horario'] ?? ''), 
+                                style: const TextStyle(fontSize: 12, color: UAGRMTheme.textDark)
+                              ),
+                            ),
+                          ),
+                          _buildCleanCellText('Aula 101', true), // Dummy placeholder
+                        ],
+                      );
+                    }).toList(),
+                  ],
+                ),
               ],
             ),
           ),
@@ -1179,11 +1160,11 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                _buildTurnoBadge(g['horario'] ?? ''),
-                                Text(
-                                  TimeFormatter.formatHorario(g['horario'] ?? ''), 
-                                  style: const TextStyle(fontSize: 10)
-                                ),
+                                  AppTurnoBadge(g['horario'] ?? ''),
+                                  Text(
+                                    TimeFormatter.formatHorario(g['horario'] ?? ''), 
+                                    style: const TextStyle(fontSize: 10)
+                                  ),
                               ]
                             )
                           ),
@@ -1404,40 +1385,6 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     );
   }
 
-  Widget _buildTurnoBadge(String horario) {
-    String turno = 'ND';
-    Color bgColor = Colors.transparent;
-    Color textColor = Colors.black;
-    Border? border;
-
-    if (horario.contains('0700') || horario.contains('0800') || horario.contains('0900') || horario.contains('1000') || horario.contains('1100') || horario.contains('1200') || horario.contains('07:00')) {
-      turno = 'Mañana';
-      bgColor = const Color(0xFF0F172A); // Dark blue / almost black
-      textColor = Colors.white;
-    } else if (horario.contains('1300') || horario.contains('1400') || horario.contains('1500') || horario.contains('1600') || horario.contains('1700')) {
-      turno = 'Tarde';
-      bgColor = const Color(0xFFF1F5F9); // Light Gray
-      textColor = const Color(0xFF64748B); // Gray text
-    } else if (horario.contains('1800') || horario.contains('1900') || horario.contains('2000') || horario.contains('2100') || horario.contains('2200') || horario.contains('18:00')) {
-      turno = 'Noche';
-      bgColor = Colors.white;
-      textColor = const Color(0xFF334155);
-      border = Border.all(color: Colors.grey.shade300);
-    }
-
-    if (turno == 'ND') return const SizedBox.shrink();
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(12),
-        border: border,
-      ),
-      child: Text(turno, style: TextStyle(color: textColor, fontSize: 11, fontWeight: FontWeight.bold)),
-    );
-  }
 
   Widget _buildFinalActions(String registro, String codigoCarrera) {
     return Row(

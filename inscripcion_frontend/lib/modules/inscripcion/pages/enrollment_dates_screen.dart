@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 import 'package:inscripcion_frontend/modules/inscripcion/services/registration_provider.dart';
 import 'package:inscripcion_frontend/shared/widgets/main_layout.dart';
+import 'package:inscripcion_frontend/shared/widgets/standard_table.dart';
+import 'package:inscripcion_frontend/shared/widgets/app_ui_kit.dart';
 
 class EnrollmentDatesScreen extends StatefulWidget {
   const EnrollmentDatesScreen({super.key});
@@ -177,23 +179,10 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
   }
 
   Widget _buildDatesTable() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+    return AppTableCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Row(
@@ -214,68 +203,44 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
               ],
             ),
           ),
-          const Divider(height: 1),
-          // Scrollable Table
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 900),
-              child: DataTable(
-                headingRowColor: WidgetStateProperty.resolveWith((states) => UAGRMTheme.sidebarDeep),
-                dividerThickness: 0.5,
-                columnSpacing: 24,
-                columns: const [
-                  DataColumn(label: Text('Proceso', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-                  DataColumn(label: Text('Período', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-                  DataColumn(label: Text('Fecha Inicio', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-                  DataColumn(label: Text('Fecha Fin', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-                  DataColumn(label: Text('Día Asignado', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-                  DataColumn(label: Text('Fecha Estudiante', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-                ],
-                rows: [
-                  _buildMockRow('Inscripción', '1/2025 Semestre Regular', '2025-02-15', '2025-02-20', '2', '2025-02-16', true),
-                  _buildMockRow('Adición', '1/2025 Semestre Regular', '2025-02-25', '2025-03-01', '1', '2025-02-25', false),
-                  _buildMockRow('Retiro', '1/2025 Semestre Regular', '2025-03-10', '2025-03-15', '3', '2025-03-12', false),
-                ],
-              ),
-            ),
+          AppTableHeader(
+            children: const [
+              SizedBox(width: 100, child: AppHeaderCell('Proceso', textAlign: TextAlign.center)),
+              Expanded(child: AppHeaderCell('Período')),
+              SizedBox(width: 120, child: AppHeaderCell('Fecha Inicio')),
+              SizedBox(width: 120, child: AppHeaderCell('Fecha Fin')),
+              SizedBox(width: 100, child: AppHeaderCell('Día Asignado', textAlign: TextAlign.center)),
+              SizedBox(width: 120, child: AppHeaderCell('Fecha Estudiante')),
+            ],
           ),
+          _buildRow('Inscripción', '1/2025 Semestre Regular', '2025-02-15', '2025-02-20', '2', '2025-02-16', true),
+          const Divider(height: 1, color: Color(0xFFF1F5F9)),
+          _buildRow('Adición', '1/2025 Semestre Regular', '2025-02-25', '2025-03-01', '1', '2025-02-25', false),
+          const Divider(height: 1, color: Color(0xFFF1F5F9)),
+          _buildRow('Retiro', '1/2025 Semestre Regular', '2025-03-10', '2025-03-15', '3', '2025-03-12', false),
         ],
       ),
     );
   }
 
-  DataRow _buildMockRow(String proceso, String periodo, String inicio, String fin, String dia, String estudiante, bool isActive) {
-    return DataRow(
-      cells: [
-        DataCell(
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            decoration: BoxDecoration(
-              color: isActive ? UAGRMTheme.primaryBlue : Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: isActive ? null : Border.all(color: Colors.grey.withValues(alpha: 0.3)),
-            ),
-            child: Text(
-              proceso,
-              style: TextStyle(
-                color: isActive ? Colors.white : UAGRMTheme.textGrey,
-                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                fontSize: 13,
-              ),
+  Widget _buildRow(String proceso, String periodo, String inicio, String fin, String dia, String estudiante, bool isActive) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      child: Row(
+        children: [
+          SizedBox(width: 100, child: AppProcessBadge(proceso)),
+          Expanded(child: Text(periodo, style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13))),
+          SizedBox(width: 120, child: Text(inicio, style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13))),
+          SizedBox(width: 120, child: Text(fin, style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13))),
+          SizedBox(
+            width: 100,
+            child: Center(
+              child: Text(dia, style: const TextStyle(fontWeight: FontWeight.bold, color: UAGRMTheme.primaryBlue, fontSize: 13)),
             ),
           ),
-        ),
-        DataCell(Text(periodo, style: const TextStyle(color: UAGRMTheme.textGrey))),
-        DataCell(Text(inicio, style: const TextStyle(color: UAGRMTheme.textGrey))),
-        DataCell(Text(fin, style: const TextStyle(color: UAGRMTheme.textGrey))),
-        DataCell(
-          Center(
-            child: Text(dia, style: const TextStyle(fontWeight: FontWeight.bold, color: UAGRMTheme.primaryBlue)),
-          ),
-        ),
-        DataCell(Text(estudiante, style: const TextStyle(color: UAGRMTheme.textGrey))),
-      ],
+          SizedBox(width: 120, child: Text(estudiante, style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13))),
+        ],
+      ),
     );
   }
 }

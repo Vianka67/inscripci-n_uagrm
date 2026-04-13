@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 import 'package:inscripcion_frontend/shared/utils/responsive_helper.dart';
+import 'package:inscripcion_frontend/shared/widgets/app_ui_kit.dart';
 
 class ScheduleGridView extends StatelessWidget {
   final List<dynamic> materias;
@@ -167,11 +168,7 @@ class ScheduleGridView extends StatelessWidget {
   }
 
   Widget _buildGrid(Map<int, Map<int, Map<String, String>>> grid, Map<String, Color> colorMap) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey.shade300),
-      ),
+    return AppTableCard(
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: IntrinsicHeight(
@@ -190,28 +187,24 @@ class ScheduleGridView extends StatelessWidget {
   }
 
   Widget _buildHeaderRow() {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF0B1A2B), // #0B1A2B Explicitly
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 60,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-              child: const Text('HORA', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11), textAlign: TextAlign.center),
-            ),
+    return AppTableHeader(
+      padding: EdgeInsets.zero,
+      children: [
+        const SizedBox(
+          width: 60,
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+            child: Text('HORA', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11), textAlign: TextAlign.center),
           ),
-          ..._days.asMap().entries.map((e) => SizedBox(
-                width: 130,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-                  child: Text(e.value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13), textAlign: TextAlign.center),
-                ),
-              )),
-        ],
-      ),
+        ),
+        ..._days.asMap().entries.map((e) => SizedBox(
+              width: 130,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+                child: Text(e.value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13), textAlign: TextAlign.center),
+              ),
+            )),
+      ],
     );
   }
 

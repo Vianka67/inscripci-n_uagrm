@@ -1,10 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 import 'package:inscripcion_frontend/shared/widgets/standard_table.dart';
-import 'package:inscripcion_frontend/modules/inscripcion/services/registration_provider.dart';
+import 'package:inscripcion_frontend/shared/widgets/app_ui_kit.dart';
 import 'package:inscripcion_frontend/shared/widgets/main_layout.dart';
 
 class TransactionsScreen extends StatefulWidget {
@@ -124,14 +123,14 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Header
-              StandardTableHeader(
+              AppTableHeader(
                 children: const [
-                  Expanded(flex: 3, child: StandardHeaderCell('Fecha')),
-                  Expanded(flex: 2, child: StandardHeaderCell('Proceso', textAlign: TextAlign.center)),
-                  Expanded(flex: 2, child: StandardHeaderCell('Periodo', textAlign: TextAlign.center)),
-                  Expanded(flex: 2, child: StandardHeaderCell('A través de', textAlign: TextAlign.center)),
-                  Expanded(flex: 4, child: StandardHeaderCell('Materias')),
-                  Expanded(flex: 2, child: StandardHeaderCell('Estado', textAlign: TextAlign.center)),
+                  Expanded(flex: 3, child: AppHeaderCell('Fecha')),
+                  Expanded(flex: 2, child: AppHeaderCell('Proceso', textAlign: TextAlign.center)),
+                  Expanded(flex: 2, child: AppHeaderCell('Periodo', textAlign: TextAlign.center)),
+                  Expanded(flex: 2, child: AppHeaderCell('A través de', textAlign: TextAlign.center)),
+                  Expanded(flex: 4, child: AppHeaderCell('Materias')),
+                  Expanded(flex: 2, child: AppHeaderCell('Estado', textAlign: TextAlign.center)),
                 ],
               ),
               // Body
@@ -155,7 +154,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           ),
                           Expanded(
                             flex: 2,
-                            child: _buildProcessBadge(tx['proceso']),
+                            child: AppProcessBadge(tx['proceso'] ?? ''),
                           ),
                           Expanded(
                             flex: 2,
@@ -167,7 +166,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           ),
                           Expanded(
                             flex: 2,
-                            child: _buildViaBadge(tx['via']),
+                            child: AppProcessBadge(tx['via'] ?? ''),
                           ),
                           Expanded(
                             flex: 4,
@@ -181,21 +180,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           ),
                           Expanded(
                             flex: 2,
-                            child: Center(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(color: UAGRMTheme.successGreen),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Text(
-                                  tx['estado'] ?? '',
-                                  style: const TextStyle(fontSize: 12, color: UAGRMTheme.successGreen, fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
+                            child: Center(child: AppEstadoBadge(tx['estado'] ?? '')),
                           ),
                         ],
                       ),
@@ -210,52 +195,5 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     });
   }
 
-  Widget _buildProcessBadge(String process) {
-    Color bg = const Color(0xFF0F172A);
-    Color text = Colors.white;
-
-    if (process == 'Adición' || process == 'Retiro') {
-      bg = Colors.white;
-      text = const Color(0xFF334155);
-    }
-
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(16),
-          border: process == 'Adición' || process == 'Retiro' ? Border.all(color: Colors.grey.shade300) : null,
-        ),
-        child: Text(
-          process,
-          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: text),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildViaBadge(String via) {
-    Color bg = const Color(0xFF0F172A);
-    Color text = Colors.white;
-
-    if (via == 'Ventanilla') {
-      bg = const Color(0xFFF1F5F9);
-      text = const Color(0xFF475569);
-    }
-
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Text(
-          via,
-          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: text),
-        ),
-      ),
-    );
-  }
 }
+

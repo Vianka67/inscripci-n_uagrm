@@ -99,6 +99,7 @@ class StandardDataTable extends StatelessWidget {
   final double? minWidth;
   final WidgetStateProperty<Color?>? headingRowColor;
   final double dividerThickness;
+  final Widget? topHeading;
 
   const StandardDataTable({
     super.key,
@@ -108,6 +109,7 @@ class StandardDataTable extends StatelessWidget {
     this.minWidth,
     this.headingRowColor,
     this.dividerThickness = 0.5,
+    this.topHeading,
   });
 
   @override
@@ -131,6 +133,17 @@ class StandardDataTable extends StatelessWidget {
                 constraints: BoxConstraints(minWidth: minWidth!),
                 child: table,
               ),
+            );
+          }
+
+          if (topHeading != null) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                topHeading!,
+                const Divider(height: 1),
+                table,
+              ],
             );
           }
 
