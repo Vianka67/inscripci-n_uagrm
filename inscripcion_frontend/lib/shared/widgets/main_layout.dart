@@ -143,7 +143,20 @@ class MainLayout extends StatelessWidget {
               ),
             child: Row(
               children: [
-                const Icon(Icons.school, color: UAGRMTheme.primaryRed, size: 28),
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Padding(
+                    padding: const EdgeInsets.all(3.0),
+                    child: Image.asset('assets/images/logo_uagrm.png', fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => const Icon(Icons.school_rounded, color: Color(0xFF003366), size: 20)),
+                  ),
+                ),
                 const SizedBox(width: 12),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

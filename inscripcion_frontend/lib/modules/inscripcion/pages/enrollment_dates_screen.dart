@@ -203,21 +203,37 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
               ],
             ),
           ),
-          AppTableHeader(
-            children: const [
-              SizedBox(width: 100, child: AppHeaderCell('Proceso', textAlign: TextAlign.center)),
-              Expanded(child: AppHeaderCell('Período')),
-              SizedBox(width: 120, child: AppHeaderCell('Fecha Inicio')),
-              SizedBox(width: 120, child: AppHeaderCell('Fecha Fin')),
-              SizedBox(width: 100, child: AppHeaderCell('Día Asignado', textAlign: TextAlign.center)),
-              SizedBox(width: 120, child: AppHeaderCell('Fecha Estudiante')),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final tableWidth = constraints.maxWidth < 700 ? 700.0 : constraints.maxWidth;
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: tableWidth,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      AppTableHeader(
+                        children: const [
+                          SizedBox(width: 100, child: AppHeaderCell('Proceso', textAlign: TextAlign.center)),
+                          Expanded(child: AppHeaderCell('Periodo')),
+                          SizedBox(width: 120, child: AppHeaderCell('Fecha Inicio')),
+                          SizedBox(width: 120, child: AppHeaderCell('Fecha Fin')),
+                          SizedBox(width: 100, child: AppHeaderCell('Dia Asignado', textAlign: TextAlign.center)),
+                          SizedBox(width: 120, child: AppHeaderCell('Fecha Estudiante')),
+                        ],
+                      ),
+                      _buildRow('Inscripcion', '1/2025 Semestre Regular', '2025-02-15', '2025-02-20', '2', '2025-02-16', true),
+                      const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                      _buildRow('Adicion', '1/2025 Semestre Regular', '2025-02-25', '2025-03-01', '1', '2025-02-25', false),
+                      const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                      _buildRow('Retiro', '1/2025 Semestre Regular', '2025-03-10', '2025-03-15', '3', '2025-03-12', false),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
-          _buildRow('Inscripción', '1/2025 Semestre Regular', '2025-02-15', '2025-02-20', '2', '2025-02-16', true),
-          const Divider(height: 1, color: Color(0xFFF1F5F9)),
-          _buildRow('Adición', '1/2025 Semestre Regular', '2025-02-25', '2025-03-01', '1', '2025-02-25', false),
-          const Divider(height: 1, color: Color(0xFFF1F5F9)),
-          _buildRow('Retiro', '1/2025 Semestre Regular', '2025-03-10', '2025-03-15', '3', '2025-03-12', false),
         ],
       ),
     );

@@ -11,6 +11,7 @@ class Estudiante(models.Model):
     nombre = models.CharField(max_length=100, verbose_name="Nombre")
     apellido_paterno = models.CharField(max_length=100, verbose_name="Apellido Paterno")
     apellido_materno = models.CharField(max_length=100, blank=True, verbose_name="Apellido Materno")
+    contrasena = models.CharField(max_length=128, default='123456', verbose_name="Contraseña")
     lugar_origen = models.CharField(max_length=200, verbose_name="Lugar de Origen")
     email = models.EmailField(blank=True, verbose_name="Correo Electrónico")
     telefono = models.CharField(max_length=20, blank=True, verbose_name="Teléfono")

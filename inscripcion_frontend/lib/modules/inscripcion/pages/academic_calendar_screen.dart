@@ -116,20 +116,25 @@ class _AcademicCalendarScreenState extends State<AcademicCalendarScreen> {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   alignment: WrapAlignment.spaceBetween,
                   children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.calendar_today_outlined, color: UAGRMTheme.primaryBlue),
-                        const SizedBox(width: 12),
-                        const Text(
-                          'Calendario Académico 2025',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: UAGRMTheme.primaryBlue,
+                    Flexible(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.calendar_today_outlined, color: UAGRMTheme.primaryBlue),
+                          const SizedBox(width: 12),
+                          Flexible(
+                            child: Text(
+                              'Calendario Académico 2025',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: UAGRMTheme.primaryBlue,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     Wrap(
                       spacing: 8,

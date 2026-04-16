@@ -22,6 +22,13 @@ class Query(graphene.ObjectType):
         codigo_carrera=graphene.String(),
         description="Información principal del estudiante"
     )
+
+    login_estudiante = graphene.Field(
+        EstudianteType,
+        registro=graphene.String(required=True),
+        contrasena=graphene.String(required=True),
+        description="Autenticación de estudiante"
+    )
     
     bloqueo_estudiante = graphene.Field(
         BloqueoEstudianteType,
@@ -104,6 +111,12 @@ class Query(graphene.ObjectType):
 
     def resolve_panel_estudiante(self, info, registro, codigo_carrera=None):
         return PanelService.get_panel_estudiante(registro, codigo_carrera)
+    
+    def resolve_login_estudiante(self, info, registro, contrasena):
+        estudiante = EstudianteService.authenticate(registro, contrasena)
+        if not estudiante:
+            raise Exception("Credenciales incorrectas")
+        return estudiante
     
     def resolve_bloqueo_estudiante(self, info, registro):
         return BloqueoService.get_info_bloqueo_estudiante(registro)

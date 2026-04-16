@@ -19,6 +19,19 @@ class EstudianteService:
             return None
     
     @staticmethod
+    def authenticate(registro: str, contrasena: str) -> Optional[Estudiante]:
+        """
+        Autenticación simple por registro y contraseña.
+        """
+        try:
+            estudiante = Estudiante.objects.get(registro=registro)
+            if estudiante.contrasena == contrasena:
+                return estudiante
+            return None
+        except Estudiante.DoesNotExist:
+            return None
+    
+    @staticmethod
     def get_carreras_estudiante(registro: str):
         """
         Buscar carreras activas.

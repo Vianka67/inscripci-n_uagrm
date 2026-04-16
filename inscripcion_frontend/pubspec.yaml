@@ -19,6 +19,7 @@ dependencies:
   pdf: ^3.11.3
   printing: ^5.14.2
   shared_preferences: ^2.5.4
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:
@@ -27,3 +28,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/

@@ -1,3 +1,4 @@
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -91,10 +92,17 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
           ),
           const SizedBox(height: 32),
           ElevatedButton.icon(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Redirigiendo al portal externo de pagos...')),
-              );
+            onPressed: () async {
+              final url = Uri.parse('https://www.uagrm.edu.bo/');
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url, mode: LaunchMode.externalApplication);
+              } else {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('No se pudo abrir el portal de pagos.')),
+                  );
+                }
+              }
             },
             icon: const Icon(Icons.open_in_new),
             label: const Text('Ir al Sistema de Pagos'),

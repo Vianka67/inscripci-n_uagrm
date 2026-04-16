@@ -155,7 +155,7 @@ class MainPanelScreen extends StatelessWidget {
                 crossAxisCount: cols,
                 crossAxisSpacing: 24,
                 mainAxisSpacing: 24,
-                childAspectRatio: 1.8, // Más cuadrado como en mockup
+                childAspectRatio: 1.4, // Taller cards to avoid overflow
                 children: _buildCards(context, options, isEnabled: careerName != null),
               );
             },
@@ -258,7 +258,7 @@ class _DashboardCard extends StatelessWidget {
         child: Opacity(
           opacity: isEnabled ? 1.0 : 0.5,
           child: Padding(
-            padding: const EdgeInsets.all(24), // Más espaciado interno
+            padding: const EdgeInsets.all(20), // Ajustado de 24 a 20 para dar espacio al texto
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -271,17 +271,17 @@ class _DashboardCard extends StatelessWidget {
                   ),
                   child: Icon(icon, color: UAGRMTheme.sidebarDeep, size: 24),
                 ),
-                const Spacer(),
+                const SizedBox(height: 14), // Gap fijo en lugar de Spacer para evitar empujes dinámicos que causan overflow
                 Text(
                   title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: UAGRMTheme.textDark), // Texto más grande
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: UAGRMTheme.textDark),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
                 Text(
                   subtitle,
-                  style: const TextStyle(fontSize: 13, color: UAGRMTheme.textGrey),
+                  style: const TextStyle(fontSize: 13, color: UAGRMTheme.textGrey, height: 1.2), // Altura de línea compacta
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

@@ -257,7 +257,7 @@ class _BlockedStatusScreenState extends State<BlockedStatusScreen> {
       alignment: Alignment.center,
       child: Column(
         children: [
-          Image.asset('assets/images/image_0.jpeg', height: 120, errorBuilder: (_,__,___) => const Icon(Icons.school, size: 80, color: UAGRMTheme.primaryBlue)),
+          const Icon(Icons.school_rounded, size: 80, color: UAGRMTheme.primaryBlue),
           const SizedBox(height: 24),
           const Text(
             '¡Todo listo!',

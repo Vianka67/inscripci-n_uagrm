@@ -2,10 +2,10 @@ import os
 import django
 
 # Configurar el entorno de Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'inscripcion_backend.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.base')
 django.setup()
 
-from inscripcion.models import Carrera, PlanEstudios, Materia, MateriaCarreraSemestre, Estudiante, EstudianteCarrera, PeriodoAcademico
+from apps.inscripcion.models import Carrera, PlanEstudios, Materia, MateriaCarreraSemestre, Estudiante, EstudianteCarrera, PeriodoAcademico
 
 def populate():
     print("Poblando datos académicos...")
@@ -37,6 +37,7 @@ def populate():
             "nombre": "Claudia",
             "apellido_paterno": "Vargas",
             "apellido_materno": "Solis",
+            "contrasena": "123456",
             "documento_identidad": "8877665",
             "lugar_origen": "Santa Cruz",
             "email": "claudia.vargas@uagrm.edu.bo",
@@ -102,19 +103,19 @@ def populate():
 
     est_med, _ = Estudiante.objects.get_or_create(
         registro="220001111",
-        defaults={"nombre": "Roberto", "apellido_paterno": "Suarez", "apellido_materno": "Gomez", "documento_identidad": "4455667", "email": "roberto@estudiante.uagrm.edu.bo", "telefono": "78111111", "activo": True, "fecha_ingreso": "2022-02-01"}
+        defaults={"nombre": "Roberto", "apellido_paterno": "Suarez", "apellido_materno": "Gomez", "contrasena": "123456", "documento_identidad": "4455667", "email": "roberto@estudiante.uagrm.edu.bo", "telefono": "78111111", "activo": True, "fecha_ingreso": "2022-02-01"}
     )
     EstudianteCarrera.objects.get_or_create(estudiante=est_med, carrera=med_carrera, plan_estudios=med_plan, defaults={"semestre_actual": 1, "modalidad": "PRESENCIAL", "activa": True})
 
     est_arq, _ = Estudiante.objects.get_or_create(
         registro="221002222",
-        defaults={"nombre": "Ana", "apellido_paterno": "Silva", "apellido_materno": "Rios", "documento_identidad": "5566778", "email": "ana.silva@estudiante.uagrm.edu.bo", "telefono": "78222222", "activo": True, "fecha_ingreso": "2021-02-01"}
+        defaults={"nombre": "Ana", "apellido_paterno": "Silva", "apellido_materno": "Rios", "contrasena": "123456", "documento_identidad": "5566778", "email": "ana.silva@estudiante.uagrm.edu.bo", "telefono": "78222222", "activo": True, "fecha_ingreso": "2021-02-01"}
     )
     EstudianteCarrera.objects.get_or_create(estudiante=est_arq, carrera=arq_carrera, plan_estudios=arq_plan, defaults={"semestre_actual": 2, "modalidad": "PRESENCIAL", "activa": True})
 
     est_sis_adv, _ = Estudiante.objects.get_or_create(
         registro="217003333",
-        defaults={"nombre": "Luis", "apellido_paterno": "Mendez", "apellido_materno": "Paz", "documento_identidad": "3344556", "email": "luis.mendez@uagrm.edu.bo", "telefono": "78333333", "activo": True, "fecha_ingreso": "2017-02-01"}
+        defaults={"nombre": "Luis", "apellido_paterno": "Mendez", "apellido_materno": "Paz", "contrasena": "123456", "documento_identidad": "3344556", "email": "luis.mendez@uagrm.edu.bo", "telefono": "78333333", "activo": True, "fecha_ingreso": "2017-02-01"}
     )
     EstudianteCarrera.objects.get_or_create(estudiante=est_sis_adv, carrera=sis_carrera, plan_estudios=sis_plan, defaults={"semestre_actual": 4, "modalidad": "PRESENCIAL", "activa": True})
 
