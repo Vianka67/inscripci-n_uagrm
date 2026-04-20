@@ -22,8 +22,12 @@ class Responsive {
       MediaQuery.sizeOf(context).width >= _desktopBreak;
 
   /// true para tablet Y desktop (úsalo donde cualquier pantalla grande funciona)
-  static bool isTabletOrDesktop(BuildContext context) =>
-      MediaQuery.sizeOf(context).width >= _tabletBreak;
+  /// En landscape mobile, el ancho puede superar 600px pero la altura es pequeña,
+  /// por lo que verificamos ambas dimensiones para distinguir tablet real de phone landscape.
+  static bool isTabletOrDesktop(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    return size.width >= _tabletBreak && size.height >= 500;
+  }
 
   /// Devuelve [mobile], [tablet] o [desktop] según el ancho de pantalla.
   static T value<T>(

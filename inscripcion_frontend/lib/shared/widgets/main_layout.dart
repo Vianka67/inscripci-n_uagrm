@@ -463,7 +463,7 @@ class _SidebarItem extends StatelessWidget {
                   ),
                   backgroundColor: Colors.orange.shade800,
                   behavior: SnackBarBehavior.floating,
-                  margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height - 130, left: 16, right: 16),
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   duration: const Duration(seconds: 3),
                 ),

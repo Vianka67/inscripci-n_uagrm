@@ -156,11 +156,13 @@ class AppProcessBadge extends StatelessWidget {
     }
     return Center(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(14)),
         child: Text(
-          proceso.toUpperCase(), 
-          style: GoogleFonts.outfit(color: fg, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5)
+          proceso.toUpperCase(),
+          softWrap: false,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.outfit(color: fg, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.3),
         ),
       ),
     );
