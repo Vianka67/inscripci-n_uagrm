@@ -29,6 +29,7 @@ class Boleta(models.Model):
     fecha_emision = models.DateField(auto_now_add=True, verbose_name="Fecha de Emisión")
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Total")
     estado = models.CharField(max_length=20, choices=ESTADO_PAGO_CHOICES, default='PENDIENTE')
+    transaccion_id = models.CharField(max_length=100, null=True, blank=True, verbose_name="ID de Transacción Externo")
 
     class Meta:
         verbose_name = "Boleta"

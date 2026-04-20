@@ -9,7 +9,7 @@ class GraphQLService {
   static String get _graphqlEndpoint {
     // Si es web (Chrome), usa localhost
     if (kIsWeb) {
-      return 'http://localhost:8000/graphql/';
+      return 'http://127.0.0.1:8000/graphql/';
     }
     // Si es móvil, usa la IP de la red local
     return 'http://$_localNetworkIp:8000/graphql/';

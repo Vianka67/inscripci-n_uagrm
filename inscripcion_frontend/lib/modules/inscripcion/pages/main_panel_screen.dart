@@ -110,6 +110,13 @@ class MainPanelScreen extends StatelessWidget {
           final periodJson = data['periodoActual'];
           final options = PanelOptions.fromJson(optionsJson, periodJson);
 
+          // Sincronizar nombre con el proveedor de estado
+          if (provider.studentName == null || provider.studentName!.isEmpty || provider.studentName == 'Estudiante UAGRM') {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              provider.setStudentData(student.register, student.fullName);
+            });
+          }
+
           return _buildDashboardContent(context, student, selectedCareer?.name, options);
         },
       ),
@@ -138,7 +145,7 @@ class MainPanelScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 24),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFFBEB), // Ambar muy suave
+                color: const Color(0xFFFFFBEB),
                 border: Border.all(color: const Color(0xFFFCD34D)), // Ambar borde
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -157,7 +164,7 @@ class MainPanelScreen extends StatelessWidget {
             ),
           ],
 
-          // Grid de Opciones
+
           LayoutBuilder(
             builder: (context, constraints) {
               int cols = 1;
@@ -187,7 +194,7 @@ class MainPanelScreen extends StatelessWidget {
         title: 'Registrar Materias',
         subtitle: 'Inscribir, adicionar o retirar materias',
         icon: Icons.menu_book_rounded,
-        isEnabled: isEnabled, // Quitamos las validaciones estrictas de "options.enrollment" para demo
+        isEnabled: isEnabled,
         onTap: () => Navigator.pushNamed(context, '/pre-enrollment'),
       ),
       _DashboardCard(
@@ -263,11 +270,11 @@ class _DashboardCard extends StatelessWidget {
     return Material(
       color: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16), // Más curvo
+        borderRadius: BorderRadius.circular(16),
         side: BorderSide(color: Colors.grey.shade200, width: 1),
       ),
       shadowColor: Colors.black.withValues(alpha: 0.05),
-      elevation: 0, // Plano como referencia
+      elevation: 0,
       child: InkWell(
         onTap: isEnabled ? onTap : null,
         borderRadius: BorderRadius.circular(16),
@@ -287,7 +294,7 @@ class _DashboardCard extends StatelessWidget {
                   ),
                   child: Icon(icon, color: UAGRMTheme.sidebarDeep, size: 24),
                 ),
-                const SizedBox(height: 14), // Gap fijo en lugar de Spacer para evitar empujes dinámicos que causan overflow
+                const SizedBox(height: 14),
                 Text(
                   title,
                   style: GoogleFonts.outfit(fontWeight: FontWeight.w800, fontSize: 16, color: UAGRMTheme.textDark, letterSpacing: 0.1),
@@ -297,7 +304,7 @@ class _DashboardCard extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   subtitle,
-                  style: const TextStyle(fontSize: 13, color: UAGRMTheme.textGrey, height: 1.2), // Altura de línea compacta
+                  style: const TextStyle(fontSize: 13, color: UAGRMTheme.textGrey, height: 1.2),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),

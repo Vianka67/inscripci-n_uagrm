@@ -27,23 +27,21 @@ class ConfirmarInscripcion(graphene.Mutation):
 
     @staticmethod
     def mutate(root, info, registro, codigo_carrera, oferta_ids):
-        from apps.inscripcion.models import (
+        from ..models import (
             Estudiante, EstudianteCarrera, PeriodoAcademico,
             Inscripcion, InscripcionMateria, OfertaMateria
         )
 
         try:
-                from apps.inscripcion.tasks import procesar_inscripcion_asincrona
-                
-                tarea_asincrona = procesar_inscripcion_asincrona.delay(registro, codigo_carrera, oferta_ids)
-                
-                return ConfirmarInscripcion(
-                    ok=True,
-                    mensaje=f"Tu inscripción ha sido recibida y se está procesando (ID: {tarea_asincrona.id})."
-                )
-
+            from ..tasks import procesar_inscripcion_asincrona
+            procesar_inscripcion_asincrona.delay(registro, codigo_carrera, oferta_ids)
+            
+            return ConfirmarInscripcion(
+                ok=True,
+                mensaje="Tu inscripción ha sido recibida y se está procesando."
+            )
         except Exception as e:
-            return ConfirmarInscripcion(ok=False, mensaje=f"Error despachando orden: {str(e)}")
+            return ConfirmarInscripcion(ok=False, mensaje=f"Error en el sistema: {str(e)}")
 
 
 class Mutation(graphene.ObjectType):

@@ -100,7 +100,7 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
 
         final dataList = result.data?['fechasInscripcion'] as List<dynamic>? ?? [];
 
-        // Calculate mapped data
+        // Procesar datos mapeados para la visualización
         String fetchDiaAsignado = '';
         String fetchFecha = '';
         if (dataList.isNotEmpty) {

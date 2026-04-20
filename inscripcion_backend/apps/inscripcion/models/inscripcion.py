@@ -29,6 +29,7 @@ class Inscripcion(models.Model):
     """Inscripciones"""
     ESTADO_CHOICES = [
         ('PENDIENTE', 'Pendiente'),
+        ('PENDIENTE_PAGO', 'Pendiente de Pago'),
         ('CONFIRMADA', 'Confirmada'),
         ('CANCELADA', 'Cancelada'),
     ]

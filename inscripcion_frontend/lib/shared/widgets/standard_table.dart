@@ -73,7 +73,7 @@ class StandardTableHeader extends StatelessWidget {
   }
 }
 
-/// Helper para generar Textos de Cabecera con tipografía en negrita y blanca
+/// Encabezado de celda con estilo oficial UAGRM
 class StandardHeaderCell extends StatelessWidget {
   final String text;
   final TextAlign textAlign;
@@ -95,7 +95,7 @@ class StandardHeaderCell extends StatelessWidget {
   }
 }
 
-/// Helper para crear TableRow (nativo de Flutter `Table`) con fondo Navy Dark.
+/// Fila de cabecera con fondo Navy Dark
 TableRow buildStandardTableRowHeader({required List<String> labels, List<TextAlign>? aligns}) {
   return TableRow(
     decoration: const BoxDecoration(
@@ -113,7 +113,7 @@ TableRow buildStandardTableRowHeader({required List<String> labels, List<TextAli
   );
 }
 
-/// Envoltura uniforme para el componente DataRow y DataTable nativo de Flutter.
+/// Envoltura uniforme para DataTable nativo
 class StandardDataTable extends StatelessWidget {
   final List<DataColumn> columns;
   final List<DataRow> rows;
@@ -194,7 +194,7 @@ class StandardFlexHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
       decoration: const BoxDecoration(
-        color: Color(0xFF010A13), // Deep Navy UAGRM
+        color: const Color(0xFF010A13),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

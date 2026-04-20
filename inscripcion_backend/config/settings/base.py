@@ -106,8 +106,16 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Configuración de CORS
-CORS_ALLOW_ALL_ORIGINS = True  # Para desarrollo, en producción especifica los orígenes permitidos
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
+# Orígenes específicos para mayor seguridad y compatibilidad con Credenciales
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:53790",
+    "http://127.0.0.1:53790",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
 CORS_ALLOW_METHODS = [
     'DELETE',
     'GET',

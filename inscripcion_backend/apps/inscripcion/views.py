@@ -5,8 +5,13 @@ from django.http import JsonResponse
 from django.views import View
 from django.shortcuts import get_object_or_404
 
-from apps.inscripcion.models import Estudiante
-from apps.inscripcion.services import (
+import json
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.db import transaction
+
+from .models import Estudiante, Boleta, Inscripcion
+from .services import (
     BloqueoService,
     InscripcionService,
     PeriodoAcademicoService,
@@ -155,3 +160,55 @@ class BoletaView(View, StandardResponseMixin):
             "total": total,
             "estado_pago": estado,
         })
+
+@method_decorator(csrf_exempt, name='dispatch')
+class PaymentWebhookView(View):
+    """
+    Webhook para recibir confirmaciones de pago desde la plataforma externa.
+    """
+
+    def post(self, request, *args, **kwargs):
+        try:
+            data = json.loads(request.body)
+            
+            # NOTA: En producción, aquí se debe verificar la firma del mensaje (HMAC)
+            # para asegurar que la petición viene realmente de la pasarela de pagos.
+            
+            transaccion_id = data.get('transaccion_id')
+            inscripcion_id = data.get('inscripcion_id')
+            estado_pago = data.get('estado') # Ejemplo: 'SUCCESS', 'FAILED'
+            
+            if not transaccion_id or not inscripcion_id:
+                return JsonResponse({"error": "Datos incompletos"}, status=400)
+            
+            with transaction.atomic():
+                try:
+                    inscripcion = Inscripcion.objects.select_for_update().get(id=inscripcion_id)
+                except Inscripcion.DoesNotExist:
+                    return JsonResponse({"error": "Inscripción no encontrada"}, status=404)
+                
+                # Intentar obtener o crear la boleta si no existe
+                boleta, _ = Boleta.objects.get_or_create(inscripcion=inscripcion)
+                
+                if estado_pago == 'SUCCESS':
+                    # Actualizar estado de la boleta
+                    boleta.estado = 'PAGADO'
+                    boleta.transaccion_id = transaccion_id
+                    boleta.save()
+                    
+                    # Confirmar la inscripción
+                    inscripcion.estado = 'CONFIRMADA'
+                    inscripcion.save()
+                    
+                    return JsonResponse({"mensaje": "Pago procesado y registro verificado exitosamente"})
+                else:
+                    # Si el pago falló, podríamos marcar la boleta pero no cancelar aún 
+                    # (esperamos a que expire el tiempo de Celery o que intente de nuevo)
+                    boleta.estado = 'ANULADO'
+                    boleta.save()
+                    return JsonResponse({"mensaje": "Se registró un intento de pago fallido"})
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "JSON inválido"}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)

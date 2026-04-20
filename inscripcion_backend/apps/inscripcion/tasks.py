@@ -5,10 +5,10 @@ from django.utils import timezone
 
 @shared_task
 def procesar_inscripcion_asincrona(registro, codigo_carrera, oferta_ids):
-    from apps.inscripcion.models import (
+    from .models import (
         Estudiante, EstudianteCarrera, PeriodoAcademico,
         Inscripcion, InscripcionMateria, OfertaMateria, Bloqueo
-)
+    )
     try:
         with transaction.atomic():
             estudiante = Estudiante.objects.get(registro=registro)
@@ -32,7 +32,7 @@ def procesar_inscripcion_asincrona(registro, codigo_carrera, oferta_ids):
                 periodo_academico=periodo,
                 defaults={
                     'fecha_inscripcion_asignada': timezone.now().date(),
-                    'estado': 'PENDIENTE',
+                    'estado': 'PENDIENTE_PAGO',
                 }
             )
 
@@ -50,7 +50,7 @@ def procesar_inscripcion_asincrona(registro, codigo_carrera, oferta_ids):
             if sin_cupo:
                 return {"ok": False, "mensaje": f"Lo sentimos, los cupos se acaban de llenar en: {', '.join(sin_cupo)}"}
 
-            # Liberar cupos de las materias anteriores con select_for_update para evitar condiciones de carrera
+            # Liberar cupos de las materias anteriores si ya existía una inscripción previa
             inscripciones_anteriores = inscripcion.materias_inscritas.select_related('oferta').all()
             ofertas_anteriores_ids = [ia.oferta.id for ia in inscripciones_anteriores]
             if ofertas_anteriores_ids:
@@ -72,14 +72,54 @@ def procesar_inscripcion_asincrona(registro, codigo_carrera, oferta_ids):
                 oferta.cupo_actual += 1
                 oferta.save(update_fields=['cupo_actual'])
 
-            inscripcion.estado = 'CONFIRMADA'
+            inscripcion.estado = 'PENDIENTE_PAGO'
             inscripcion.fecha_inscripcion_realizada = timezone.now()
             inscripcion.save(update_fields=['estado', 'fecha_inscripcion_realizada'])
             
-            time.sleep(1)
+            # Programar la liberación de cupos si no paga en 10 minutos (600 segundos)
+            liberar_cupos_por_impago.apply_async((inscripcion.id,), countdown=600)
 
             n = len(oferta_ids)
-            return {"ok": True, "mensaje": f"Inscripción procesada y confirmada con {n} materia{'s' if n != 1 else ''} exitosamente."}
+            return {
+                "ok": True, 
+                "mensaje": f"Reserva realizada. Tienes 10 minutos para completar el pago de {n} materia{'s' if n != 1 else ''}.",
+                "inscripcion_id": inscripcion.id
+            }
 
     except Exception as e:
         return {"ok": False, "mensaje": f"Error asíncrono: {str(e)}"}
+
+
+@shared_task
+def liberar_cupos_por_impago(inscripcion_id):
+    """
+    Libera los cupos de una inscripción si no ha sido confirmada (pagada) en el tiempo límite.
+    """
+    from .models import Inscripcion, OfertaMateria
+    
+    try:
+        with transaction.atomic():
+            inscripcion = Inscripcion.objects.select_for_update().get(id=inscripcion_id)
+            
+            # Solo liberamos si sigue pendiente de pago
+            if inscripcion.estado == 'PENDIENTE_PAGO':
+                print(f"Liberando cupos por impago para inscripción {inscripcion_id}")
+                
+                materias_inscritas = inscripcion.materias_inscritas.select_related('oferta').all()
+                for mi in materias_inscritas:
+                    if mi.oferta:
+                        oferta = OfertaMateria.objects.select_for_update().get(id=mi.oferta.id)
+                        if oferta.cupo_actual > 0:
+                            oferta.cupo_actual -= 1
+                            oferta.save(update_fields=['cupo_actual'])
+                
+                inscripcion.estado = 'CANCELADA'
+                inscripcion.save(update_fields=['estado'])
+                return f"Inscripción {inscripcion_id} cancelada por falta de pago. Cupos liberados."
+            
+            return f"Inscripción {inscripcion_id} ya se encuentra en estado {inscripcion.estado}. No se requiere limpieza."
+            
+    except Inscripcion.DoesNotExist:
+        return f"Error: Inscripción {inscripcion_id} no encontrada."
+    except Exception as e:
+        return f"Error en liberar_cupos_por_impago: {str(e)}"

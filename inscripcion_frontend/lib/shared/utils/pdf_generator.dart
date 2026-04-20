@@ -12,7 +12,7 @@ import 'package:inscripcion_frontend/shared/utils/time_formatter.dart';
 //  garantiza que el diseño es determinístico tanto en portrait como landscape.
 // ─────────────────────────────────────────────────────────────────────────────
 class _PdfLayout {
-  // ── Página ─────────────────────────────────────────────────────────────────
+  // PÁGINA
   final PdfPageFormat pageFormat;
   final pw.EdgeInsets margin;
 

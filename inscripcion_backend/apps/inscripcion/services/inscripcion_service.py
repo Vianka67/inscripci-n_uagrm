@@ -6,7 +6,7 @@ from django.db import models
 from django.core.cache import cache
 import hashlib
 import json
-from apps.inscripcion.models import Inscripcion, PeriodoAcademico, MateriaCarreraSemestre, EstudianteCarrera
+from ..models import Inscripcion, PeriodoAcademico, MateriaCarreraSemestre, EstudianteCarrera
 from .periodo_service import PeriodoAcademicoService
 from .estudiante_service import EstudianteService
 
@@ -107,7 +107,7 @@ class InscripcionService:
         if result is not None:
              return result
              
-        from apps.inscripcion.models import OfertaMateria
+        from ..models import OfertaMateria
         
         if not codigo_periodo:
             periodo = PeriodoAcademico.objects.filter(activo=True).first()

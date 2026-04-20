@@ -267,7 +267,7 @@ class MainLayout extends StatelessWidget {
                           shape: BoxShape.circle,
                         ),
                         child: Center(
-                          child: Text('JP', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13)),
+                          child: Text(_getInitials(provider.studentName ?? ''), style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13)),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -275,7 +275,7 @@ class MainLayout extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Estudiante UAGRM', style: GoogleFonts.outfit(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: 0.2), maxLines: 1, overflow: TextOverflow.ellipsis),
+                            Text(_getShortName(provider.studentName ?? ''), style: GoogleFonts.outfit(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: 0.2), maxLines: 1, overflow: TextOverflow.ellipsis),
                             Text('Reg: ${provider.studentRegister ?? "N/A"}', style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 11)),
                           ],
                         ),
@@ -309,6 +309,37 @@ class MainLayout extends StatelessWidget {
     return Drawer(
       child: sidebarContent,
     );
+  }
+
+  String _getInitials(String name) {
+    if (name.isEmpty) return 'U';
+    List<String> parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.length == 1) return parts[0][0].toUpperCase();
+    
+    // Lógica para extraer iniciales: Nombre 1 + Apellido 1
+    if (parts.length == 2 || parts.length == 3) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    if (parts.length >= 4) {
+      return (parts[0][0] + parts[2][0]).toUpperCase();
+    }
+    return parts[0][0].toUpperCase();
+  }
+
+  String _getShortName(String name) {
+    if (name.isEmpty) return 'Estudiante UAGRM';
+    List<String> parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.length == 1) return parts[0];
+    
+    // Lógica para nombre corto: Nombre 1 + Apellido 1
+    if (parts.length == 2 || parts.length == 3) {
+      return "${parts[0]} ${parts[1]}";
+    }
+    // Cesar Gustavo Villegas Crespo (4+) -> Cesar Villegas (0 y 2)
+    if (parts.length >= 4) {
+      return "${parts[0]} ${parts[2]}";
+    }
+    return parts[0];
   }
 }
 
@@ -363,7 +394,7 @@ class _SidebarCareerSelector extends StatelessWidget {
               isExpanded: true,
               dropdownColor: UAGRMTheme.sidebarPanel,
               icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white54),
-              value: selected?.code,
+              value: carrerasData.any((item) => item['carrera']['codigo'] == selected?.code) ? selected?.code : null,
               hint: const Text('Seleccionar carrera', style: TextStyle(color: Colors.white70, fontSize: 13)),
               items: carrerasData.map<DropdownMenuItem<String>>((item) {
                 final career = Career.fromJson(item['carrera']);

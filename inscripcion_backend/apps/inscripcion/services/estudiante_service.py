@@ -2,7 +2,7 @@
 Gestión de estudiantes.
 """
 from typing import Optional
-from apps.inscripcion.models import Estudiante, EstudianteCarrera
+from ..models import Estudiante, EstudianteCarrera
 
 
 class EstudianteService:

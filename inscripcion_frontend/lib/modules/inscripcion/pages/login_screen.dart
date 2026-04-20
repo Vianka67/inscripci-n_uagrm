@@ -15,7 +15,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _registroController = TextEditingController();
-  final _passwordController = TextEditingController(); // Nuevo campo dummy según diseño
+  final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   
   bool _isLoading = false;
@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
     query LoginEstudiante(\$registro: String!, \$contrasena: String!) {
       loginEstudiante(registro: \$registro, contrasena: \$contrasena) {
         registro
-        nombre
+        nombreCompleto
       }
     }
   """;
@@ -49,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         final client = GraphQLProvider.of(context).value;
         
-        // 1. Validar login con contraseña
+        // Autenticación con el backend
         final QueryResult loginResult = await client.query(
           QueryOptions(
             document: gql(loginQuery),
@@ -62,10 +62,16 @@ class _LoginScreenState extends State<LoginScreen> {
         );
 
         if (loginResult.hasException) {
+          debugPrint('Login Error: ${loginResult.exception.toString()}');
           String errorMsg = 'Credenciales incorrectas';
+          
           if (loginResult.exception?.linkException != null) {
-            errorMsg = 'Error de conexión con el servidor';
+            errorMsg = 'Error de conexión con el servidor (127.0.0.1:8000)';
+            debugPrint('Link Exception details: ${loginResult.exception?.linkException}');
+          } else if (loginResult.exception?.graphqlErrors.isNotEmpty ?? false) {
+             errorMsg = loginResult.exception!.graphqlErrors.first.message;
           }
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(errorMsg), backgroundColor: Colors.red),
@@ -75,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
           return;
         }
 
-        // 2. Si el login fue exitoso, obtener las carreras
+        // Obtener carreras habilitadas del estudiante tras login exitoso
         final QueryResult result = await client.query(
           QueryOptions(
             document: gql(getCarrerasQuery),
@@ -109,9 +115,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (mounted) {
           final provider = context.read<RegistrationProvider>();
-          provider.setStudentRegister(_registroController.text);
+          final String nombreCompleto = loginResult.data?['loginEstudiante']?['nombreCompleto'] ?? '';
+          provider.setStudentData(_registroController.text, nombreCompleto);
           
-          // Pequeño delay garantizado para que el provider actualice el estado en memoria
+          // Delay para asegurar actualización de estado
           Future.microtask(() {
             if (mounted) {
               Navigator.pushReplacementNamed(context, '/panel');
@@ -153,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       Image.asset(
                         'assets/images/logo_uagrm.png',
-                        width: 180, // Reducido ligeramente para evitar scroll
+                        width: 180,
                         height: 180,
                         fit: BoxFit.contain,
                         errorBuilder: (_, __, ___) => const Icon(
@@ -246,7 +253,7 @@ class _LoginScreenState extends State<LoginScreen> {
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w700,
-                color: UAGRMTheme.primaryBlue, // Azul institucional oscuro
+                color: UAGRMTheme.primaryBlue,
               ),
             ),
             const SizedBox(height: 8),
@@ -258,7 +265,7 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 36),
           ],
           
-          // Campo Registro
+          
           TextFormField(
             controller: _registroController,
             keyboardType: TextInputType.number,
@@ -271,7 +278,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Icon(Icons.person_outline, size: 22, color: UAGRMTheme.primaryBlue),
               ),
               filled: true,
-              fillColor: Colors.white, // Fondo blanco para los inputs
+              fillColor: Colors.white,
               contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
@@ -295,7 +302,7 @@ class _LoginScreenState extends State<LoginScreen> {
           
           const SizedBox(height: 16),
           
-          // Campo Contraseña
+          
           TextFormField(
             controller: _passwordController,
             obscureText: _obscurePassword,
@@ -346,7 +353,7 @@ class _LoginScreenState extends State<LoginScreen> {
           
           const SizedBox(height: 24),
           
-          // Boton Ingresar
+          
           SizedBox(
             height: 52,
             child: ElevatedButton(
@@ -356,7 +363,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30), // Botón estilo píldora
+                  borderRadius: BorderRadius.circular(30),
                 ),
               ),
               child: _isLoading

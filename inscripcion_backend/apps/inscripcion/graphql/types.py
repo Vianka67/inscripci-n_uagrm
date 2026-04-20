@@ -1,6 +1,6 @@
 import graphene
 from graphene_django import DjangoObjectType
-from apps.inscripcion.models import (
+from ..models import (
     Carrera, PlanEstudios, Materia, MateriaCarreraSemestre,
     Estudiante, EstudianteCarrera, PeriodoAcademico, Inscripcion, 
     InscripcionMateria, Bloqueo, OfertaMateria
@@ -93,10 +93,8 @@ class OfertaMateriaType(DjangoObjectType):
         return self.materia_carrera.semestre
 
 
-# ========== TIPOS COMPUESTOS PARA RESPUESTAS ==========
 
 class EstudianteInfoType(graphene.ObjectType):
-    """Información básica del estudiante para respuestas compuestas"""
     registro = graphene.String()
     nombre_completo = graphene.String()
     nombre = graphene.String()
@@ -105,7 +103,6 @@ class EstudianteInfoType(graphene.ObjectType):
 
 
 class CarreraInfoType(graphene.ObjectType):
-    """Información de carrera para respuestas compuestas"""
     codigo = graphene.String()
     nombre = graphene.String()
     tipo = graphene.String()
@@ -113,7 +110,6 @@ class CarreraInfoType(graphene.ObjectType):
 
 
 class PeriodoInfoType(graphene.ObjectType):
-    """Información de periodo para respuestas compuestas"""
     codigo = graphene.String()
     nombre = graphene.String()
     inscripciones_habilitadas = graphene.Boolean()
@@ -122,7 +118,6 @@ class PeriodoInfoType(graphene.ObjectType):
 
 
 class OpcionesDisponiblesType(graphene.ObjectType):
-    """Opciones disponibles para el estudiante"""
     fechas_inscripcion = graphene.Boolean()
     boleta = graphene.Boolean()
     bloqueo = graphene.Boolean()
@@ -130,7 +125,6 @@ class OpcionesDisponiblesType(graphene.ObjectType):
 
 
 class InscripcionInfoType(graphene.ObjectType):
-    """Información de inscripción para respuestas compuestas"""
     fecha_asignada = graphene.String()
     fecha_realizada = graphene.String()
     estado = graphene.String()
@@ -140,7 +134,6 @@ class InscripcionInfoType(graphene.ObjectType):
 
 
 class PanelEstudianteType(graphene.ObjectType):
-    """Respuesta completa del panel del estudiante"""
     estudiante = graphene.Field(EstudianteInfoType)
     carrera = graphene.Field(CarreraInfoType)
     modalidad = graphene.String()
@@ -153,21 +146,18 @@ class PanelEstudianteType(graphene.ObjectType):
 
 
 class SemestreInfoType(graphene.ObjectType):
-    """Información de un semestre"""
     numero = graphene.Int()
     nombre = graphene.String()
     habilitado = graphene.Boolean()
 
 
 class SemestresPorCarreraType(graphene.ObjectType):
-    """Respuesta de semestres por carrera"""
     carrera = graphene.Field(CarreraInfoType)
     semestres = graphene.List(SemestreInfoType)
     total_semestres = graphene.Int()
 
 
 class BloqueoInfoType(graphene.ObjectType):
-    """Información de un bloqueo"""
     id = graphene.Int()
     tipo = graphene.String()
     motivo = graphene.String()
@@ -177,7 +167,6 @@ class BloqueoInfoType(graphene.ObjectType):
 
 
 class BloqueoEstudianteType(graphene.ObjectType):
-    """Respuesta completa de bloqueos del estudiante"""
     bloqueado = graphene.Boolean()
     bloqueos = graphene.List(BloqueoInfoType)
     puede_inscribirse = graphene.Boolean()
@@ -185,7 +174,6 @@ class BloqueoEstudianteType(graphene.ObjectType):
 
 
 class MateriaInscritaInfoType(graphene.ObjectType):
-    """Información de materia inscrita para boleta"""
     codigo = graphene.String()
     nombre = graphene.String()
     creditos = graphene.Int()
@@ -196,7 +184,6 @@ class MateriaInscritaInfoType(graphene.ObjectType):
 
 
 class BoletaInscripcionType(graphene.ObjectType):
-    """Respuesta completa de boleta de inscripción"""
     estudiante = graphene.Field(EstudianteInfoType)
     carrera = graphene.Field(CarreraInfoType)
     periodo = graphene.Field(PeriodoInfoType)
@@ -208,7 +195,6 @@ class BoletaInscripcionType(graphene.ObjectType):
     total_materias = graphene.Int()
 
 class FechasInscripcionType(graphene.ObjectType):
-    """Información de fechas de inscripción para compatibilidad"""
     fecha_inicio = graphene.String()
     fecha_fin = graphene.String()
     grupo = graphene.String()

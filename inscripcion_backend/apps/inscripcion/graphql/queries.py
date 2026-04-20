@@ -1,21 +1,19 @@
 import graphene
-from apps.inscripcion.graphql.types import (
+from .types import (
     CarreraType, EstudianteType, EstudianteCarreraType, MateriaCarreraSemestreType, 
     PeriodoAcademicoType, InscripcionType, MateriaType, PlanEstudiosType,
     BloqueoType, PanelEstudianteType, SemestresPorCarreraType, 
     BloqueoEstudianteType, BoletaInscripcionType, FechasInscripcionType,
     OfertaMateriaType
 )
-from apps.inscripcion.services import (
+from ..services import (
     EstudianteService, InscripcionService, PeriodoAcademicoService,
     CarreraService, BloqueoService, PanelService
 )
 from django.core.cache import cache
-from apps.inscripcion.models import Carrera, Materia, Bloqueo
+from ..models import Carrera, Materia, Bloqueo
 
 class Query(graphene.ObjectType):
-    # Consultas principales
-    
     panel_estudiante = graphene.Field(
         PanelEstudianteType,
         registro=graphene.String(required=True),
@@ -60,7 +58,6 @@ class Query(graphene.ObjectType):
         description="Ofertas de materias"
     )
     
-    # Consultas antiguas (para compatibilidad)
     
     estudiante_por_registro = graphene.Field(EstudianteType, registro=graphene.String(required=True))
     perfil_estudiante = graphene.Field(EstudianteType, registro=graphene.String(required=True))

@@ -3,7 +3,7 @@ Gestión de bloqueos.
 """
 from typing import List, Dict, Any, Optional
 from datetime import date
-from apps.inscripcion.models import Bloqueo, Estudiante, EstudianteCarrera
+from ..models import Bloqueo, Estudiante, EstudianteCarrera
 
 
 class BloqueoService:

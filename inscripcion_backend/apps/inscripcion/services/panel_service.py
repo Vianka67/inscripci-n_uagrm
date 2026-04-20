@@ -2,7 +2,7 @@
 Panel principal del estudiante.
 """
 from typing import Dict, Any, Optional
-from apps.inscripcion.models import Inscripcion
+from ..models import Inscripcion
 from .estudiante_service import EstudianteService
 from .inscripcion_service import InscripcionService
 from .bloqueo_service import BloqueoService

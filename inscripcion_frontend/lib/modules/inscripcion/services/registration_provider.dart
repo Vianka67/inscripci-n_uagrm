@@ -7,6 +7,7 @@ class RegistrationProvider extends ChangeNotifier {
   Career? _selectedCareer;
   String? _selectedSemester;
   String? _studentRegister;
+  String? _studentName;
 
   RegistrationProvider() {
     _loadFromPrefs();
@@ -15,6 +16,7 @@ class RegistrationProvider extends ChangeNotifier {
   Career? get selectedCareer => _selectedCareer;
   String? get selectedSemester => _selectedSemester;
   String? get studentRegister => _studentRegister;
+  String? get studentName => _studentName;
 
   Future<void> _loadFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
@@ -22,6 +24,7 @@ class RegistrationProvider extends ChangeNotifier {
     if (_studentRegister == null) {
       _studentRegister = prefs.getString('student_register');
     }
+    _studentName = prefs.getString('student_name');
     
     final careerJson = prefs.getString('selected_career');
     if (careerJson != null && _selectedCareer == null) {
@@ -38,6 +41,12 @@ class RegistrationProvider extends ChangeNotifier {
       await prefs.setString('student_register', _studentRegister!);
     } else {
       await prefs.remove('student_register');
+    }
+
+    if (_studentName != null) {
+      await prefs.setString('student_name', _studentName!);
+    } else {
+      await prefs.remove('student_name');
     }
 
     if (_selectedCareer != null) {
@@ -73,10 +82,18 @@ class RegistrationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setStudentData(String register, String name) {
+    _studentRegister = register;
+    _studentName = name;
+    _saveToPrefs();
+    notifyListeners();
+  }
+
   void clearSelection() {
     _selectedCareer = null;
     _selectedSemester = null;
     _studentRegister = null;
+    _studentName = null;
     _saveToPrefs();
     notifyListeners();
   }

@@ -310,7 +310,7 @@ class _MaestroOfertasScreenState extends State<MaestroOfertasScreen> {
             SizedBox(width: 50,  child: AppHeaderCell('Inscr', textAlign: TextAlign.center)),
           ],
         ),
-        // Table Body Scrollable
+        // Cuerpo de la tabla con scroll vertical
         Expanded(
           child: ListView.separated(
             itemCount: items.length,

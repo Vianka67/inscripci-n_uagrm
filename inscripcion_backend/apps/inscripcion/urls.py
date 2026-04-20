@@ -4,10 +4,12 @@ from .views import (
     BloqueoView,
     MateriasHabilitadasView,
     PeriodoHabilitadoView,
-    BoletaView
+    BoletaView,
+    PaymentWebhookView
 )
 
 urlpatterns = [
+    path('pagos/webhook/', PaymentWebhookView.as_view(), name='pagos-webhook'),
     path('estudiante/<str:registro>/fechas-inscripcion', FechasInscripcionView.as_view(), name='fechas-inscripcion'),
     path('estudiante/<str:registro>/bloqueo', BloqueoView.as_view(), name='bloqueo'),
     path('estudiante/<str:registro>/materias-habilitadas', MateriasHabilitadasView.as_view(), name='materias-habilitadas'),

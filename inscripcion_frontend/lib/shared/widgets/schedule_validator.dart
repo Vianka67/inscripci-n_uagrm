@@ -37,8 +37,7 @@ class ScheduleValidator {
     final slots = <_TimeSlot>[];
     if (horario.trim().isEmpty) return slots;
 
-    // Expected segments separated by commas: "LUN 07:00-09:00"
-    // Also handle compact format: "L-07:00-09:00" or "LUN-07:00-09:00"
+    // Formatos esperados: "LUN 07:00-09:00", "L-07:00-09:00" o "LUN-07:00-09:00"
     final segments = horario.split(',');
     for (final seg in segments) {
       final part = seg.trim();
@@ -110,7 +109,7 @@ class ScheduleValidator {
 
 class _TimeSlot {
   final String day;
-  final int start; // minutes since midnight
+  final int start; // minutos desde la medianoche
   final int end;
 
   const _TimeSlot(this.day, this.start, this.end);
