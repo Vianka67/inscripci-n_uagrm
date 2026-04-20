@@ -32,4 +32,4 @@ COPY . /app/
 EXPOSE 8000
 
 # Comando por defecto
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["sh", "-c", "cd inscripcion_backend && python manage.py runserver 0.0.0.0:8000"]

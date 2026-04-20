@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -17,23 +18,23 @@ class AppColors {
   static const Color tableDivider    = Color(0xFFF1F5F9);
 
   // Headers de tabla
-  static const Color tableHeaderBg   = Color(0xFF0B1A2B); // Navy profundo
+  static const Color tableHeaderBg   = UAGRMTheme.sidebarDeep; // Navy profundo
 
   // Turnos
-  static const Color manhanaBg       = Color(0xFF0F172A); // Slate-900 casi negro
+  static const Color manhanaBg       = UAGRMTheme.sidebarBg; // Navy oscuro
   static const Color manhanaFg       = Colors.white;
-  static const Color tardeBg         = Color(0xFFF1F5F9); // Slate-100 gris clarito
-  static const Color tardeFg         = Color(0xFF475569); // Slate-600
-  static const Color nocheBg         = Color(0xFFE2E8F0); // Slate-200
-  static const Color nocheFg         = Color(0xFF334155); // Slate-700
+  static const Color tardeBg         = Color(0xFFF1F5F9); 
+  static const Color tardeFg         = Color(0xFF475569); 
+  static const Color nocheBg         = Color(0xFFE2E8F0); 
+  static const Color nocheFg         = Color(0xFF334155); 
 
   // Cupos
-  static const Color cupoOkColor     = Color(0xFF388E3C); // Green
-  static const Color sinCupoBg       = Color(0xFFFFEBEE); // Red-50
-  static const Color sinCupoFg       = Color(0xFFD32F2F); // Red-700
+  static const Color cupoOkColor     = Color(0xFF388E3C); 
+  static const Color sinCupoBg       = Color(0xFFFFEBEE); 
+  static const Color sinCupoFg       = Color(0xFFD32F2F); 
 
   // Procesos de transacción
-  static const Color inscripcionBg   = Color(0xFF0F172A);
+  static const Color inscripcionBg   = UAGRMTheme.sidebarBg;
   static const Color inscripcionFg   = Colors.white;
   static const Color adicionBg       = Color(0xFFF0FDF4);
   static const Color adicionFg       = Color(0xFF166534);
@@ -86,11 +87,12 @@ class AppTurnoBadge extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
       decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(14)),
       child: Text(
-        turno,
-        style: TextStyle(color: fg, fontSize: 11, fontWeight: FontWeight.w700),
+        turno.toUpperCase(),
+        softWrap: false,
+        style: GoogleFonts.outfit(color: fg, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5),
       ),
     );
   }
@@ -117,15 +119,15 @@ class AppCupoBadge extends StatelessWidget {
       );
     }
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: AppColors.sinCupoBg,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: const Text(
-        'Sin cupo',
-        style: TextStyle(
-          color: AppColors.sinCupoFg, fontSize: 11, fontWeight: FontWeight.w700,
+      child: Text(
+        'SIN CUPO',
+        style: GoogleFonts.outfit(
+          color: AppColors.sinCupoFg, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.4,
         ),
       ),
     );
@@ -154,9 +156,12 @@ class AppProcessBadge extends StatelessWidget {
     }
     return Center(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(14)),
-        child: Text(proceso, style: TextStyle(color: fg, fontSize: 11, fontWeight: FontWeight.w700)),
+        child: Text(
+          proceso.toUpperCase(), 
+          style: GoogleFonts.outfit(color: fg, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5)
+        ),
       ),
     );
   }
@@ -260,7 +265,12 @@ class AppHeaderCell extends StatelessWidget {
     return Text(
       text,
       textAlign: textAlign,
-      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+      style: GoogleFonts.outfit(
+        color: Colors.white, 
+        fontWeight: FontWeight.w800, 
+        fontSize: 13,
+        letterSpacing: 0.5,
+      ),
     );
   }
 }
@@ -320,10 +330,11 @@ class AppPageTitle extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
+            style: GoogleFonts.outfit(
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
               color: UAGRMTheme.sidebarBg,
+              letterSpacing: 0.2,
             ),
           ),
         ),
@@ -355,7 +366,7 @@ class AppEstadoBadge extends StatelessWidget {
       ),
       child: Text(
         estado,
-        style: TextStyle(color: c, fontSize: 11, fontWeight: FontWeight.w700),
+        style: GoogleFonts.outfit(color: c, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.2),
       ),
     );
   }

@@ -16,13 +16,16 @@ class Subject {
   });
 
   factory Subject.fromJson(Map<String, dynamic> json) {
+    // Manejo ultra defensivo de datos nulos para evitar errores de mapeo
+    final materia = json['materia'] as Map<String, dynamic>?;
+    
     return Subject(
-      code: json['materia']?['codigo'] ?? '',
-      name: json['materia']?['nombre'] ?? '',
-      credits: json['materia']?['creditos'] ?? 0,
-      semester: json['semestre'] ?? 0,
-      isRequired: json['obligatoria'] ?? false,
-      isEnabled: json['habilitada'] ?? false,
+      code: materia?['codigo']?.toString() ?? '',
+      name: materia?['nombre']?.toString() ?? 'Sin nombre',
+      credits: int.tryParse(materia?['creditos']?.toString() ?? '0') ?? 0,
+      semester: int.tryParse(json['semestre']?.toString() ?? '0') ?? 0,
+      isRequired: json['obligatoria'] == true || json['obligatoria'] == 1,
+      isEnabled: json['habilitada'] == true || json['habilitada'] == 1,
     );
   }
 }

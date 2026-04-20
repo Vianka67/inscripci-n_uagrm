@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 import 'package:inscripcion_frontend/modules/inscripcion/models/student.dart';
@@ -45,9 +46,24 @@ class MainPanelScreen extends StatelessWidget {
     if (studentRegister == null || studentRegister.isEmpty) {
       return Scaffold(
         body: Center(
-          child: ElevatedButton(
-            onPressed: () => Navigator.pushReplacementNamed(context, '/'),
-            child: const Text('Volver al Login'),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(color: UAGRMTheme.primaryBlue),
+              const SizedBox(height: 24),
+              const Text('Cargando sesión...', style: TextStyle(color: UAGRMTheme.textGrey)),
+              const SizedBox(height: 32),
+              // Botón de rescate si el estado se queda trabado
+              TextButton.icon(
+                onPressed: () {
+                  provider.clearSelection();
+                  Navigator.of(context).pushReplacementNamed('/');
+                },
+                icon: const Icon(Icons.logout, size: 16),
+                label: const Text('Volver al Login'),
+                style: TextButton.styleFrom(foregroundColor: UAGRMTheme.errorRed),
+              ),
+            ],
           ),
         ),
       );
@@ -108,7 +124,7 @@ class MainPanelScreen extends StatelessWidget {
         children: [
           Text(
             'Bienvenido, ${student.fullName.split(' ').first} ${student.fullName.split(' ').length > 1 ? student.fullName.split(' ')[1] : ''}',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: UAGRMTheme.textDark),
+            style: GoogleFonts.outfit(fontSize: 26, fontWeight: FontWeight.w900, color: UAGRMTheme.textDark, letterSpacing: -0.5),
           ),
           const SizedBox(height: 4),
           Text(
@@ -274,7 +290,7 @@ class _DashboardCard extends StatelessWidget {
                 const SizedBox(height: 14), // Gap fijo en lugar de Spacer para evitar empujes dinámicos que causan overflow
                 Text(
                   title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: UAGRMTheme.textDark),
+                  style: GoogleFonts.outfit(fontWeight: FontWeight.w800, fontSize: 16, color: UAGRMTheme.textDark, letterSpacing: 0.1),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

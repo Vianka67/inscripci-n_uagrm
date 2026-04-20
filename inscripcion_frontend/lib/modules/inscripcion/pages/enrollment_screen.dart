@@ -1,13 +1,14 @@
 import 'package:flutter/foundation.dart';
-import 'package:inscripcion_frontend/shared/utils/responsive_helper.dart';
-import 'package:inscripcion_frontend/shared/widgets/main_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 import 'package:inscripcion_frontend/modules/inscripcion/services/registration_provider.dart';
+import 'package:inscripcion_frontend/shared/utils/responsive_helper.dart';
 import 'package:inscripcion_frontend/modules/inscripcion/models/career.dart';
+import 'package:inscripcion_frontend/shared/widgets/main_layout.dart';
 import 'package:inscripcion_frontend/shared/utils/time_formatter.dart';
 import 'package:inscripcion_frontend/shared/widgets/standard_table.dart';
 import 'package:inscripcion_frontend/shared/widgets/schedule_validator.dart';
@@ -411,7 +412,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [UAGRMTheme.primaryBlue, Color(0xFF1565C0)],
+                    colors: [UAGRMTheme.primaryBlue, UAGRMTheme.sidebarBg],
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
@@ -478,7 +479,6 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     );
   }
 
-
   Widget _buildPeriodSelection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -487,7 +487,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
           padding: const EdgeInsets.all(20),
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [UAGRMTheme.primaryBlue, Color(0xFF1565C0)],
+              colors: [UAGRMTheme.primaryBlue, UAGRMTheme.sidebarBg],
             ),
           ),
           child: const Column(
@@ -552,17 +552,40 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
               if (result.isLoading) return const Center(child: CircularProgressIndicator());
               if (result.hasException) return _buildError(result.exception.toString(), refetch);
 
-              final allOfertas = result.data?['ofertasMateria'] as List<dynamic>? ?? [];
+              final List<dynamic> allOfertas;
+              final List<dynamic> filteredOfertas;
 
-              // === Filtrado Local para UI Dinámica ===
-              final filteredOfertas = allOfertas.where((o) {
-                final turnoCalc = _getTurno(o['horario']?.toString());
-                final matchTurno = selectedTurno == 'TODOS' || (turnoCalc == selectedTurno);
-                final matchDocente = selectedDocente == 'TODOS' || (o['docente'] == selectedDocente);
-                final matchGrupo = selectedGrupo == 'TODOS' || (o['grupo'] == selectedGrupo);
-                final matchCupo = selectedCupos == 'TODOS' || (selectedCupos == 'CON CUPO' ? ((o['cuposDisponibles'] ?? 0) > 0) : ((o['cuposDisponibles'] ?? 0) == 0));
-                return matchTurno && matchDocente && matchGrupo && matchCupo;
-              }).toList();
+              try {
+                allOfertas = result.data?['ofertasMateria'] as List<dynamic>? ?? [];
+
+                // === Filtrado Local para UI Dinámica ===
+                filteredOfertas = allOfertas.where((o) {
+                  final turnoCalc = _getTurno(o['horario']?.toString());
+                  final matchTurno = selectedTurno == 'TODOS' || (turnoCalc == selectedTurno);
+                  final matchDocente = selectedDocente == 'TODOS' || (o['docente'] == selectedDocente);
+                  final matchGrupo = selectedGrupo == 'TODOS' || (o['grupo'] == selectedGrupo);
+                  final matchCupo = selectedCupos == 'TODOS' || (selectedCupos == 'CON CUPO' ? ((o['cuposDisponibles'] ?? 0) > 0) : ((o['cuposDisponibles'] ?? 0) == 0));
+                  return matchTurno && matchDocente && matchGrupo && matchCupo;
+                }).toList();
+              } catch (e) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 64),
+                        const SizedBox(height: 16),
+                        const Text('Error al procesar ofertas', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        Text('Detalle técnico: $e', textAlign: TextAlign.center, style: const TextStyle(color: Colors.grey)),
+                        const SizedBox(height: 24),
+                        ElevatedButton(onPressed: refetch, child: const Text('Reintentar carga')),
+                      ],
+                    ),
+                  ),
+                );
+              }
 
               // Extraer opciones únicas para los Dropdowns basado en todos los datos
               final List<String> uniqueTurnos = ['TODOS', 'MAÑANA', 'TARDE', 'NOCHE'];
@@ -574,6 +597,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                 children: [
                   Expanded(
                     child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.only(bottom: 16),
                       child: Column(
                          crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -599,7 +623,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                                       Expanded(
                                         child: Text(
                                           'Inscripción - $selectedPeriod Semestre Regular',
-                                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: UAGRMTheme.textDark),
+                                          style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w900, color: UAGRMTheme.textDark, letterSpacing: -0.2),
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
@@ -800,6 +824,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   }
 
   Widget _buildFlatSubjectsTable(List<dynamic> ofertas) {
+    final isWeb = Responsive.isTabletOrDesktop(context);
     if (ofertas.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(32.0),
@@ -807,135 +832,92 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       );
     }
     
-    return StandardTableContainer(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Column(
-          children: [
-            AppTableHeader(
-              children: const [
-                SizedBox(width: 60),
-                SizedBox(width: 80,  child: AppHeaderCell('Sigla')),
-                SizedBox(width: 210, child: AppHeaderCell('Materia')),
-                SizedBox(width: 60,  child: AppHeaderCell('Grupo')),
-                SizedBox(width: 120, child: AppHeaderCell('Turno')),
-                SizedBox(width: 150, child: AppHeaderCell('Docente')),
-                SizedBox(width: 180, child: AppHeaderCell('Horario')),
-                SizedBox(width: 110, child: AppHeaderCell('Cupos', textAlign: TextAlign.center)),
-              ],
-            ),
-            Table(
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              border: TableBorder(horizontalInside: BorderSide(color: Colors.grey.shade200)),
-              columnWidths: const {
-                0: FixedColumnWidth(60),   // Check
-                1: FixedColumnWidth(80),   // Sigla
-                2: FixedColumnWidth(210),  // Nombre
-                3: FixedColumnWidth(60),   // Grupo
-                4: FixedColumnWidth(120),  // Turno  ← MÁS ANCHO
-                5: FixedColumnWidth(150),  // Docente
-                6: FixedColumnWidth(180),  // Horario
-                7: FixedColumnWidth(110),  // Cupos   ← MÁS ANCHO
-              },
-              children: [
-                // Filas
-          ...ofertas.map((o) {
-            final code = o['materiaCodigo'] ?? '';
-            final hayCupo = (o['cuposDisponibles'] ?? 0) > 0;
-            final isMateriaSelected = selectedSubjectCodes.contains(code);
-            final selectedGroupIdForMateria = isMateriaSelected && selectedGroupsPerSubject[code] != null
-                ? selectedGroupsPerSubject[code]!['id'] 
-                : null;
-                
-            final isSelected = isMateriaSelected && selectedGroupIdForMateria == o['id'];
-            final isOtherGroupSelected = isMateriaSelected && selectedGroupIdForMateria != o['id'];
+    // Proporciones de las columnas de la tabla de inscripción
+    // [Check, Sigla, Materia, Grupo, Turno, Docente, Horario, Cupo]
+    final flexValues = [1, 2, 5, 1, 2, 2, 3, 1];
 
-            return TableRow(
-              decoration: BoxDecoration(
-                color: isSelected ? UAGRMTheme.primaryBlue.withValues(alpha: 0.05) : Colors.white,
-              ),
-              children: [
-                TableCell(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: InkWell(
-                      onTap: (!hayCupo) ? null : () {
-                        if (isOtherGroupSelected) {
-                          _showTopSnackBar('Ya seleccionaste el grupo ${selectedGroupsPerSubject[code]['grupo']} de esta materia', color: Colors.orange.shade800);
-                          return;
-                        }
-                        
+    return StandardTableContainer(
+      minWidth: 900,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          StandardFlexHeader(
+            labels: const ['', 'Sigla', 'Asignatura', 'Gru.', 'Turno', 'Docente', 'Horario', 'Cupo'],
+            flexValues: flexValues,
+          ),
+          
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: ofertas.length,
+            itemBuilder: (context, index) {
+              final o = ofertas[index];
+              final code = o['materiaCodigo'] ?? '';
+              final hayCupo = (o['cuposDisponibles'] ?? 0) > 0;
+              final isMateriaSelected = selectedSubjectCodes.contains(code);
+              final selectedGroupIdForMateria = isMateriaSelected && selectedGroupsPerSubject[code] != null
+                  ? selectedGroupsPerSubject[code]!['id'] 
+                  : null;
+                  
+              final isSelected = isMateriaSelected && selectedGroupIdForMateria == o['id'];
+              final isOtherGroupSelected = isMateriaSelected && selectedGroupIdForMateria != o['id'];
+
+              return StandardFlexRow(
+                flexValues: flexValues,
+                isLast: index == ofertas.length - 1,
+                cells: [
+                  // Checkbox Column
+                  IconButton(
+                    onPressed: (!hayCupo) ? null : () {
+                      if (isOtherGroupSelected) {
+                        _showTopSnackBar('Ya seleccionaste el grupo ${selectedGroupsPerSubject[code]['grupo']} de esta materia', color: Colors.orange.shade800);
+                        return;
+                      }
+                      
+                      setState(() {
                         if (isSelected) {
-                          setState(() {
-                            selectedSubjectCodes.remove(code);
-                            selectedGroupsPerSubject.remove(code);
-                          });
+                          selectedSubjectCodes.remove(code);
+                          selectedGroupsPerSubject.remove(code);
                         } else {
-                          // Verificar choques - Desactivado por solicitud del usuario
-                          /*
-                          final othersMap = Map<String, dynamic>.from(selectedGroupsPerSubject);
-                          othersMap.remove(code);
-                          final clashMsg = ScheduleValidator.checkClash(
-                            o['horario'] ?? '',
-                            o['materiaNombre'] ?? code,
-                            othersMap,
-                          );
-                          if (clashMsg != null) {
-                            _showTopSnackBar(clashMsg, color: Colors.orange.shade800);
-                            return; 
-                          }
-                          */
-                          setState(() {
-                            selectedSubjectCodes.add(code);
-                            selectedGroupsPerSubject[code] = o;
-                          });
+                          selectedSubjectCodes.add(code);
+                          selectedGroupsPerSubject[code] = o;
                         }
-                      },
-                      child: Icon(
-                        isSelected ? Icons.check_circle : Icons.circle_outlined,
-                        color: !hayCupo ? Colors.grey.shade300 : (isSelected ? UAGRMTheme.primaryBlue : Colors.grey.shade400),
-                        size: 20,
-                      ),
+                      });
+                    },
+                    icon: Icon(
+                      isSelected ? Icons.check_circle : Icons.circle_outlined,
+                      color: !hayCupo ? Colors.grey.shade200 : (isSelected ? UAGRMTheme.primaryBlue : Colors.grey.shade300),
+                      size: 22,
                     ),
                   ),
-                ),
-                _buildCleanCellText(code, hayCupo),
-                _buildCleanCellText(o['materiaNombre'] ?? '', hayCupo),
-                _buildCleanCellText(o['grupo'] ?? '', hayCupo),
-                TableCell(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
+                  
+                  Text(code, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: hayCupo ? UAGRMTheme.textDark : Colors.grey.shade400)),
+                  Text(o['materiaNombre'] ?? '', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: hayCupo ? UAGRMTheme.textDark : Colors.grey.shade400)),
+                  Text(o['grupo'] ?? '', style: TextStyle(fontSize: 13, color: hayCupo ? UAGRMTheme.textDark : Colors.grey.shade400)),
+                  
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Opacity(
+                      opacity: hayCupo ? 1.0 : 0.4,
                       child: AppTurnoBadge(o['horario']?.toString() ?? ''),
                     ),
                   ),
-                ),
-                _buildCleanCellText(o['docente'] ?? '', hayCupo),
-                TableCell(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-                    child: Text(
-                      TimeFormatter.formatHorario(o['horario'] ?? ''), 
-                      style: TextStyle(fontSize: 12, color: hayCupo ? UAGRMTheme.textGrey : Colors.grey.shade400)
-                    ),
+                  
+                  Text(o['docente'] ?? '', style: TextStyle(fontSize: 13, color: hayCupo ? UAGRMTheme.textDark : Colors.grey.shade400), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  
+                  Text(
+                    TimeFormatter.formatHorario(o['horario'] ?? ''), 
+                    style: TextStyle(fontSize: 12, color: hayCupo ? UAGRMTheme.textGrey : Colors.grey.shade300, fontWeight: FontWeight.w500)
                   ),
-                ),
-                TableCell(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-                    child: Center(
-                      child: AppCupoBadge(o['cuposDisponibles'] as int? ?? 0),
-                    ),
+                  
+                  Center(
+                    child: AppCupoBadge(o['cuposDisponibles'] as int? ?? 0),
                   ),
-                ),
-              ],
-            );
-          }).toList(),
-              ],
-            ),
-          ],
-        ),
+                ],
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -971,6 +953,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
 
   Widget _buildReviewSelectionCard(String registro, String codigoCarrera) {
     return StandardTableContainer(
+      minWidth: 700,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -978,71 +961,48 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
             padding: EdgeInsets.all(24),
             child: Text('Confirmar Adición', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: UAGRMTheme.textDark)),
           ),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Column(
-              children: [
-                StandardTableHeader(
-                  children: [
-                    SizedBox(width: 80, child: const StandardHeaderCell('Sigla')),
-                    SizedBox(width: 200, child: const StandardHeaderCell('Materia')),
-                    SizedBox(width: 60, child: const StandardHeaderCell('Grupo')),
-                    SizedBox(width: 80, child: const StandardHeaderCell('Turno')),
-                    SizedBox(width: 150, child: const StandardHeaderCell('Docente')),
-                    SizedBox(width: 180, child: const StandardHeaderCell('Horario')),
-                    SizedBox(width: 100, child: const StandardHeaderCell('Aula')),
-                  ],
-                ),
-                Table(
-                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                  columnWidths: const {
-                    0: FixedColumnWidth(80),  // Sigla
-                    1: FixedColumnWidth(200), // Materia
-                    2: FixedColumnWidth(60),  // Grupo
-                    3: FixedColumnWidth(80),  // Turno
-                    4: FixedColumnWidth(150), // Docente
-                    5: FixedColumnWidth(180), // Horario
-                    6: FixedColumnWidth(100), // Aula
-                  },
-                  children: [
-                    ...selectedSubjectCodes.map((code) {
-                      final g = selectedGroupsPerSubject[code];
-                      if (g == null) return const TableRow(children: [SizedBox(), SizedBox(), SizedBox(), SizedBox(), SizedBox(), SizedBox(), SizedBox()]);
-                      return TableRow(
-                        decoration: BoxDecoration(
-                          border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
-                        ),
-                        children: [
-                          _buildCleanCellText(code, true),
-                          _buildCleanCellText(g['materiaNombre'] ?? '', true),
-                          _buildCleanCellText(g['grupo'] ?? '', true),
-                          TableCell(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(g['turno'] ?? 'ND', style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark)),
-                              ),
-                            ),
-                          ),
-                          _buildCleanCellText(g['docente'] ?? '', true),
-                          TableCell(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                              child: Text(
-                                TimeFormatter.formatHorario(g['horario'] ?? ''), 
-                                style: const TextStyle(fontSize: 12, color: UAGRMTheme.textDark)
-                              ),
-                            ),
-                          ),
-                          _buildCleanCellText('Aula 101', true), // Dummy placeholder
-                        ],
-                      );
-                    }).toList(),
-                  ],
-                ),
-              ],
-            ),
+          Column(
+            children: [
+              StandardFlexHeader(
+                labels: const ['Sigla', 'Asignatura', 'Gru.', 'Turno', 'Docente', 'Horario', 'Aula'],
+                flexValues: const [1, 4, 1, 2, 2, 3, 1],
+              ),
+              
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: selectedSubjectCodes.length,
+                itemBuilder: (context, index) {
+                  final code = selectedSubjectCodes.elementAt(index);
+                  final g = selectedGroupsPerSubject[code];
+                  if (g == null) return const SizedBox.shrink();
+
+                  return StandardFlexRow(
+                    flexValues: const [1, 4, 1, 2, 2, 3, 1],
+                    isLast: index == selectedSubjectCodes.length - 1,
+                    cells: [
+                      Text(code, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: UAGRMTheme.textDark)),
+                      Text(g['materiaNombre'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: UAGRMTheme.textDark)),
+                      Text(g['grupo'] ?? '', style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark)),
+                      
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: AppTurnoBadge(g['horario']?.toString() ?? ''),
+                      ),
+                      
+                      Text(g['docente'] ?? '', style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark), maxLines: 2, overflow: TextOverflow.ellipsis),
+                      
+                      Text(
+                        TimeFormatter.formatHorario(g['horario'] ?? ''), 
+                        style: const TextStyle(fontSize: 12, color: UAGRMTheme.textGrey, fontWeight: FontWeight.w500)
+                      ),
+                      
+                      const Text('Aula 101', style: TextStyle(fontSize: 13, color: UAGRMTheme.textDark)),
+                    ],
+                  );
+                },
+              ),
+            ],
           ),
           Padding(
             padding: const EdgeInsets.all(24),
@@ -1232,9 +1192,9 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
             child: const Icon(Icons.check, size: 48, color: Color(0xFF22C55E)),
           ),
           const SizedBox(height: 24),
-          const Text(
+          Text(
             'Adición Exitosa',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: UAGRMTheme.textDark),
+            style: GoogleFonts.outfit(fontSize: 26, fontWeight: FontWeight.w900, color: UAGRMTheme.textDark, letterSpacing: -0.5),
           ),
           const SizedBox(height: 8),
           Text(
@@ -1322,10 +1282,11 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                   children: [
                     Text(
                       '$n materia${n == 1 ? '' : 's'}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                      style: GoogleFonts.outfit(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15,
                         color: UAGRMTheme.primaryBlue,
+                        letterSpacing: 0.2,
                       ),
                     ),
                     if (totalCreds > 0)
@@ -1389,7 +1350,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
           .map((l) => TableCell(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  child: Text(l, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.white)),
+                  child: Text(l, style: GoogleFonts.outfit(fontWeight: FontWeight.w800, fontSize: 13, color: Colors.white, letterSpacing: 0.5)),
                 ),
               ))
           .toList(),

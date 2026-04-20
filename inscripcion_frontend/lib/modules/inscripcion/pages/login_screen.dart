@@ -110,7 +110,13 @@ class _LoginScreenState extends State<LoginScreen> {
         if (mounted) {
           final provider = context.read<RegistrationProvider>();
           provider.setStudentRegister(_registroController.text);
-          Navigator.pushReplacementNamed(context, '/panel');
+          
+          // Pequeño delay garantizado para que el provider actualice el estado en memoria
+          Future.microtask(() {
+            if (mounted) {
+              Navigator.pushReplacementNamed(context, '/panel');
+            }
+          });
         }
       } catch (e) {
         if (mounted) {
@@ -133,107 +139,49 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildWideLayout() {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Row(
-        children: [
-          // ── Panel Izquierdo: Institucional ──
-          Expanded(
-            flex: 5,
-            child: Container(
-              color: const Color(0xFF003366),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  // Marca de agua: escudo grande sutil
-                  Positioned(
-                    left: -120,
-                    bottom: -80,
-                    child: Opacity(
-                      opacity: 0.10, // Un poco más visible para igualar referencia
-                      child: Image.asset('assets/images/logo_uagrm.png', width: 650, height: 650,
-                        errorBuilder: (_, __, ___) => const SizedBox.shrink()),
-                    ),
-                  ),
-                  // Contenido
-                  Padding(
-                    padding: const EdgeInsets.all(48.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Logo pequeño en círculo blanco + texto arriba
-                        Row(
-                          children: [
-                            Container(
-                              width: 52,
-                              height: 52,
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
-                              clipBehavior: Clip.antiAlias,
-                              child: Padding(
-                                padding: const EdgeInsets.all(6.0),
-                                child: Image.asset('assets/images/logo_uagrm.png', fit: BoxFit.contain,
-                                  errorBuilder: (_, __, ___) => const Icon(Icons.school, color: Color(0xFF003366), size: 28)),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('UAGRM', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
-                                Text('Autónoma Gabriel René Moreno', style: TextStyle(color: Colors.white, fontSize: 11)),
-                              ],
-                            ),
-                          ],
+      body: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 450),
+                  child: Column(
+                    children: [
+                      Image.asset(
+                        'assets/images/logo_uagrm.png',
+                        width: 180, // Reducido ligeramente para evitar scroll
+                        height: 180,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.school_rounded,
+                          size: 100,
+                          color: Color(0xFF003366),
                         ),
-                        const Spacer(),
-                        const Text('Universidad Autónoma\nGabriel René Moreno',
-                          style: TextStyle(color: Colors.white, fontSize: 42, fontWeight: FontWeight.w800, height: 1.1)),
-                        const SizedBox(height: 16),
-                        Text('Accede a tu inscripción académica',
-                          style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 18)),
-                        const Spacer(),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-      // ── Panel Derecho: Formulario ──
-          Expanded(
-            flex: 5,
-            child: Container(
-              color: Colors.white,
-              child: Center(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 40),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 420),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 56),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.06),
-                              blurRadius: 30,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: _buildLoginForm(isWide: true),
                       ),
-                    ),
+                      const SizedBox(height: 24),
+                      const Text(
+                        'Sistema de\nInscripción',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: UAGRMTheme.primaryBlue,
+                          fontSize: 32,
+                          fontWeight: FontWeight.w900,
+                          height: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      _buildLoginForm(isWide: true),
+                    ],
                   ),
                 ),
-              ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -242,61 +190,44 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                     const SizedBox(height: 40),
-                    // Logo UAGRM centrado directo (ya tiene líneas azules sobre transparente)
-                    Image.asset(
-                      'assets/images/logo_uagrm.png',
-                      width: 120,
-                      height: 120,
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) => const Icon(Icons.school_rounded, size: 80, color: Color(0xFF003366)),
-                    ),
-                    const SizedBox(height: 32),
-                    
-                    // Titulo
-                    const Text(
-                      'Sistema de\nInscripción',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color(0xFF003366),
-                        fontSize: 32,
-                        fontWeight: FontWeight.w900, // Extra Bold
-                        height: 1.1,
+        child: ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                       const SizedBox(height: 20),
+                      Image.asset(
+                        'assets/images/logo_uagrm.png',
+                        width: 160,
+                        height: 160,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => const Icon(Icons.school_rounded, size: 80, color: Color(0xFF003366)),
                       ),
-                    ),
-                    const SizedBox(height: 48),
-                    
-                    _buildLoginForm(isWide: false),
-                  ],
-                ),
-              ),
-            ),
-            // Footer text pinned at bottom para movil
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: InkWell(
-                onTap: () {},
-                hoverColor: Colors.transparent,
-                child: Text(
-                  '¿Olvidaste tu contraseña?',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                    decoration: TextDecoration.underline,
+                      const SizedBox(height: 24),
+                      const Text(
+                        'Sistema de\nInscripción',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: UAGRMTheme.primaryBlue,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w900,
+                          height: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      _buildLoginForm(isWide: false),
+                    ],
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -315,7 +246,7 @@ class _LoginScreenState extends State<LoginScreen> {
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF001529), // Azul oscuro
+                color: UAGRMTheme.primaryBlue, // Azul institucional oscuro
               ),
             ),
             const SizedBox(height: 8),
@@ -334,10 +265,10 @@ class _LoginScreenState extends State<LoginScreen> {
             style: const TextStyle(fontSize: 15),
             decoration: InputDecoration(
               hintText: 'Nro. de Registro',
-              hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 15),
-              prefixIcon: Padding(
-                padding: const EdgeInsets.only(left: 12.0),
-                child: Icon(Icons.person_outline, size: 22, color: Colors.black87),
+              hintStyle: TextStyle(color: UAGRMTheme.primaryBlue.withValues(alpha: 0.4), fontSize: 15),
+              prefixIcon: const Padding(
+                padding: EdgeInsets.only(left: 12.0),
+                child: Icon(Icons.person_outline, size: 22, color: UAGRMTheme.primaryBlue),
               ),
               filled: true,
               fillColor: Colors.white, // Fondo blanco para los inputs
@@ -352,7 +283,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide: const BorderSide(color: Color(0xFF003366), width: 1.5),
+                borderSide: const BorderSide(color: UAGRMTheme.primaryBlue, width: 1.5),
               ),
             ),
             validator: (value) {
@@ -371,17 +302,17 @@ class _LoginScreenState extends State<LoginScreen> {
             style: const TextStyle(fontSize: 15),
             decoration: InputDecoration(
               hintText: 'Contraseña',
-              hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 15),
-              prefixIcon: Padding(
-                padding: const EdgeInsets.only(left: 12.0),
-                child: Icon(Icons.lock_outline, size: 22, color: Colors.black87),
+              hintStyle: TextStyle(color: UAGRMTheme.primaryBlue.withValues(alpha: 0.4), fontSize: 15),
+              prefixIcon: const Padding(
+                padding: EdgeInsets.only(left: 12.0),
+                child: Icon(Icons.lock_outline, size: 22, color: UAGRMTheme.primaryBlue),
               ),
               suffixIcon: Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: IconButton(
                   icon: Icon(
                     _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                    color: Colors.black87,
+                    color: UAGRMTheme.primaryBlue,
                     size: 22,
                   ),
                   onPressed: () {
@@ -404,7 +335,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide: const BorderSide(color: Color(0xFF003366), width: 1.5),
+                borderSide: const BorderSide(color: UAGRMTheme.primaryBlue, width: 1.5),
               ),
             ),
             validator: (value) {
@@ -421,7 +352,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: ElevatedButton(
               onPressed: _isLoading ? null : _handleLogin,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF002244), // Azul muy oscuro (Navy)
+                backgroundColor: UAGRMTheme.sidebarDeep, // Nuevo Navy más profundo
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
@@ -441,22 +372,21 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
           
-          if (isWide) ...[
-            const SizedBox(height: 32),
-            Center(
-              child: InkWell(
-                onTap: () {},
-                hoverColor: Colors.transparent,
-                child: Text(
-                  '¿Olvidaste tu contraseña?',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey.shade600,
-                  ),
+          const SizedBox(height: 24),
+          Center(
+            child: InkWell(
+              onTap: () {},
+              hoverColor: Colors.transparent,
+              child: Text(
+                '¿Olvidaste tu contraseña?',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey.shade600,
+                  decoration: TextDecoration.underline,
                 ),
               ),
             ),
-          ]
+          ),
         ],
       ),
     );

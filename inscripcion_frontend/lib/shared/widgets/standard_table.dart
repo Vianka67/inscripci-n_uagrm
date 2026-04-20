@@ -1,15 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Un contenedor maestro para dotar a las tablas del sistema con la sombra,
 /// bordes redondeados y fondo blanco uniforme.
 class StandardTableContainer extends StatelessWidget {
   final Widget child;
+  final double? minWidth;
 
-  const StandardTableContainer({super.key, required this.child});
+  const StandardTableContainer({super.key, required this.child, this.minWidth});
 
   @override
   Widget build(BuildContext context) {
+    Widget content = child;
+
+    if (minWidth != null) {
+      content = LayoutBuilder(
+        builder: (context, constraints) {
+          final double safeMaxWidth = constraints.maxWidth.isFinite ? constraints.maxWidth : minWidth!;
+          final double targetWidth = safeMaxWidth > minWidth! ? safeMaxWidth : minWidth!;
+          
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: targetWidth,
+              child: child,
+            ),
+          );
+        },
+      );
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -25,7 +46,7 @@ class StandardTableContainer extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: child,
+        child: content,
       ),
     );
   }
@@ -64,10 +85,11 @@ class StandardHeaderCell extends StatelessWidget {
     return Text(
       text,
       textAlign: textAlign,
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
+      style: GoogleFonts.outfit(
+        fontWeight: FontWeight.w800,
         fontSize: 13,
         color: Colors.white,
+        letterSpacing: 0.5,
       ),
     );
   }
@@ -149,6 +171,80 @@ class StandardDataTable extends StatelessWidget {
 
           return table;
         },
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  StandardFlexHeader — Encabezado de tabla con proporciones personalizadas
+// ─────────────────────────────────────────────────────────────────────────────
+class StandardFlexHeader extends StatelessWidget {
+  final List<String> labels;
+  final List<int> flexValues;
+
+  StandardFlexHeader({
+    super.key,
+    required this.labels,
+    required this.flexValues,
+  }) : assert(labels.length == flexValues.length);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+      decoration: const BoxDecoration(
+        color: Color(0xFF010A13), // Deep Navy UAGRM
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: List.generate(labels.length, (index) {
+          return Expanded(
+            flex: flexValues[index],
+            child: Text(
+              labels[index].toUpperCase(),
+              style: GoogleFonts.outfit(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                fontSize: 12,
+                letterSpacing: 1.0,
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
+
+class StandardFlexRow extends StatelessWidget {
+  final List<Widget> cells;
+  final List<int> flexValues;
+  final bool isLast;
+
+  StandardFlexRow({
+    super.key,
+    required this.cells,
+    required this.flexValues,
+    this.isLast = false,
+  }) : assert(cells.length == flexValues.length);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: isLast ? null : Border(bottom: BorderSide(color: const Color(0xFFF1F5F9), width: 1.5)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: List.generate(cells.length, (index) {
+          return Expanded(
+            flex: flexValues[index],
+            child: cells[index],
+          );
+        }),
       ),
     );
   }

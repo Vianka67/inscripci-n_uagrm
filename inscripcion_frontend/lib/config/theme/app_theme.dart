@@ -3,23 +3,23 @@ import 'package:google_fonts/google_fonts.dart';
 
 class UAGRMTheme {
   // Paleta de colores oficial
-  static const Color primaryBlue = Color(0xFF003366);
+  static const Color primaryBlue = Color(0xFF031221);
   static const Color primaryRed = Color(0xFFCC0000); // Rojo clásico bandera
-  static const Color secondaryBlue = Color(0xFF0099CC);
+  static const Color secondaryBlue = Color(0xFF0056B3); // Un azul medio para contrastes
   static const Color backgroundWhite = Color(0xFFFFFFFF);
-  static const Color textDark = Color(0xFF2D2D2D);
-  static const Color textGrey = Color(0xFF757575);
+  static const Color textDark = Color(0xFF031221); // Usar el azul oscuro para textos "negros"
+  static const Color textGrey = Color(0xFF666666);
   static const Color errorRed = Color(0xFFD32F2F);
   static const Color successGreen = Color(0xFF388E3C);
   static const Color warningOrange = Color(0xFFFF9800);
 
-  // Paleta del Sidebar / Navegación (Navy Dark)
-  static const Color sidebarBg = Color(0xFF0F172A);       // Fondo principal del sidebar
-  static const Color sidebarDeep = Color(0xFF0B1A2B);     // Cabeceras de tablas y botones primarios
-  static const Color sidebarPanel = Color(0xFF1E293B);    // Paneles / tarjetas internas
-  static const Color sidebarHover = Color(0xFF334155);    // Hover / selección suave
-  static const Color sidebarActiveRed = Color(0xFFDC0000);// Botón activo rojo
-  static const Color sidebarActiveRedHover = Color(0xFFB91C1C); // Hover botón rojo
+  // Paleta del Sidebar / Navegación (UAGRM Dark lineage)
+  static const Color sidebarBg = Color(0xFF031221);       // Nuevo azul oscuro solicitado
+  static const Color sidebarDeep = Color(0xFF010A13);     // Una variante aún más oscura para cabeceras
+  static const Color sidebarPanel = Color(0xFF051B2E);    // Panel ligeramente más claro
+  static const Color sidebarHover = Color(0xFF0A263F);    // Hover
+  static const Color sidebarActiveRed = Color(0xFFCC0000);
+  static const Color sidebarActiveRedHover = Color(0xFFB00000);
 
   static final ThemeData themeData = ThemeData(
     useMaterial3: true,
@@ -32,35 +32,43 @@ class UAGRMTheme {
     ),
     scaffoldBackgroundColor: backgroundWhite,
     
-    // Tipografía
+    // Tipografía optimizada para Web y Mobile — Estilo Premium solicitado
     textTheme: TextTheme(
-      displayLarge: GoogleFonts.inter(
-        fontSize: 24,
-        fontWeight: FontWeight.bold,
+      displayLarge: GoogleFonts.outfit(
+        fontSize: 28,
+        fontWeight: FontWeight.w900,
         color: textDark,
+        letterSpacing: -0.5,
       ),
-      displayMedium: GoogleFonts.inter(
+      displayMedium: GoogleFonts.outfit(
+        fontSize: 22,
+        fontWeight: FontWeight.w800,
+        color: textDark,
+        letterSpacing: -0.2,
+      ),
+      titleLarge: GoogleFonts.outfit(
         fontSize: 20,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w700,
         color: textDark,
+        letterSpacing: 0.2,
       ),
-      titleLarge: GoogleFonts.inter(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: textDark,
-      ),
-      bodyLarge: GoogleFonts.roboto(
+      bodyLarge: GoogleFonts.inter(
         fontSize: 16,
+        fontWeight: FontWeight.w500,
         color: textDark,
+        letterSpacing: 0.1,
       ),
-      bodyMedium: GoogleFonts.roboto(
+      bodyMedium: GoogleFonts.inter(
         fontSize: 14,
+        fontWeight: FontWeight.w400,
         color: textGrey,
+        letterSpacing: 0.1,
       ),
-      labelLarge: GoogleFonts.inter(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
+      labelLarge: GoogleFonts.outfit(
+        fontSize: 14,
+        fontWeight: FontWeight.w800,
         color: Colors.white,
+        letterSpacing: 0.5,
       ),
     ),
 
@@ -160,12 +168,12 @@ class UAGRMTheme {
     scaffoldBackgroundColor: darkBackground,
 
     textTheme: TextTheme(
-      displayLarge: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold, color: darkText),
-      displayMedium: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold, color: darkText),
-      titleLarge: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: darkText),
-      bodyLarge: GoogleFonts.roboto(fontSize: 16, color: darkText),
-      bodyMedium: GoogleFonts.roboto(fontSize: 14, color: darkTextSecondary),
-      labelLarge: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+      displayLarge: GoogleFonts.inter(fontSize: 26, fontWeight: FontWeight.w900, color: darkText, letterSpacing: -0.5),
+      displayMedium: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w800, color: darkText, letterSpacing: -0.2),
+      titleLarge: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: darkText, letterSpacing: 0.2),
+      bodyLarge: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w500, color: darkText, letterSpacing: 0.1),
+      bodyMedium: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w400, color: darkTextSecondary, letterSpacing: 0.1),
+      labelLarge: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 0.5),
     ),
 
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -205,7 +213,7 @@ class UAGRMTheme {
     ),
 
     appBarTheme: AppBarTheme(
-      backgroundColor: const Color(0xFF0D1B2A),
+      backgroundColor: sidebarDeep,
       foregroundColor: Colors.white,
       elevation: 0,
       centerTitle: true,

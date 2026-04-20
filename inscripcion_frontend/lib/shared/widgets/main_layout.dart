@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 import 'package:inscripcion_frontend/modules/inscripcion/services/registration_provider.dart';
 import 'package:inscripcion_frontend/modules/inscripcion/services/theme_provider.dart';
@@ -26,7 +27,7 @@ class MainLayout extends StatelessWidget {
     final isLarge = Responsive.isTabletOrDesktop(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7FA), // Gris muy claro como en referencia
+      backgroundColor: const Color(0xFFF4F7FA),
       appBar: isLarge
           ? null
           : AppBar(
@@ -59,7 +60,18 @@ class MainLayout extends StatelessWidget {
                   child: Column(
                     children: [
                       _buildDesktopHeader(context),
-                      Expanded(child: child),
+                      Expanded(
+                        child: Container(
+                          width: double.infinity,
+                          color: const Color(0xFFF8FAFC), 
+                          child: Center(
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 1200),
+                              child: child,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -74,8 +86,7 @@ class MainLayout extends StatelessWidget {
       height: 70,
       padding: const EdgeInsets.symmetric(horizontal: 24),
       decoration: const BoxDecoration(
-        color: UAGRMTheme.sidebarDeep, // #0B1A2B Navy premium
-        // border: Border(bottom: BorderSide(color: Colors.grey.shade200)), ya no es necesario el borde claro si es oscuro
+        color: UAGRMTheme.sidebarDeep, 
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -86,7 +97,7 @@ class MainLayout extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 0.2),
               ),
               if (subtitle != null)
                 Text(
@@ -111,9 +122,9 @@ class MainLayout extends StatelessWidget {
                   color: const Color(0xFFF4F6F9),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
-                    const Text('SIS - Origen', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: UAGRMTheme.textDark)),
+                    Text('SIS - Origen', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: UAGRMTheme.textDark)),
                   ],
                 ),
               ),
@@ -130,175 +141,166 @@ class MainLayout extends StatelessWidget {
 
     final sidebarContent = Container(
       width: 280,
-      color: UAGRMTheme.sidebarBg, // #0F172A - Azul muy oscuro
+      color: UAGRMTheme.sidebarBg, 
       child: SafeArea(
         bottom: false,
         child: Column(
           children: [
-            // Logo superior
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
               decoration: const BoxDecoration(
                 border: Border(bottom: BorderSide(color: UAGRMTheme.sidebarPanel)),
               ),
-            child: Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Padding(
-                    padding: const EdgeInsets.all(3.0),
-                    child: Image.asset('assets/images/logo_uagrm.png', fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) => const Icon(Icons.school_rounded, color: Color(0xFF003366), size: 20)),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('AppInscripción', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                    Text('UAGRM', style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 11)),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          
-          // Selector de Carrera
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('CARRERA', style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 11, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
-                _SidebarCareerSelector(),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 8),
-
-          // Navegación
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              children: [
-                // --- Módulos que requieren selección de carrera ---
-                _SidebarItem(
-                  icon: Icons.book_outlined,
-                  title: 'Registrador de Materias',
-                  route: '/pre-enrollment',
-                  currentRoute: ModalRoute.of(context)?.settings.name,
-                  isEnabled: provider.selectedCareer != null,
-                ),
-                _SidebarItem(
-                  icon: Icons.checklist_rtl_outlined,
-                  title: 'Materias Habilitadas',
-                  route: '/enabled-subjects',
-                  currentRoute: ModalRoute.of(context)?.settings.name,
-                  isEnabled: provider.selectedCareer != null,
-                ),
-                _SidebarItem(
-                  icon: Icons.calendar_month_outlined,
-                  title: 'Fecha/Hora Inscripción',
-                  route: '/enrollment-dates',
-                  currentRoute: ModalRoute.of(context)?.settings.name,
-                  isEnabled: provider.selectedCareer != null,
-                ),
-                // --- Módulos siempre accesibles ---
-                _SidebarItem(
-                  icon: Icons.description_outlined,
-                  title: 'Boleta de Inscripción',
-                  route: '/enrollment-slip',
-                  currentRoute: ModalRoute.of(context)?.settings.name,
-                ),
-                _SidebarItem(
-                  icon: Icons.receipt_long_outlined,
-                  title: 'Transacciones',
-                  route: '/transactions',
-                  currentRoute: ModalRoute.of(context)?.settings.name,
-                ),
-                _SidebarItem(
-                  icon: Icons.calendar_today_outlined,
-                  title: 'Calendario Académico',
-                  route: '/calendar',
-                  currentRoute: ModalRoute.of(context)?.settings.name,
-                ),
-                _SidebarItem(
-                  icon: Icons.grid_view_outlined,
-                  title: 'Maestro de Ofertas',
-                  route: '/maestro',
-                  currentRoute: ModalRoute.of(context)?.settings.name,
-                  isEnabled: provider.selectedCareer != null,
-                ),
-                _SidebarItem(
-                  icon: Icons.credit_card_outlined,
-                  title: 'Pagos',
-                  route: '/payments',
-                  currentRoute: ModalRoute.of(context)?.settings.name,
-                ),
-              ],
-            ),
-          ),
-
-          // Perfil de Usuario bottom
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              border: Border(top: BorderSide(color: Color(0xFF1E293B))),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: const BoxDecoration(
-                        color: UAGRMTheme.primaryRed,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Center(
-                        child: Text('JP', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)), // TODO Initials
-                      ),
+              child: Row(
+                children: [
+                  Image.asset(
+                    'assets/images/logo_uagrm.png',
+                    width: 32,
+                    height: 32,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => const Icon(
+                      Icons.school_rounded,
+                      color: Colors.white,
+                      size: 24,
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Estudiante UAGRM', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
-                          Text('Reg: ${provider.studentRegister ?? "N/A"}', style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 11)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                InkWell(
-                  onTap: () {
-                    provider.setStudentRegister('');
-                    Navigator.pushReplacementNamed(context, '/');
-                  },
-                  child: Row(
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.logout, color: Colors.white.withValues(alpha: 0.6), size: 16),
-                      const SizedBox(width: 8),
-                      Text('Cerrar Sesión', style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 13)),
+                      Text('AppInscripción', style: GoogleFonts.outfit(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                      Text('UAGRM', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 11, fontWeight: FontWeight.w600)),
                     ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
+            
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('CARRERA', style: GoogleFonts.outfit(color: Colors.white.withValues(alpha: 0.7), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
+                  const SizedBox(height: 8),
+                  _SidebarCareerSelector(),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                children: [
+                  _SidebarItem(
+                    icon: Icons.book_outlined,
+                    title: 'Registrador de Materias',
+                    route: '/pre-enrollment',
+                    currentRoute: ModalRoute.of(context)?.settings.name,
+                    isEnabled: provider.selectedCareer != null,
+                  ),
+                  _SidebarItem(
+                    icon: Icons.checklist_rtl_outlined,
+                    title: 'Materias Habilitadas',
+                    route: '/enabled-subjects',
+                    currentRoute: ModalRoute.of(context)?.settings.name,
+                    isEnabled: provider.selectedCareer != null,
+                  ),
+                  _SidebarItem(
+                    icon: Icons.calendar_month_outlined,
+                    title: 'Fecha/Hora Inscripción',
+                    route: '/enrollment-dates',
+                    currentRoute: ModalRoute.of(context)?.settings.name,
+                    isEnabled: provider.selectedCareer != null,
+                  ),
+                  _SidebarItem(
+                    icon: Icons.description_outlined,
+                    title: 'Boleta de Inscripción',
+                    route: '/enrollment-slip',
+                    currentRoute: ModalRoute.of(context)?.settings.name,
+                  ),
+                  _SidebarItem(
+                    icon: Icons.receipt_long_outlined,
+                    title: 'Transacciones',
+                    route: '/transactions',
+                    currentRoute: ModalRoute.of(context)?.settings.name,
+                  ),
+                  _SidebarItem(
+                    icon: Icons.calendar_today_outlined,
+                    title: 'Calendario Académico',
+                    route: '/calendar',
+                    currentRoute: ModalRoute.of(context)?.settings.name,
+                  ),
+                  _SidebarItem(
+                    icon: Icons.grid_view_outlined,
+                    title: 'Maestro de Ofertas',
+                    route: '/maestro',
+                    currentRoute: ModalRoute.of(context)?.settings.name,
+                    isEnabled: provider.selectedCareer != null,
+                  ),
+                  _SidebarItem(
+                    icon: Icons.credit_card_outlined,
+                    title: 'Pagos',
+                    route: '/payments',
+                    currentRoute: ModalRoute.of(context)?.settings.name,
+                  ),
+                ],
+              ),
+            ),
+
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                border: Border(top: BorderSide(color: UAGRMTheme.sidebarPanel)),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: const BoxDecoration(
+                          color: UAGRMTheme.primaryRed,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text('JP', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13)),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Estudiante UAGRM', style: GoogleFonts.outfit(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: 0.2), maxLines: 1, overflow: TextOverflow.ellipsis),
+                            Text('Reg: ${provider.studentRegister ?? "N/A"}', style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 11)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  InkWell(
+                    onTap: () {
+                      provider.setStudentRegister('');
+                      Navigator.pushReplacementNamed(context, '/');
+                    },
+                    child: Row(
+                      children: [
+                        Icon(Icons.logout, color: Colors.white.withValues(alpha: 0.6), size: 16),
+                        const SizedBox(width: 8),
+                        Text('Cerrar Sesión', style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
 
@@ -349,13 +351,12 @@ class _SidebarCareerSelector extends StatelessWidget {
           );
         }
 
-        // Removed auto-select function initially to keep placeholder 'Seleccionar carrera' visible
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: UAGRMTheme.sidebarPanel,  // #1E293B
+            color: UAGRMTheme.sidebarPanel, 
             borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: UAGRMTheme.sidebarHover),  // #334155
+            border: Border.all(color: UAGRMTheme.sidebarHover), 
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
@@ -370,7 +371,7 @@ class _SidebarCareerSelector extends StatelessWidget {
                   value: career.code,
                   child: Text(
                     career.name,
-                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                    style: GoogleFonts.outfit(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700, letterSpacing: 0.2),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -380,7 +381,6 @@ class _SidebarCareerSelector extends StatelessWidget {
                 if (newCode != null) {
                   final newCareerData = carrerasData.firstWhere((c) => c['carrera']['codigo'] == newCode);
                   provider.selectCareer(Career.fromJson(newCareerData['carrera']));
-                  // Ir al panel principal al cambiar de carrera
                   Navigator.pushReplacementNamed(context, '/panel');
                 }
               },
@@ -410,13 +410,12 @@ class _SidebarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isActive = currentRoute == route;
-    // Highlight logic
     if (route == '/panel' && currentRoute == '/') isActive = true;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
       child: Material(
-        color: isActive ? UAGRMTheme.sidebarActiveRed : Colors.transparent, // #DC0000 activo
+        color: isActive ? UAGRMTheme.sidebarActiveRed : Colors.transparent, 
         borderRadius: BorderRadius.circular(6),
         child: InkWell(
           onTap: () {
@@ -424,11 +423,11 @@ class _SidebarItem extends StatelessWidget {
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: const Row(
+                  content: Row(
                     children: [
-                      Icon(Icons.lock_outline, color: Colors.white, size: 20),
-                      SizedBox(width: 10),
-                      Expanded(child: Text('Debe seleccionar una carrera para acceder a este módulo', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500))),
+                      const Icon(Icons.lock_outline, color: Colors.white, size: 20),
+                      const SizedBox(width: 10),
+                      Expanded(child: Text('Debe seleccionar una carrera para acceder a este módulo', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500))),
                     ],
                   ),
                   backgroundColor: Colors.orange.shade800,
@@ -445,7 +444,7 @@ class _SidebarItem extends StatelessWidget {
             }
           },
           borderRadius: BorderRadius.circular(6),
-          hoverColor: UAGRMTheme.sidebarHover, // #334155
+          hoverColor: UAGRMTheme.sidebarHover, 
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Row(
@@ -455,10 +454,11 @@ class _SidebarItem extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-                      color: isEnabled ? (isActive ? Colors.white : Colors.white.withValues(alpha: 0.7)) : Colors.white.withValues(alpha: 0.3),
+                    style: GoogleFonts.outfit(
+                      fontSize: 14,
+                      fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
+                      color: isEnabled ? (isActive ? Colors.white : Colors.white.withValues(alpha: 0.9)) : Colors.white.withValues(alpha: 0.4),
+                      letterSpacing: 0.3,
                     ),
                   ),
                 ),

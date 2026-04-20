@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
@@ -159,15 +160,16 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
               children: [
                 Text(
                   'Su día de inscripción asignado',
-                  style: TextStyle(fontSize: 14, color: Colors.white.withValues(alpha: 0.8)),
+                  style: GoogleFonts.outfit(fontSize: 13, color: Colors.white.withValues(alpha: 0.8), fontWeight: FontWeight.w600, letterSpacing: 0.5),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   assignmentText,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
+                  style: GoogleFonts.outfit(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
                     color: Colors.white,
+                    letterSpacing: 0.3,
                   ),
                 ),
               ],
@@ -179,7 +181,8 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
   }
 
   Widget _buildDatesTable() {
-    return AppTableCard(
+    return StandardTableContainer(
+      minWidth: 700,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -192,71 +195,44 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
                 Expanded(
                   child: Text(
                     'Fechas Habilitadas por la Carrera',
-                    style: TextStyle(
+                    style: GoogleFonts.outfit(
                       fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w900,
                       color: UAGRMTheme.primaryBlue,
+                      letterSpacing: 0.2,
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
             ),
           ),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final tableWidth = constraints.maxWidth < 700 ? 700.0 : constraints.maxWidth;
-              return SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: SizedBox(
-                  width: tableWidth,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      AppTableHeader(
-                        children: const [
-                          SizedBox(width: 100, child: AppHeaderCell('Proceso', textAlign: TextAlign.center)),
-                          Expanded(child: AppHeaderCell('Periodo')),
-                          SizedBox(width: 120, child: AppHeaderCell('Fecha Inicio')),
-                          SizedBox(width: 120, child: AppHeaderCell('Fecha Fin')),
-                          SizedBox(width: 100, child: AppHeaderCell('Dia Asignado', textAlign: TextAlign.center)),
-                          SizedBox(width: 120, child: AppHeaderCell('Fecha Estudiante')),
-                        ],
-                      ),
-                      _buildRow('Inscripcion', '1/2025 Semestre Regular', '2025-02-15', '2025-02-20', '2', '2025-02-16', true),
-                      const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                      _buildRow('Adicion', '1/2025 Semestre Regular', '2025-02-25', '2025-03-01', '1', '2025-02-25', false),
-                      const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                      _buildRow('Retiro', '1/2025 Semestre Regular', '2025-03-10', '2025-03-15', '3', '2025-03-12', false),
-                    ],
-                  ),
-                ),
-              );
-            },
+          const Divider(height: 1),
+          StandardFlexHeader(
+            labels: const ['Proceso', 'Periodo', 'F. Inicio', 'F. Fin', 'Día', 'Fecha Est.'],
+            flexValues: const [2, 4, 3, 3, 2, 3],
           ),
+          _buildRow('Inscripcion', '1/2025 Semestre Regular', '2025-02-15', '2025-02-20', '2', '2025-02-16', true),
+          _buildRow('Adicion', '1/2025 Semestre Regular', '2025-02-25', '2025-03-01', '1', '2025-02-25', false),
+          _buildRow('Retiro', '1/2025 Semestre Regular', '2025-03-10', '2025-03-15', '3', '2025-03-12', false),
         ],
       ),
     );
   }
 
-  Widget _buildRow(String proceso, String periodo, String inicio, String fin, String dia, String estudiante, bool isActive) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      child: Row(
-        children: [
-          SizedBox(width: 100, child: AppProcessBadge(proceso)),
-          Expanded(child: Text(periodo, style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13))),
-          SizedBox(width: 120, child: Text(inicio, style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13))),
-          SizedBox(width: 120, child: Text(fin, style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13))),
-          SizedBox(
-            width: 100,
-            child: Center(
-              child: Text(dia, style: const TextStyle(fontWeight: FontWeight.bold, color: UAGRMTheme.primaryBlue, fontSize: 13)),
-            ),
-          ),
-          SizedBox(width: 120, child: Text(estudiante, style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13))),
-        ],
-      ),
+  Widget _buildRow(String proceso, String periodo, String inicio, String fin, String dia, String estudiante, bool isLast) {
+    return StandardFlexRow(
+      flexValues: const [2, 4, 3, 3, 2, 3],
+      isLast: isLast,
+      cells: [
+        AppProcessBadge(proceso),
+        Text(periodo, style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13, fontWeight: FontWeight.w500)),
+        Text(inicio, style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13)),
+        Text(fin, style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13)),
+        Center(
+          child: Text(dia, style: GoogleFonts.outfit(fontWeight: FontWeight.w900, color: UAGRMTheme.primaryBlue, fontSize: 15)),
+        ),
+        Text(estudiante, style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13)),
+      ],
     );
   }
 }

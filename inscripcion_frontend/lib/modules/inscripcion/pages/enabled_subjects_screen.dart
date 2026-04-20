@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 import 'package:inscripcion_frontend/shared/widgets/standard_table.dart';
@@ -35,12 +36,7 @@ class EnabledSubjectsScreen extends StatelessWidget {
     return MainLayout(
       title: 'Materias Habilitadas',
       subtitle: 'Visualiza las materias disponibles para tu inscripción este periodo',
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1000),
-          child: _buildQuery(context, provider, studentRegister, isWeb: Responsive.isTabletOrDesktop(context)),
-        ),
-      ),
+      child: _buildQuery(context, provider, studentRegister, isWeb: Responsive.isTabletOrDesktop(context)),
     );
   }
 
@@ -56,7 +52,16 @@ class EnabledSubjectsScreen extends StatelessWidget {
       ),
       builder: (QueryResult result, {VoidCallback? refetch, FetchMore? fetchMore}) {
         if (result.isLoading) {
-          return const Center(child: Padding(padding: EdgeInsets.all(40), child: CircularProgressIndicator()));
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(color: UAGRMTheme.primaryBlue),
+                SizedBox(height: 16),
+                Text('Cargando materias habilitadas...', style: TextStyle(color: UAGRMTheme.textGrey)),
+              ],
+            ),
+          );
         }
 
         if (result.hasException) {
@@ -74,17 +79,58 @@ class EnabledSubjectsScreen extends StatelessWidget {
           );
         }
 
-        final subjectsData = result.data?['materiasHabilitadas'] as List<dynamic>? ?? [];
-        final subjects = subjectsData.map((data) => Subject.fromJson(data)).toList();
+        final List<Subject> subjects;
+        try {
+          final subjectsData = result.data?['materiasHabilitadas'] as List<dynamic>? ?? [];
+          subjects = subjectsData.map((data) => Subject.fromJson(data)).toList();
+        } catch (e) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 64),
+                  const SizedBox(height: 16),
+                  const Text('Error al procesar datos', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Text('Detalle técnico: $e', textAlign: TextAlign.center, style: const TextStyle(color: Colors.grey)),
+                  const SizedBox(height: 24),
+                  ElevatedButton(onPressed: refetch, child: const Text('Reintentar sincronización')),
+                ],
+              ),
+            ),
+          );
+        }
 
         if (subjects.isEmpty) {
-          return const Center(
+          return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.book_outlined, size: 64, color: Colors.grey),
-                SizedBox(height: 16),
-                Text('No hay materias habilitadas', style: TextStyle(fontSize: 16, color: Colors.grey)),
+                const Icon(Icons.book_outlined, size: 64, color: Colors.grey),
+                const SizedBox(height: 16),
+                Text(
+                  'No hay materias habilitadas',
+                  style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w900, color: UAGRMTheme.primaryBlue),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'No se encontraron asignaturas para el registro ${studentRegister ?? "N/A"}\nen la carrera ${provider.selectedCareer?.name ?? "No seleccionada"}.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 13, color: UAGRMTheme.textGrey),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton.icon(
+                  onPressed: refetch,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Consultar nuevamente'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: UAGRMTheme.primaryBlue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  ),
+                ),
               ],
             ),
           );
@@ -95,64 +141,57 @@ class EnabledSubjectsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  _summaryBadge('${subjects.length}', 'materias habilitadas', UAGRMTheme.primaryBlue),
-                  const SizedBox(width: 12),
-                  _summaryBadge(
-                    '${subjects.where((s) => s.isRequired).length}',
-                    'obligatorias',
-                    UAGRMTheme.errorRed,
-                  ),
-                ],
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _summaryBadge('${subjects.length}', 'materias habilitadas', UAGRMTheme.primaryBlue),
+                    const SizedBox(width: 12),
+                    _summaryBadge(
+                      '${subjects.where((s) => s.isRequired).length}',
+                      'obligatorias',
+                      UAGRMTheme.errorRed,
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 24),
               
-              // Clean UI Table Container
               StandardTableContainer(
+                minWidth: 650,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Header — usa AppTableHeader centralizado
-                    AppTableHeader(
-                      children: [
-                        SizedBox(width: isWeb ? 80 : 60, child: const AppHeaderCell('CÓDIGO')),
-                        const Expanded(child: AppHeaderCell('ASIGNATURA')),
-                        SizedBox(width: isWeb ? 80 : 60, child: const AppHeaderCell('CRÉDS', textAlign: TextAlign.center)),
-                        if (isWeb) const SizedBox(width: 80, child: AppHeaderCell('NIVEL', textAlign: TextAlign.center)),
-                        SizedBox(width: isWeb ? 100 : 80, child: const AppHeaderCell('TIPO', textAlign: TextAlign.center)),
-                      ],
+                    StandardFlexHeader(
+                      labels: const ['Código', 'Asignatura', 'Créds', 'Nivel', 'Tipo'],
+                      flexValues: const [1, 4, 1, 1, 1],
                     ),
                     
-                    // Rows
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: subjects.length,
-                        separatorBuilder: (context, index) => Divider(height: 1, color: Colors.grey.shade100),
-                        itemBuilder: (context, index) {
-                          final subject = subjects[index];
-                          return Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                            child: Row(
-                              children: [
-                                SizedBox(width: isWeb ? 80 : 60, child: Text(subject.code, style: const TextStyle(fontWeight: FontWeight.w600, color: UAGRMTheme.textDark, fontSize: 13))),
-                                Expanded(child: Text(subject.name, style: const TextStyle(fontWeight: FontWeight.w600, color: UAGRMTheme.textDark, fontSize: 13))),
-                                SizedBox(width: isWeb ? 80 : 60, child: Text('${subject.credits}', style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13), textAlign: TextAlign.center)),
-                                if (isWeb) SizedBox(width: 80, child: Text('${subject.semester}', style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13), textAlign: TextAlign.center)),
-                                SizedBox(
-                                  width: isWeb ? 100 : 80,
-                                  child: Center(
-                                    child: AppEstadoBadge(
-                                      subject.isRequired ? 'Obligatoria' : 'Electiva',
-                                      color: subject.isRequired ? UAGRMTheme.errorRed : UAGRMTheme.successGreen,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: subjects.length,
+                      itemBuilder: (context, index) {
+                        final s = subjects[index];
+                        return StandardFlexRow(
+                          flexValues: const [1, 4, 1, 1, 1],
+                          isLast: index == subjects.length - 1,
+                          cells: [
+                            Text(s.code, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: UAGRMTheme.textDark)),
+                            Text(s.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: UAGRMTheme.textDark)),
+                            Text('${s.credits}', style: const TextStyle(fontSize: 13, color: UAGRMTheme.textGrey), textAlign: TextAlign.center),
+                            Text('${s.semester}', style: const TextStyle(fontSize: 13, color: UAGRMTheme.textGrey), textAlign: TextAlign.center),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: AppEstadoBadge(
+                                s.isRequired ? 'OBLIG.' : 'ELEC.',
+                                color: s.isRequired ? UAGRMTheme.errorRed : UAGRMTheme.successGreen,
+                              ),
                             ),
-                          );
-                        },
-                      ),
+                          ],
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -174,9 +213,9 @@ class EnabledSubjectsScreen extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(count, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: color)),
+          Text(count, style: GoogleFonts.outfit(fontWeight: FontWeight.w900, fontSize: 20, color: color)),
           const SizedBox(width: 8),
-          Text(label, style: TextStyle(color: color, fontSize: 13, fontWeight: FontWeight.w500)),
+          Text(label.toUpperCase(), style: GoogleFonts.outfit(color: color, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
         ],
       ),
     );
