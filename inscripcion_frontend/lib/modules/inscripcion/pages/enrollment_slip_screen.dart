@@ -19,10 +19,10 @@ class EnrollmentSlipScreen extends StatefulWidget {
 }
 
 class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
-  // Periodo seleccionado (null = periodo actual/más reciente)
+  // Periodo seleccionado
   String? selectedPeriodCodigo;
   int _currentTabIndex = 0;   // 0 = Normal, 1 = Gráfica
-  bool _landscape = false;    // false = portrait (vertical), true = landscape (horizontal)
+  bool _landscape = false;    // Orientación de la boleta (vertical/horizontal)
 
   final String getHistoricalPeriodsQuery = """
     query GetHistorialPeriodos(\$registro: String!) {
@@ -96,7 +96,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
                 if (result.hasException) return _buildError(context, result.exception.toString(), refetch);
                 if (result.isLoading) return const Center(child: CircularProgressIndicator());
                 final data = result.data?['inscripcionCompleta'];
-                // Si no hay inscripción real, mostrar demo con datos de muestra
+                // Si no hay inscripción confirmada, se muestran datos de ejemplo
                 if (data == null) return _buildDemoBoletaOrEmpty(context, provider, isTabletOrDesktop);
                 
                 return isTabletOrDesktop 
@@ -183,7 +183,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Header con botón de Imprimir + toggle de orientación
+              // Controles de impresión y orientación
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -256,7 +256,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
                 ],
               ),
               const SizedBox(height: 24),
-              // Pestañas simuladas
+              // Selección de visualización
               Row(
                 children: [
                   GestureDetector(
@@ -291,7 +291,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              // Contenedor principal de la Boleta
+              // Visualización de la boleta
               StandardTableContainer(
                 child: Column(
                     children: [
@@ -313,7 +313,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
                               ),
                             ),
                             const Divider(height: 1),
-                            // Información Estudiante
+                            // Datos del Estudiante
                             Padding(
                               padding: const EdgeInsets.all(32),
                               child: Row(
@@ -333,14 +333,15 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
                                     children: [
                                       _infoRow('Registro: ', estudiante['registro']?.toString() ?? ''),
                                       const SizedBox(height: 8),
-                                      _infoRow('CI: ', '9876543'), // Fallback mock exacto
+                                      _infoRow('CI: ', '9876543'), 
                                     ],
                                   ),
                                 ],
                               ),
                             ),
+                            // Listado de asignaturas
                             _buildCleanTable(materias),
-                            // Resumen Footer
+                            // Resumen final
                             Container(
                               padding: const EdgeInsets.all(32),
                               alignment: Alignment.centerLeft,
@@ -401,7 +402,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header
+          // Encabezados de tabla
           AppTableHeader(
             children: const [
               SizedBox(width: 40, child: AppHeaderCell('Nro')),
@@ -415,7 +416,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
               SizedBox(width: 80, child: AppHeaderCell('Estado', textAlign: TextAlign.center)),
             ],
           ),
-          // Rows
+          // Registro de materias
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -456,7 +457,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
     return AppTurnoBadge(horario);
   }
 
-  /// Boleta de demostración cuando no hay inscripción confirmada.
+  /// Datos de demostración para visualización previa
   Widget _buildDemoBoletaOrEmpty(BuildContext context, RegistrationProvider provider, bool isTabletOrDesktop) {
     final demoData = <String, dynamic>{
       'estudiante': {

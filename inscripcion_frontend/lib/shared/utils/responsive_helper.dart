@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 /// Sistema de breakpoints responsivo para la app UAGRM.
-///
+/// 
 /// Breakpoints:
-///   Mobile  : ancho < 600 px
-///   Tablet  : 600 px â‰¤ ancho < 1024 px
-///   Desktop : ancho â‰¥ 1024 px
+///   Celular: ancho < 600 px
+///   Tablet:  600 px <= ancho < 1024 px
+///   Desktop: ancho >= 1024 px
 class Responsive {
   static const double _tabletBreak = 600;
   static const double _desktopBreak = 1024;
@@ -21,15 +21,14 @@ class Responsive {
   static bool isDesktop(BuildContext context) =>
       MediaQuery.sizeOf(context).width >= _desktopBreak;
 
-  /// true para tablet Y desktop (úsalo donde cualquier pantalla grande funciona)
-  /// En landscape mobile, el ancho puede superar 600px pero la altura es pequeña,
-  /// por lo que verificamos ambas dimensiones para distinguir tablet real de phone landscape.
+  /// Retorna true para tablet y desktop.
+  /// Se verifica la altura para distinguir tablets reales de teléfonos en modo horizontal.
   static bool isTabletOrDesktop(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     return size.width >= _tabletBreak && size.height >= 500;
   }
 
-  /// Devuelve [mobile], [tablet] o [desktop] según el ancho de pantalla.
+  /// Retorna un valor genérico según el tamaño de pantalla actual.
   static T value<T>(
     BuildContext context, {
     required T mobile,
@@ -42,11 +41,11 @@ class Responsive {
     return mobile;
   }
 
-  /// Padding horizontal recomendado según el tamaño de pantalla.
+  /// Espaciado horizontal recomendado por dispositivo.
   static double horizontalPadding(BuildContext context) =>
       value(context, mobile: 16.0, tablet: 32.0, desktop: 48.0);
 
-  /// Número de columnas para un grid según el tamaño de pantalla.
+  /// Número de columnas sugerido para grids.
   static int gridColumns(
     BuildContext context, {
     int mobile = 2,
@@ -55,7 +54,7 @@ class Responsive {
   }) =>
       value(context, mobile: mobile, tablet: tablet, desktop: desktop);
 
-  /// Ancho máximo del contenido principal.
+  /// Ancho máximo de contenido para mantener legibilidad.
   static double maxContentWidth(BuildContext context) =>
       value(context, mobile: double.infinity, tablet: 800.0, desktop: 1100.0);
 }

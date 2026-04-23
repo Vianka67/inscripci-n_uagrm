@@ -18,7 +18,7 @@ class MaestroOfertasScreen extends StatefulWidget {
 
 class _MaestroOfertasScreenState extends State<MaestroOfertasScreen> {
   String _searchQuery = '';
-  int? _selectedLevel; // null means 'Todos los niveles'
+  int? _selectedLevel; // null = Todos los niveles
 
   @override
   void initState() {
@@ -164,7 +164,7 @@ class _MaestroOfertasScreenState extends State<MaestroOfertasScreen> {
                                               sigla.contains(_searchQuery.toLowerCase());
                           
                           final level = item['semestre'] as int?;
-                          final matchesLevel = _selectedLevel == null || level == _selectedLevel;
+                          final matchesLevel = _selectedLevel == null || level == _selectedLevel; // Filtrado por nivel
 
                           return matchesSearch && matchesLevel;
                         }).toList();

@@ -20,7 +20,7 @@ class RegistrationProvider extends ChangeNotifier {
 
   Future<void> _loadFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
-    // Solo cargamos si no se ha configurado ya en esta sesión (evitar sobrescritura)
+    // Solo cargamos si no se ha configurado en esta sesión para evitar sobrescritura.
     if (_studentRegister == null) {
       _studentRegister = prefs.getString('student_register');
     }

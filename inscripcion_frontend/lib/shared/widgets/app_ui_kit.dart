@@ -2,15 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  APP UI KIT — Sistema de diseño centralizado
-//
-//  Todos los módulos deben usar estos widgets en lugar de definir sus propios
-//  contenedores, badges o helpers de tabla.  Esto garantiza coherencia visual
-//  idéntica al diseño de referencia (Maestro de Ofertas).
-// ─────────────────────────────────────────────────────────────────────────────
+// SISTEMA DE DISEÑO CENTRALIZADO (APP UI KIT)
+// Se deben usar estos widgets en lugar de definir contenedores o badges ad-hoc
+// para garantizar coherencia visual en todos los módulos.
 
-// ── Colores del sistema de diseño ────────────────────────────────────────────
+// Colores del sistema de diseño
 class AppColors {
   // Fondo y superficies
   static const Color pageBackground  = Color(0xFFF4F7FA);
@@ -18,10 +14,10 @@ class AppColors {
   static const Color tableDivider    = Color(0xFFF1F5F9);
 
   // Headers de tabla
-  static const Color tableHeaderBg   = UAGRMTheme.sidebarDeep; // Navy profundo
+  static const Color tableHeaderBg   = UAGRMTheme.sidebarDeep;
 
   // Turnos
-  static const Color manhanaBg       = UAGRMTheme.sidebarBg; // Navy oscuro
+  static const Color manhanaBg       = UAGRMTheme.sidebarBg;
   static const Color manhanaFg       = Colors.white;
   static const Color tardeBg         = Color(0xFFF1F5F9); 
   static const Color tardeFg         = Color(0xFF475569); 
@@ -42,15 +38,13 @@ class AppColors {
   static const Color retiroFg        = Color(0xFF9A3412);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  AppTurnoBadge — badge de turno unificado
-// ─────────────────────────────────────────────────────────────────────────────
+// Badge de turno unificado
 class AppTurnoBadge extends StatelessWidget {
   final String horario;
 
   const AppTurnoBadge(this.horario, {super.key});
 
-  /// Calcula turno a partir del string de horario.
+  /// Calcula turno a partir del texto del horario.
   static String calcTurno(String? horario) {
     if (horario == null || horario.isEmpty) return 'ND';
     final h = horario.toUpperCase();
@@ -98,9 +92,7 @@ class AppTurnoBadge extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  AppCupoBadge — badge de cupos (número o "Sin cupo")
-// ─────────────────────────────────────────────────────────────────────────────
+// Badge de cupos (número o "Sin cupo")
 class AppCupoBadge extends StatelessWidget {
   final int cupos;
 
@@ -134,9 +126,7 @@ class AppCupoBadge extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  AppProcessBadge — badge de tipo de proceso (Inscripción/Adición/Retiro)
-// ─────────────────────────────────────────────────────────────────────────────
+// Badge de tipo de proceso (Inscripción/Adición/Retiro)
 class AppProcessBadge extends StatelessWidget {
   final String proceso;
 
@@ -169,9 +159,7 @@ class AppProcessBadge extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  AppCard — contenedor de página con sombra y bordes redondeados
-// ─────────────────────────────────────────────────────────────────────────────
+// Contenedor de página con sombra y bordes redondeados
 class AppCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
@@ -199,9 +187,7 @@ class AppCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  AppTableCard — AppCard con ClipRRect para que el header tenga esquinas
-// ─────────────────────────────────────────────────────────────────────────────
+// Contenedor de tabla con recortes en los bordes para el header
 class AppTableCard extends StatelessWidget {
   final Widget child;
 
@@ -230,9 +216,7 @@ class AppTableCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  AppTableHeader — fila de encabezado navy con texto blanco
-// ─────────────────────────────────────────────────────────────────────────────
+// Fila de encabezado con fondo institucional
 class AppTableHeader extends StatelessWidget {
   final List<Widget> children;
   final EdgeInsetsGeometry padding;
@@ -253,9 +237,7 @@ class AppTableHeader extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  AppHeaderCell — texto de encabezado blanco negrita
-// ─────────────────────────────────────────────────────────────────────────────
+// Celda de encabezado blanca con estilo resaltado
 class AppHeaderCell extends StatelessWidget {
   final String text;
   final TextAlign textAlign;
@@ -277,9 +259,7 @@ class AppHeaderCell extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  AppSearchField — campo de búsqueda unificado
-// ─────────────────────────────────────────────────────────────────────────────
+// Campo de búsqueda unificado
 class AppSearchField extends StatelessWidget {
   final String hint;
   final ValueChanged<String> onChanged;
@@ -308,9 +288,7 @@ class AppSearchField extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  AppPageTitle — fila de título de sección con icono
-// ─────────────────────────────────────────────────────────────────────────────
+// Título de sección con icono descriptivo
 class AppPageTitle extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -346,9 +324,7 @@ class AppPageTitle extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  AppEstadoBadge — badge de estado genérico (Inscrito / Pendiente / etc.)
-// ─────────────────────────────────────────────────────────────────────────────
+// Badge de estado genérico
 class AppEstadoBadge extends StatelessWidget {
   final String estado;
   /// Color personalizado. Si null, se infiere del texto.

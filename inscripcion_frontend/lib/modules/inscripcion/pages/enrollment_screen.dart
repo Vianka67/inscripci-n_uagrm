@@ -24,7 +24,7 @@ class EnrollmentScreen extends StatefulWidget {
 }
 
 class _EnrollmentScreenState extends State<EnrollmentScreen> {
-  // Auto-select the first period so the table loads directly
+  // Auto-selección del primer periodo para carga directa
   String? selectedPeriod = '1/2026';
 
   // Filtros
@@ -37,7 +37,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   Set<String> selectedSubjectCodes = {};
   Map<String, dynamic> selectedGroupsPerSubject = {}; // materia_codigo -> oferta_data
 
-  // Estado de flujo: null/false = en selección
+  // Estado del flujo de inscripción
   bool _isReviewing = false;
   bool _confirmed = false;
   bool _isConfirming = false;
@@ -170,7 +170,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     }
   }
 
-  // Query para obtener las carreras del estudiante
+  // Consulta para obtener las carreras del estudiante
   final String getCareersForEnrollmentQuery = """
     query GetCarrerasEnrollment(\$registro: String!) {
       misCarreras(registro: \$registro) {
@@ -198,7 +198,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     final studentRegister = provider.studentRegister;
     final codigoCarrera = provider.selectedCareer?.code;
 
-    // Si no hay carrera seleccionada, mostrar selector de carreras
+    // Si no hay carrera seleccionada, se muestra el selector de carreras
     if (codigoCarrera == null || codigoCarrera.isEmpty) {
       return MainLayout(
         title: 'Inscripción',
@@ -221,7 +221,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
             child: ConstrainedBox(
               constraints: BoxConstraints(
                 maxWidth: 1000,
-                maxHeight: constraints.maxHeight, // Fix "RenderFlex children have non-zero flex but incoming height constraints are unbounded" 
+                maxHeight: constraints.maxHeight, // Restricción de altura para evitar desbordamiento
               ),
               child: _buildEnrollmentFlow(studentRegister ?? '', codigoCarrera),
             ),
@@ -231,7 +231,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     );
   }
 
-  /// Widget para seleccionar carrera cuando no hay una activa
+  /// Widget para seleccionar carrera
   Widget _buildCareerSelector(BuildContext context, String registro) {
     return Query(
       options: QueryOptions(
@@ -271,7 +271,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Contenido condicionado
+              // Listado de carreras
               Builder(builder: (ctx) {
                 if (result.isLoading) {
                   return const Center(
@@ -534,7 +534,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   Widget _buildEnrollmentFlow(String registro, String codigoCarrera) {
     return Column(
       children: [
-        // Cabecera movida al interior del contenedor principal
+        // Contenedor principal de la inscripción
 
         // Contenido Principal
         Expanded(
@@ -558,7 +558,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
               try {
                 allOfertas = result.data?['ofertasMateria'] as List<dynamic>? ?? [];
 
-                // === Filtrado Local para UI Dinámica ===
+                // Filtrado local dinámico para la interfaz
                 filteredOfertas = allOfertas.where((o) {
                   final turnoCalc = _getTurno(o['horario']?.toString());
                   final matchTurno = selectedTurno == 'TODOS' || (turnoCalc == selectedTurno);
@@ -587,7 +587,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                 );
               }
 
-              // Extraer opciones únicas para los Dropdowns basado en todos los datos
+              // Opciones únicas para los filtros
               final List<String> uniqueTurnos = ['TODOS', 'MAÑANA', 'TARDE', 'NOCHE'];
               final List<String> uniqueDocentes = ['TODOS', ...allOfertas.map((o) => o['docente']?.toString() ?? '').where((s) => s.isNotEmpty).toSet().toList()..sort()];
               final List<String> uniqueGrupos = ['TODOS', ...allOfertas.map((o) => o['grupo']?.toString() ?? '').where((s) => s.isNotEmpty).toSet().toList()..sort()];
@@ -602,7 +602,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                       child: Column(
                          crossAxisAlignment: CrossAxisAlignment.stretch,
                          children: [
-                        // === ESTADO: SELECCIÓN (antes de confirmar y revisar) ===
+                        // Estado: Selección de materias
                         if (!_confirmed && !_isReviewing) ...[
                           Container(
                             decoration: BoxDecoration(
@@ -614,7 +614,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                // Encabezado interno con Título y Volver
+                                // Título y controles de navegación
                                 Padding(
                                   padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
                                   child: Row(
@@ -682,12 +682,12 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                           ),
                         ],
 
-                        // === ESTADO: REVISIÓN ===
+                        // Estado: Revisión de selección
                         if (!_confirmed && _isReviewing) ...[
                           _buildReviewSelectionCard(registro, codigoCarrera), 
                         ],
 
-                        // === ESTADO: CONFIRMADO ===
+                        // Estado: Inscripción confirmada
                         if (_confirmed) ...[
                           _buildConfirmationSuccess(),
                         ],
@@ -832,8 +832,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       );
     }
     
-    // Proporciones de las columnas de la tabla de inscripción
-    // [Check, Sigla, Materia, Grupo, Turno, Docente, Horario, Cupo]
+    // Proporciones de columnas: [Check, Sigla, Materia, Grupo, Turno, Docente, Horario, Cupo]
     final flexValues = [1, 2, 5, 1, 2, 2, 3, 1];
 
     return StandardTableContainer(
@@ -1046,7 +1045,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     );
   }
 
-  /// Tabla de grupos confirmados — solo se muestra DESPUES de confirmar
+  /// Listado de grupos ya inscritos
   Widget _buildConfirmedGroupsTable() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1169,7 +1168,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
 
 
 
-  /// Tarjeta de éxito tras confirmar
+  /// Panel de éxito post-confirmación
   Widget _buildConfirmationSuccess() {
     final int n = selectedSubjectCodes.length;
     return Container(
@@ -1244,7 +1243,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   /// Panel sticky inferior — resumen de selección antes de confirmar
   Widget _buildStickyConfirmBar() {
     final int n = selectedSubjectCodes.length;
-    // Calcular créditos totales (usamos cupoMaximo como proxy o 0 si no disponible)
+    // Cálculo de créditos totales
     final int totalCreds = selectedGroupsPerSubject.values
         .fold(0, (sum, g) => sum + ((g['creditos'] as int?) ?? 0));
 
@@ -1344,7 +1343,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   TableRow _buildTableHeader(List<String> labels) {
     return TableRow(
       decoration: const BoxDecoration(
-        color: UAGRMTheme.sidebarDeep, // #0B1A2B para los encabezados de tabla (Ok, Sigla, etc)
+        color: UAGRMTheme.sidebarDeep, // Navy institucional para encabezados
       ),
       children: labels
           .map((l) => TableCell(

@@ -63,7 +63,7 @@ class MainLayout extends StatelessWidget {
                       Expanded(
                         child: Container(
                           width: double.infinity,
-                          color: const Color(0xFFF8FAFC), 
+                          color: const Color(0xFFF8FAFC), // Fondo de superficie principal
                           child: Center(
                             child: ConstrainedBox(
                               constraints: const BoxConstraints(maxWidth: 1200),
@@ -141,7 +141,7 @@ class MainLayout extends StatelessWidget {
 
     final sidebarContent = Container(
       width: 280,
-      color: UAGRMTheme.sidebarBg, 
+      color: UAGRMTheme.sidebarBg, // Fondo del Sidebar institucional
       child: SafeArea(
         bottom: false,
         child: Column(
@@ -316,13 +316,7 @@ class MainLayout extends StatelessWidget {
     List<String> parts = name.trim().split(RegExp(r'\s+'));
     if (parts.length == 1) return parts[0][0].toUpperCase();
     
-    // Lógica para extraer iniciales: Nombre 1 + Apellido 1
-    if (parts.length == 2 || parts.length == 3) {
-      return (parts[0][0] + parts[1][0]).toUpperCase();
-    }
-    if (parts.length >= 4) {
-      return (parts[0][0] + parts[2][0]).toUpperCase();
-    }
+    // Lógica para extraer iniciales: Primer Nombre + Primer Apellido
     return parts[0][0].toUpperCase();
   }
 
@@ -331,14 +325,7 @@ class MainLayout extends StatelessWidget {
     List<String> parts = name.trim().split(RegExp(r'\s+'));
     if (parts.length == 1) return parts[0];
     
-    // Lógica para nombre corto: Nombre 1 + Apellido 1
-    if (parts.length == 2 || parts.length == 3) {
-      return "${parts[0]} ${parts[1]}";
-    }
-    // Cesar Gustavo Villegas Crespo (4+) -> Cesar Villegas (0 y 2)
-    if (parts.length >= 4) {
-      return "${parts[0]} ${parts[2]}";
-    }
+    // Lógica para nombre corto: Primer Nombre + Primer Apellido
     return parts[0];
   }
 }
