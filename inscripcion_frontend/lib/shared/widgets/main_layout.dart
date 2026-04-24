@@ -34,21 +34,41 @@ class MainLayout extends StatelessWidget {
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
+                  Text(title,
+                      style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold)),
                   if (subtitle != null) ...[
-                    const SizedBox(height: 2),
-                    Text(subtitle!, style: const TextStyle(fontSize: 12, color: Colors.white70)),
+                    const SizedBox(height: 1),
+                    Text(subtitle!,
+                        style: const TextStyle(
+                            fontSize: 11, color: Colors.white70)),
                   ],
                 ],
               ),
               centerTitle: false,
-              backgroundColor: UAGRMTheme.primaryBlue,
+              backgroundColor: UAGRMTheme.sidebarDeep,
+              elevation: 0,
               leading: Builder(
                 builder: (context) => IconButton(
                   icon: const Icon(Icons.menu, color: Colors.white),
                   onPressed: () => Scaffold.of(context).openDrawer(),
                 ),
               ),
+              actions: [
+                Consumer<ThemeProvider>(
+                  builder: (_, tp, __) => IconButton(
+                    icon: Icon(
+                      tp.isDark ? Icons.light_mode : Icons.dark_mode,
+                      color: Colors.white70,
+                      size: 20,
+                    ),
+                    onPressed: () => tp.toggle(),
+                    tooltip: 'Cambiar tema',
+                  ),
+                ),
+              ],
             ),
       drawer: isLarge ? null : _buildSidebar(context),
       bottomNavigationBar: bottomNavigationBar,
@@ -317,7 +337,7 @@ class MainLayout extends StatelessWidget {
     if (parts.length == 1) return parts[0][0].toUpperCase();
     
     // Lógica para extraer iniciales: Primer Nombre + Primer Apellido
-    return parts[0][0].toUpperCase();
+    return (parts[0][0] + parts[1][0]).toUpperCase();
   }
 
   String _getShortName(String name) {
@@ -326,7 +346,7 @@ class MainLayout extends StatelessWidget {
     if (parts.length == 1) return parts[0];
     
     // Lógica para nombre corto: Primer Nombre + Primer Apellido
-    return parts[0];
+    return "${parts[0]} ${parts[1]}";
   }
 }
 
@@ -430,10 +450,12 @@ class _SidebarItem extends StatelessWidget {
     bool isActive = currentRoute == route;
     if (route == '/panel' && currentRoute == '/') isActive = true;
 
+    final isMobile = Responsive.isMobile(context);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
       child: Material(
-        color: isActive ? UAGRMTheme.sidebarActiveRed : Colors.transparent, 
+        color: isActive ? UAGRMTheme.sidebarActiveRed : Colors.transparent,
         borderRadius: BorderRadius.circular(6),
         child: InkWell(
           onTap: () {
@@ -462,20 +484,33 @@ class _SidebarItem extends StatelessWidget {
             }
           },
           borderRadius: BorderRadius.circular(6),
-          hoverColor: UAGRMTheme.sidebarHover, 
+          hoverColor: UAGRMTheme.sidebarHover,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: isMobile
+                ? const EdgeInsets.symmetric(horizontal: 12, vertical: 10)
+                : const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Row(
               children: [
-                Icon(icon, size: 20, color: isEnabled ? (isActive ? Colors.white : Colors.white.withValues(alpha: 0.6)) : Colors.white.withValues(alpha: 0.2)),
-                const SizedBox(width: 12),
+                Icon(icon,
+                    size: isMobile ? 18 : 20,
+                    color: isEnabled
+                        ? (isActive
+                            ? Colors.white
+                            : Colors.white.withValues(alpha: 0.6))
+                        : Colors.white.withValues(alpha: 0.2)),
+                SizedBox(width: isMobile ? 10 : 12),
                 Expanded(
                   child: Text(
                     title,
                     style: GoogleFonts.outfit(
-                      fontSize: 14,
-                      fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
-                      color: isEnabled ? (isActive ? Colors.white : Colors.white.withValues(alpha: 0.9)) : Colors.white.withValues(alpha: 0.4),
+                      fontSize: isMobile ? 13 : 14,
+                      fontWeight:
+                          isActive ? FontWeight.w800 : FontWeight.w600,
+                      color: isEnabled
+                          ? (isActive
+                              ? Colors.white
+                              : Colors.white.withValues(alpha: 0.9))
+                          : Colors.white.withValues(alpha: 0.4),
                       letterSpacing: 0.3,
                     ),
                   ),

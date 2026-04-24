@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:inscripcion_frontend/shared/utils/responsive_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -286,83 +287,63 @@ class _MaestroOfertasScreenState extends State<MaestroOfertasScreen> {
   }
 
   Widget _buildCleanTable(List<dynamic> items) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: SizedBox(
-            width: constraints.maxWidth > 900 ? constraints.maxWidth : 900,
-            child: StandardTableContainer(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-        // Table Header
-        AppTableHeader(
-          children: const [
-            SizedBox(width: 80,  child: AppHeaderCell('Sigla')),
-            Expanded(flex: 3,   child: AppHeaderCell('Materia')),
-            SizedBox(width: 50,  child: AppHeaderCell('Nivel')),
-            SizedBox(width: 50,  child: AppHeaderCell('Grupo')),
-            SizedBox(width: 110, child: AppHeaderCell('Turno')),
-            Expanded(flex: 2,   child: AppHeaderCell('Docente')),
-            Expanded(flex: 2,   child: AppHeaderCell('Horario')),
-            SizedBox(width: 60,  child: AppHeaderCell('Cupos', textAlign: TextAlign.center)),
-            SizedBox(width: 50,  child: AppHeaderCell('Inscr', textAlign: TextAlign.center)),
-          ],
-        ),
-        // Cuerpo de la tabla con scroll vertical
-        Expanded(
-          child: ListView.separated(
-            itemCount: items.length,
-            separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFF1F5F9)),
-            itemBuilder: (context, index) {
-              final item = items[index];
-              final sigla = item['materiaCodigo']?.toString() ?? '';
-              final nombre = item['materiaNombre']?.toString() ?? '';
-              final semestre = item['semestre']?.toString() ?? '';
-              final grupo = item['grupo']?.toString() ?? '';
-              final horario = item['horario']?.toString() ?? '';
-              
-              String calcTurno(String? h) {
-                if (h == null || h.isEmpty) return 'Mañana';
-                final upper = h.toUpperCase();
-                if (upper.contains('13:') || upper.contains('14:') || upper.contains('15:') || upper.contains('16:') || upper.contains('17:')) return 'Tarde';
-                if (upper.contains('18:') || upper.contains('19:') || upper.contains('20:') || upper.contains('21:') || upper.contains('22:')) return 'Noche';
-                return 'Mañana';
-              }
-              final turno = calcTurno(horario);
+    final isMobile = Responsive.isMobile(context);
+    
+    final labels = isMobile 
+        ? const ['Sigla', 'Materia', 'Grp.', 'Cupo']
+        : const ['Sigla', 'Materia', 'Nivel', 'Grupo', 'Turno', 'Docente', 'Horario', 'Cupos', 'Inscr'];
+    
+    final flexValues = isMobile
+        ? [2, 5, 2, 2]
+        : [1, 3, 1, 1, 2, 2, 2, 1, 1];
 
-              final docente = item['docente']?.toString() ?? 'Lic. Por Asignar';
-              final cuposDisp = item['cuposDisponibles'] as int? ?? 0;
-              final cupoActual = item['cupoActual']?.toString() ?? '0';
-              
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                child: Row(
-                  children: [
-                    SizedBox(width: 80,  child: Text(sigla, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: UAGRMTheme.textDark))),
-                    Expanded(flex: 3,   child: Text(nombre, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark))),
-                    SizedBox(width: 50,  child: Text(semestre, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textGrey))),
-                    SizedBox(width: 50,  child: Text(grupo, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13, color: UAGRMTheme.textDark))),
-                    // Turno: usa AppTurnoBadge centralizado
-                    SizedBox(width: 110, child: Align(alignment: Alignment.centerLeft, child: AppTurnoBadge(horario))),
-                    Expanded(flex: 2,   child: Text(docente, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark))),
-                    Expanded(flex: 2,   child: Text(horario, style: const TextStyle(fontSize: 12, color: UAGRMTheme.textGrey), maxLines: 2, overflow: TextOverflow.ellipsis)),
-                    // Cupos: usa AppCupoBadge centralizado
-                    SizedBox(width: 60,  child: Center(child: AppCupoBadge(cuposDisp))),
-                    SizedBox(width: 50,  child: Text(cupoActual, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark), textAlign: TextAlign.center)),
-                  ],
-                ),
-              );
-            },
+    return StandardTableContainer(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          StandardFlexHeader(
+            labels: labels,
+            flexValues: flexValues,
           ),
-        ),
-              ],
+          Expanded(
+            child: ListView.builder(
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                final item = items[index];
+                final sigla = item['materiaCodigo']?.toString() ?? '';
+                final nombre = item['materiaNombre']?.toString() ?? '';
+                final semestre = item['semestre']?.toString() ?? '';
+                final grupo = item['grupo']?.toString() ?? '';
+                final horario = item['horario']?.toString() ?? '';
+                final docente = item['docente']?.toString() ?? 'Lic. Por Asignar';
+                final cuposDisp = item['cuposDisponibles'] as int? ?? 0;
+                final cupoActual = item['cupoActual']?.toString() ?? '0';
+
+                return StandardFlexRow(
+                  flexValues: flexValues,
+                  isLast: index == items.length - 1,
+                  cells: [
+                    tableText(sigla, isMobile, bold: true),
+                    tableText(nombre, isMobile, bold: true),
+                    if (!isMobile)
+                      tableText(semestre, isMobile),
+                    tableText(grupo, isMobile, bold: true),
+                    if (!isMobile)
+                      Align(alignment: Alignment.centerLeft, child: AppTurnoBadge(horario)),
+                    if (!isMobile)
+                      tableText(docente, isMobile),
+                    if (!isMobile)
+                      tableText(horario, isMobile, color: UAGRMTheme.textGrey),
+                    Center(child: AppCupoBadge(cuposDisp)),
+                    if (!isMobile)
+                      tableText(cupoActual, isMobile),
+                  ],
+                );
+              },
             ),
           ),
-          ),
-        );
-      },
+        ],
+      ),
     );
   }
 

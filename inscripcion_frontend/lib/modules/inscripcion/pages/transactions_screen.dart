@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:inscripcion_frontend/shared/utils/responsive_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
@@ -71,41 +72,64 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       subtitle: 'Historial de transacciones de inscripción',
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1000),
-          child: Padding(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
-            child: StandardTableContainer(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Título
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      border: Border(bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.2))),
-                    ),
-                    child: Row(
-                      children: const [
-                        Icon(Icons.receipt_long_outlined, color: UAGRMTheme.sidebarBg, size: 24),
-                        SizedBox(width: 12),
-                        Text(
-                          'Transacciones Realizadas',
-                          style: TextStyle(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Tarjeta superior con título
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.02),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      )
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.receipt_long_outlined, color: UAGRMTheme.sidebarBg, size: 24),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Historial de Transacciones Realizadas',
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: UAGRMTheme.sidebarBg,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  
-                  // Tabla
-                  Expanded(
-                    child: _buildTransactionsTable(),
+                ),
+                
+                const SizedBox(height: 24),
+                
+                // Tabla de transacciones
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.02),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      )
+                    ],
                   ),
-                ],
-              ),
+                  child: _buildTransactionsTable(),
+                ),
+              ],
             ),
           ),
         ),
@@ -114,85 +138,49 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   }
 
   Widget _buildTransactionsTable() {
-    return LayoutBuilder(builder: (context, constraints) {
-      return SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SizedBox(
-          width: constraints.maxWidth > 800 ? constraints.maxWidth : 800,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Header
-              AppTableHeader(
-                children: const [
-                  Expanded(flex: 3, child: AppHeaderCell('Fecha')),
-                  Expanded(flex: 2, child: AppHeaderCell('Proceso', textAlign: TextAlign.center)),
-                  Expanded(flex: 2, child: AppHeaderCell('Periodo', textAlign: TextAlign.center)),
-                  Expanded(flex: 2, child: AppHeaderCell('A través de', textAlign: TextAlign.center)),
-                  Expanded(flex: 4, child: AppHeaderCell('Materias')),
-                  Expanded(flex: 2, child: AppHeaderCell('Estado', textAlign: TextAlign.center)),
-                ],
-              ),
-              // Body
-              Expanded(
-                child: ListView.separated(
-                  padding: EdgeInsets.zero,
-                  itemCount: _mockTransacciones.length,
-                  separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                  itemBuilder: (context, index) {
-                    final tx = _mockTransacciones[index];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: Text(
-                              tx['fecha'] ?? '',
-                              style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: AppProcessBadge(tx['proceso'] ?? ''),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Text(
-                              tx['periodo'] ?? '',
-                              style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: AppProcessBadge(tx['via'] ?? ''),
-                          ),
-                          Expanded(
-                            flex: 4,
-                            child: Wrap(
-                              spacing: 8,
-                              runSpacing: 4,
-                              children: (tx['materias'] as String).split('   ').map((m) => 
-                                Text(m.trim(), style: const TextStyle(fontSize: 12, color: UAGRMTheme.textGrey, fontWeight: FontWeight.w600))
-                              ).toList(),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Center(child: AppEstadoBadge(tx['estado'] ?? '')),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
+    final isMobile = Responsive.isMobile(context);
+    
+    final labels = isMobile 
+        ? const ['FECHA', 'PROCESO', 'MATERIAS', 'ESTADO']
+        : const ['FECHA', 'PROCESO', 'PERIODO', 'VÍA', 'MATERIAS', 'ESTADO'];
+    
+    final flexValues = isMobile 
+        ? [3, 2, 4, 2]
+        : [3, 2, 2, 2, 4, 2];
+
+    return StandardTableContainer(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          StandardFlexHeader(
+            labels: labels,
+            flexValues: flexValues,
           ),
-        ),
-      );
-    });
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _mockTransacciones.length,
+            itemBuilder: (context, index) {
+              final tx = _mockTransacciones[index];
+              return StandardFlexRow(
+                flexValues: flexValues,
+                isLast: index == _mockTransacciones.length - 1,
+                cells: [
+                  tableText(tx['fecha'] ?? '', isMobile),
+                  AppProcessBadge(tx['proceso'] ?? ''),
+                  if (!isMobile)
+                    tableText(tx['periodo'] ?? '', isMobile),
+                  if (!isMobile)
+                    AppProcessBadge(tx['via'] ?? ''),
+                  tableText(tx['materias'] ?? '', isMobile),
+                  Center(child: AppEstadoBadge(tx['estado'] ?? '')),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
 
 }

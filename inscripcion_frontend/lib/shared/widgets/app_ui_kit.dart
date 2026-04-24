@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
+import 'package:inscripcion_frontend/shared/utils/responsive_helper.dart';
 
 // SISTEMA DE DISEÑO CENTRALIZADO (APP UI KIT)
 // Se deben usar estos widgets en lugar de definir contenedores o badges ad-hoc
@@ -80,13 +81,22 @@ class AppTurnoBadge extends StatelessWidget {
       fg = AppColors.manhanaFg;
     }
 
+    final isMobile = Responsive.isMobile(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(14)),
+      padding: isMobile
+          ? const EdgeInsets.symmetric(horizontal: 7, vertical: 4)
+          : const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+      decoration: BoxDecoration(
+          color: bg, borderRadius: BorderRadius.circular(isMobile ? 10 : 14)),
       child: Text(
         turno.toUpperCase(),
         softWrap: false,
-        style: GoogleFonts.outfit(color: fg, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+        style: GoogleFonts.outfit(
+          color: fg,
+          fontSize: isMobile ? 9.0 : 11.0,
+          fontWeight: FontWeight.w900,
+          letterSpacing: isMobile ? 0.3 : 0.5,
+        ),
       ),
     );
   }
@@ -101,25 +111,32 @@ class AppCupoBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasCupo = cupos > 0;
+    final isMobile = Responsive.isMobile(context);
+    final fontSize = isMobile ? 11.0 : 13.0;
     if (hasCupo) {
       return Text(
         '$cupos',
-        style: const TextStyle(
-          fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.cupoOkColor,
+        style: TextStyle(
+          fontSize: fontSize, fontWeight: FontWeight.bold, color: AppColors.cupoOkColor,
         ),
         textAlign: TextAlign.center,
       );
     }
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: isMobile
+          ? const EdgeInsets.symmetric(horizontal: 6, vertical: 3)
+          : const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: AppColors.sinCupoBg,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(isMobile ? 8 : 12),
       ),
       child: Text(
         'SIN CUPO',
         style: GoogleFonts.outfit(
-          color: AppColors.sinCupoFg, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.4,
+          color: AppColors.sinCupoFg,
+          fontSize: isMobile ? 9.0 : 11.0,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.4,
         ),
       ),
     );
@@ -144,15 +161,23 @@ class AppProcessBadge extends StatelessWidget {
       default: // Inscripción
         bg = AppColors.inscripcionBg; fg = AppColors.inscripcionFg;
     }
+    final isMobile = Responsive.isMobile(context);
     return Center(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(14)),
+        padding: isMobile
+            ? const EdgeInsets.symmetric(horizontal: 8, vertical: 4)
+            : const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+            color: bg, borderRadius: BorderRadius.circular(isMobile ? 10 : 14)),
         child: Text(
           proceso.toUpperCase(),
           softWrap: false,
           overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.outfit(color: fg, fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.3),
+          style: GoogleFonts.outfit(
+              color: fg,
+              fontSize: isMobile ? 9.0 : 11.0,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.3),
         ),
       ),
     );
@@ -219,18 +244,20 @@ class AppTableCard extends StatelessWidget {
 // Fila de encabezado con fondo institucional
 class AppTableHeader extends StatelessWidget {
   final List<Widget> children;
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? padding;
 
   const AppTableHeader({
     super.key,
     required this.children,
-    this.padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+    this.padding,
   });
 
   @override
   Widget build(BuildContext context) {
+    final effectivePadding =
+        padding ?? Responsive.tableHeaderPadding(context);
     return Container(
-      padding: padding,
+      padding: effectivePadding,
       color: AppColors.tableHeaderBg,
       child: Row(children: children),
     );
@@ -246,14 +273,15 @@ class AppHeaderCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fontSize = Responsive.tableHeaderFontSize(context);
     return Text(
       text,
       textAlign: textAlign,
       style: GoogleFonts.outfit(
-        color: Colors.white, 
-        fontWeight: FontWeight.w800, 
-        fontSize: 13,
-        letterSpacing: 0.5,
+        color: Colors.white,
+        fontWeight: FontWeight.w800,
+        fontSize: fontSize,
+        letterSpacing: Responsive.isMobile(context) ? 0.3 : 0.5,
       ),
     );
   }
@@ -303,15 +331,18 @@ class AppPageTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = Responsive.isMobile(context);
+    final iconSize = isMobile ? 18.0 : 22.0;
+    final fontSize = isMobile ? 15.0 : 18.0;
     return Row(
       children: [
-        Icon(icon, color: UAGRMTheme.sidebarBg, size: 22),
-        const SizedBox(width: 12),
+        Icon(icon, color: UAGRMTheme.sidebarBg, size: iconSize),
+        SizedBox(width: isMobile ? 8 : 12),
         Expanded(
           child: Text(
             title,
             style: GoogleFonts.outfit(
-              fontSize: 18,
+              fontSize: fontSize,
               fontWeight: FontWeight.w900,
               color: UAGRMTheme.sidebarBg,
               letterSpacing: 0.2,
@@ -335,16 +366,24 @@ class AppEstadoBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color c = color ?? _infer();
+    final isMobile = Responsive.isMobile(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: isMobile
+          ? const EdgeInsets.symmetric(horizontal: 7, vertical: 3)
+          : const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: c.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(isMobile ? 8 : 12),
         border: Border.all(color: c.withValues(alpha: 0.4)),
       ),
       child: Text(
         estado,
-        style: GoogleFonts.outfit(color: c, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.2),
+        style: GoogleFonts.outfit(
+          color: c,
+          fontSize: isMobile ? 9.0 : 11.0,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.2,
+        ),
       ),
     );
   }

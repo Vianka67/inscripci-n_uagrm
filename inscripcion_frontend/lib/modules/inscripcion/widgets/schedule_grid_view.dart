@@ -168,21 +168,88 @@ class ScheduleGridView extends StatelessWidget {
   }
 
   Widget _buildGrid(Map<int, Map<int, Map<String, String>>> grid, Map<String, Color> colorMap) {
-    return AppTableCard(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: IntrinsicHeight(
-          child: Column(
-            children: [
-              _buildHeaderRow(),
-              const Divider(height: 1, thickness: 1),
-              ...List.generate(_timeSlots.length, (slotIdx) {
-                return _buildTimeRow(slotIdx, grid, colorMap);
-              }),
-            ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isMobile = MediaQuery.of(context).size.width < 400;
+        
+        if (isMobile) {
+          return Column(
+            children: List.generate(_days.length, (dayIdx) {
+              final daySlots = grid[dayIdx] ?? {};
+              if (daySlots.isEmpty) return const SizedBox.shrink();
+              
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    color: UAGRMTheme.primaryBlue.withValues(alpha: 0.1),
+                    child: Text(
+                      _dayFull[dayIdx],
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: UAGRMTheme.primaryBlue),
+                    ),
+                  ),
+                  ...daySlots.entries.map((entry) {
+                    final slotIdx = entry.key;
+                    final cellData = entry.value;
+                    final color = colorMap[cellData['codigo']] ?? UAGRMTheme.primaryBlue;
+                    
+                    return Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border(
+                          left: BorderSide(color: color, width: 4),
+                          top: BorderSide(color: Colors.grey.shade200),
+                          right: BorderSide(color: Colors.grey.shade200),
+                          bottom: BorderSide(color: Colors.grey.shade200),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 60,
+                            child: Text(_timeSlots[slotIdx], style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('${cellData['codigo']} - ${cellData['nombre']}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                                Text('Grupo: ${cellData['grupo']}', style: const TextStyle(fontSize: 12, color: UAGRMTheme.textGrey)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  const SizedBox(height: 16),
+                ],
+              );
+            }),
+          );
+        }
+
+        return AppTableCard(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: IntrinsicHeight(
+              child: Column(
+                children: [
+                  _buildHeaderRow(),
+                  const Divider(height: 1, thickness: 1),
+                  ...List.generate(_timeSlots.length, (slotIdx) {
+                    return _buildTimeRow(slotIdx, grid, colorMap);
+                  }),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

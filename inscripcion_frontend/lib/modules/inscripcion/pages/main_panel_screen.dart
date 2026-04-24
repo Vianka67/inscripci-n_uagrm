@@ -113,7 +113,7 @@ class MainPanelScreen extends StatelessWidget {
           // Sincronizar nombre con el proveedor de estado
           if (provider.studentName == null || provider.studentName!.isEmpty || provider.studentName == 'Estudiante UAGRM') {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              provider.setStudentData(student.register, student.fullName);
+              provider.setStudentRegister(student.register, name: student.fullName);
             });
           }
 

@@ -205,7 +205,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
         subtitle: 'Selecciona tu carrera para continuar',
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 700),
+            constraints: const BoxConstraints(maxWidth: 1200),
             child: _buildCareerSelector(context, studentRegister ?? ''),
           ),
         ),
@@ -220,7 +220,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
           return Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                maxWidth: 1000,
+                maxWidth: 1200,
                 maxHeight: constraints.maxHeight, // Restricción de altura para evitar desbordamiento
               ),
               child: _buildEnrollmentFlow(studentRegister ?? '', codigoCarrera),
@@ -245,26 +245,29 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Encabezado
               StandardTableContainer(
                 child: Column(
                   children: [
-                    StandardTableHeader(
-                      children: const [
-                        Icon(Icons.school_outlined, color: Colors.white, size: 24),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              StandardHeaderCell('Seleccionar Carrera'),
-                              SizedBox(height: 2),
-                              Text('Elige la carrera para inscribir materias',
-                                  style: TextStyle(fontSize: 12, color: Colors.white60)),
-                            ],
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: const BoxDecoration(color: UAGRMTheme.sidebarDeep),
+                      child: Row(
+                        children: [
+                          Icon(Icons.school_outlined, color: Colors.white, size: 24),
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                StandardHeaderCell('Seleccionar Carrera'),
+                                SizedBox(height: 2),
+                                Text('Elige la carrera para inscribir materias',
+                                    style: TextStyle(fontSize: 12, color: Colors.white60)),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -534,8 +537,6 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   Widget _buildEnrollmentFlow(String registro, String codigoCarrera) {
     return Column(
       children: [
-        // Contenedor principal de la inscripción
-
         // Contenido Principal
         Expanded(
           child: Query(
@@ -558,7 +559,6 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
               try {
                 allOfertas = result.data?['ofertasMateria'] as List<dynamic>? ?? [];
 
-                // Filtrado local dinámico para la interfaz
                 filteredOfertas = allOfertas.where((o) {
                   final turnoCalc = _getTurno(o['horario']?.toString());
                   final matchTurno = selectedTurno == 'TODOS' || (turnoCalc == selectedTurno);
@@ -587,7 +587,6 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                 );
               }
 
-              // Opciones únicas para los filtros
               final List<String> uniqueTurnos = ['TODOS', 'MAÑANA', 'TARDE', 'NOCHE'];
               final List<String> uniqueDocentes = ['TODOS', ...allOfertas.map((o) => o['docente']?.toString() ?? '').where((s) => s.isNotEmpty).toSet().toList()..sort()];
               final List<String> uniqueGrupos = ['TODOS', ...allOfertas.map((o) => o['grupo']?.toString() ?? '').where((s) => s.isNotEmpty).toSet().toList()..sort()];
@@ -600,107 +599,98 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                       physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.only(bottom: 16),
                       child: Column(
-                         crossAxisAlignment: CrossAxisAlignment.stretch,
-                         children: [
-                        // Estado: Selección de materias
-                        if (!_confirmed && !_isReviewing) ...[
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey.shade200),
-                              boxShadow: Responsive.isTabletOrDesktop(context) ? [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))] : null,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                // Título y controles de navegación
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          'Inscripción - $selectedPeriod Semestre Regular',
-                                          style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w900, color: UAGRMTheme.textDark, letterSpacing: -0.2),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      OutlinedButton.icon(
-                                        onPressed: () => Navigator.of(context).pop(),
-                                        icon: const Icon(Icons.remove, size: 16, color: UAGRMTheme.textDark),
-                                        label: const Text('Volver', style: TextStyle(color: UAGRMTheme.textDark)),
-                                        style: OutlinedButton.styleFrom(
-                                          side: BorderSide(color: Colors.grey.shade300),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                          backgroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                // Barra de filtros
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
-                                  ),
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (!_confirmed && !_isReviewing) ...[
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey.shade200),
+                                boxShadow: Responsive.isTabletOrDesktop(context) ? [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))] : null,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Padding(
+                                    padding: Responsive.isMobile(context)
+                                        ? const EdgeInsets.fromLTRB(16, 16, 16, 12)
+                                        : const EdgeInsets.fromLTRB(24, 24, 24, 16),
+                                    child: Wrap(
+                                      alignment: WrapAlignment.spaceBetween,
+                                      crossAxisAlignment: WrapCrossAlignment.center,
+                                      spacing: 12,
+                                      runSpacing: 12,
                                       children: [
-                                        const Icon(Icons.filter_alt_outlined, color: UAGRMTheme.textGrey, size: 20),
-                                        const SizedBox(width: 16),
-                                        _buildDropdownFilter('Todos los turnos', selectedTurno, uniqueTurnos, (v) => setState(() => selectedTurno = v!)),
-                                        const SizedBox(width: 8),
-                                        _buildDropdownFilter('Todos los docentes', selectedDocente ?? 'TODOS', uniqueDocentes, (v) => setState(() => selectedDocente = v!)),
-                                        const SizedBox(width: 8),
-                                        _buildDropdownFilter('Todos los grupos', selectedGrupo, uniqueGrupos, (v) => setState(() => selectedGrupo = v!)),
-                                        const SizedBox(width: 8),
-                                        ElevatedButton.icon(
-                                          onPressed: () => _seleccionarMateriaAleatoria(filteredOfertas),
-                                          icon: const Icon(Icons.auto_awesome, size: 16),
-                                          label: const Text('Auto-Selección', style: TextStyle(fontSize: 12)),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: UAGRMTheme.successGreen,
-                                            foregroundColor: Colors.white,
-                                            elevation: 0,
-                                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                        Text(
+                                          'Inscripción - $selectedPeriod Semestre Regular',
+                                          style: GoogleFonts.outfit(fontSize: Responsive.isMobile(context) ? 16 : 20, fontWeight: FontWeight.w900, color: UAGRMTheme.textDark, letterSpacing: -0.2),
+                                        ),
+                                        OutlinedButton.icon(
+                                          onPressed: () => Navigator.of(context).pop(),
+                                          icon: Icon(Icons.arrow_back, size: Responsive.isMobile(context) ? 14 : 16, color: UAGRMTheme.textDark),
+                                          label: Text('VOLVER', style: TextStyle(color: UAGRMTheme.textDark, fontSize: Responsive.isMobile(context) ? 11 : 13, fontWeight: FontWeight.bold)),
+                                          style: OutlinedButton.styleFrom(
+                                            side: BorderSide(color: Colors.grey.shade300),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                            backgroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                                            minimumSize: const Size(0, 40),
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                ),
-                                // Tabla
-                                _buildFlatSubjectsTable(filteredOfertas),
-                              ],
+                                  Container(
+                                    padding: Responsive.isMobile(context)
+                                        ? const EdgeInsets.symmetric(horizontal: 12, vertical: 8)
+                                        : const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+                                    ),
+                                    child: Wrap(
+                                      spacing: 8,
+                                      runSpacing: 8,
+                                      crossAxisAlignment: WrapCrossAlignment.center,
+                                      children: [
+                                        Icon(Icons.filter_alt_outlined, color: UAGRMTheme.textGrey, size: Responsive.isMobile(context) ? 18 : 20),
+                                        _buildDropdownFilter('Todos los turnos', selectedTurno, uniqueTurnos, (v) => setState(() => selectedTurno = v!)),
+                                        _buildDropdownFilter('Todos los docentes', selectedDocente ?? 'TODOS', uniqueDocentes, (v) => setState(() => selectedDocente = v!)),
+                                        _buildDropdownFilter('Todos los grupos', selectedGrupo, uniqueGrupos, (v) => setState(() => selectedGrupo = v!)),
+                                        ElevatedButton.icon(
+                                           onPressed: () => _seleccionarMateriaAleatoria(filteredOfertas),
+                                           icon: Icon(Icons.auto_awesome, size: Responsive.isMobile(context) ? 14 : 16),
+                                           label: Text('AUTO-SELECCIÓN', style: TextStyle(fontSize: Responsive.isMobile(context) ? 10 : 12, fontWeight: FontWeight.bold)),
+                                           style: ElevatedButton.styleFrom(
+                                             backgroundColor: UAGRMTheme.successGreen,
+                                             foregroundColor: Colors.white,
+                                             elevation: 0,
+                                             minimumSize: const Size(0, 40),
+                                             padding: const EdgeInsets.symmetric(horizontal: 16),
+                                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                           ),
+                                         ),
+                                      ],
+                                    ),
+                                  ),
+                                  _buildFlatSubjectsTable(filteredOfertas),
+                                ],
+                              ),
                             ),
-                          ),
+                          ],
+                          if (!_confirmed && _isReviewing) ...[
+                            _buildReviewSelectionCard(registro, codigoCarrera), 
+                          ],
+                          if (_confirmed) ...[
+                            _buildConfirmationSuccess(),
+                          ],
                         ],
-
-                        // Estado: Revisión de selección
-                        if (!_confirmed && _isReviewing) ...[
-                          _buildReviewSelectionCard(registro, codigoCarrera), 
-                        ],
-
-                        // Estado: Inscripción confirmada
-                        if (_confirmed) ...[
-                          _buildConfirmationSuccess(),
-                        ],
-                      ],
+                      ),
                     ),
                   ),
-                ),
-
-                // Barra "Sticky" en la parte inferior cuando hay elementos seleccionados y estamos en selección
-                if (!_confirmed && !_isReviewing && selectedSubjectCodes.isNotEmpty)
-                  _buildStickyConfirmBar(),
-
-                  // Botón confirmar original cuando nada seleccionado
+                  if (!_confirmed && !_isReviewing && selectedSubjectCodes.isNotEmpty)
+                    _buildStickyConfirmBar(),
                   if (!_confirmed && selectedSubjectCodes.isEmpty)
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -719,7 +709,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     final displayText = currentValue == 'TODOS' ? hint : currentValue;
     return IntrinsicWidth(
       child: Container(
-        height: 38,
+        height: 40,
         constraints: const BoxConstraints(minWidth: 120),
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
@@ -824,7 +814,8 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   }
 
   Widget _buildFlatSubjectsTable(List<dynamic> ofertas) {
-    final isWeb = Responsive.isTabletOrDesktop(context);
+    final isMobile = Responsive.isMobile(context);
+    
     if (ofertas.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(32.0),
@@ -832,16 +823,21 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       );
     }
     
-    // Proporciones de columnas: [Check, Sigla, Materia, Grupo, Turno, Docente, Horario, Cupo]
-    final flexValues = [1, 2, 5, 1, 2, 2, 3, 1];
+    // Proporciones adaptativas: en móvil ocultamos Sigla, Turno y Docente para evitar amontonamiento
+    final labels = isMobile 
+        ? const ['', 'Materia', 'Grp.', 'Hor.', 'Cupo']
+        : const ['', 'Sigla', 'Asignatura', 'Gru.', 'Turno', 'Docente', 'Horario', 'Cupo'];
+        
+    final flexValues = isMobile 
+        ? [2, 7, 2, 4, 3] 
+        : [1, 2, 5, 1, 2, 2, 3, 1];
 
     return StandardTableContainer(
-      minWidth: 900,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           StandardFlexHeader(
-            labels: const ['', 'Sigla', 'Asignatura', 'Gru.', 'Turno', 'Docente', 'Horario', 'Cupo'],
+            labels: labels,
             flexValues: flexValues,
           ),
           
@@ -861,14 +857,19 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
               final isSelected = isMateriaSelected && selectedGroupIdForMateria == o['id'];
               final isOtherGroupSelected = isMateriaSelected && selectedGroupIdForMateria != o['id'];
 
+              final rowColor = hayCupo ? UAGRMTheme.textDark : Colors.grey.shade400;
+
               return StandardFlexRow(
                 flexValues: flexValues,
                 isLast: index == ofertas.length - 1,
                 cells: [
                   // Checkbox Column
                   IconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                     onPressed: (!hayCupo) ? null : () {
                       if (isOtherGroupSelected) {
+                         ScaffoldMessenger.of(context).hideCurrentSnackBar();
                         _showTopSnackBar('Ya seleccionaste el grupo ${selectedGroupsPerSubject[code]['grupo']} de esta materia', color: Colors.orange.shade800);
                         return;
                       }
@@ -886,28 +887,30 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                     icon: Icon(
                       isSelected ? Icons.check_circle : Icons.circle_outlined,
                       color: !hayCupo ? Colors.grey.shade200 : (isSelected ? UAGRMTheme.primaryBlue : Colors.grey.shade300),
-                      size: 22,
+                      size: isMobile ? 18 : 22,
                     ),
                   ),
                   
-                  Text(code, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: hayCupo ? UAGRMTheme.textDark : Colors.grey.shade400)),
-                  Text(o['materiaNombre'] ?? '', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: hayCupo ? UAGRMTheme.textDark : Colors.grey.shade400)),
-                  Text(o['grupo'] ?? '', style: TextStyle(fontSize: 13, color: hayCupo ? UAGRMTheme.textDark : Colors.grey.shade400)),
+                  if (!isMobile)
+                    tableText(code, isMobile, bold: true, color: rowColor),
+                    
+                  tableText(o['materiaNombre'] ?? '', isMobile, bold: true, color: rowColor),
                   
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Opacity(
-                      opacity: hayCupo ? 1.0 : 0.4,
-                      child: AppTurnoBadge(o['horario']?.toString() ?? ''),
+                  tableText(o['grupo'] ?? '', isMobile, bold: true, color: rowColor),
+                  
+                  if (!isMobile)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Opacity(
+                        opacity: hayCupo ? 1.0 : 0.4,
+                        child: AppTurnoBadge(o['horario']?.toString() ?? ''),
+                      ),
                     ),
-                  ),
                   
-                  Text(o['docente'] ?? '', style: TextStyle(fontSize: 13, color: hayCupo ? UAGRMTheme.textDark : Colors.grey.shade400), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  if (!isMobile)
+                    tableText(o['docente'] ?? '', isMobile, color: rowColor),
                   
-                  Text(
-                    TimeFormatter.formatHorario(o['horario'] ?? ''), 
-                    style: TextStyle(fontSize: 12, color: hayCupo ? UAGRMTheme.textGrey : Colors.grey.shade300, fontWeight: FontWeight.w500)
-                  ),
+                  tableText(TimeFormatter.formatHorario(o['horario'] ?? ''), isMobile, color: hayCupo ? UAGRMTheme.textGrey : Colors.grey.shade300),
                   
                   Center(
                     child: AppCupoBadge(o['cuposDisponibles'] as int? ?? 0),
@@ -951,89 +954,114 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   }
 
   Widget _buildReviewSelectionCard(String registro, String codigoCarrera) {
-    return StandardTableContainer(
-      minWidth: 700,
+    final isMobile = Responsive.isMobile(context);
+    final flexValues = isMobile ? [4, 2, 6] : [1, 4, 1, 2, 2, 3, 1];
+    final labels = isMobile ? const ['Materia', 'Grp.', 'Horario'] : const ['Sigla', 'Asignatura', 'Gru.', 'Turno', 'Docente', 'Horario', 'Aula'];
+
+    return Container(
+      margin: EdgeInsets.all(isMobile ? 0 : 24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Padding(
-            padding: EdgeInsets.all(24),
-            child: Text('Confirmar Adición', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: UAGRMTheme.textDark)),
-          ),
-          Column(
-            children: [
-              StandardFlexHeader(
-                labels: const ['Sigla', 'Asignatura', 'Gru.', 'Turno', 'Docente', 'Horario', 'Aula'],
-                flexValues: const [1, 4, 1, 2, 2, 3, 1],
-              ),
-              
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: selectedSubjectCodes.length,
-                itemBuilder: (context, index) {
-                  final code = selectedSubjectCodes.elementAt(index);
-                  final g = selectedGroupsPerSubject[code];
-                  if (g == null) return const SizedBox.shrink();
-
-                  return StandardFlexRow(
-                    flexValues: const [1, 4, 1, 2, 2, 3, 1],
-                    isLast: index == selectedSubjectCodes.length - 1,
-                    cells: [
-                      Text(code, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: UAGRMTheme.textDark)),
-                      Text(g['materiaNombre'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: UAGRMTheme.textDark)),
-                      Text(g['grupo'] ?? '', style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark)),
-                      
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: AppTurnoBadge(g['horario']?.toString() ?? ''),
-                      ),
-                      
-                      Text(g['docente'] ?? '', style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark), maxLines: 2, overflow: TextOverflow.ellipsis),
-                      
-                      Text(
-                        TimeFormatter.formatHorario(g['horario'] ?? ''), 
-                        style: const TextStyle(fontSize: 12, color: UAGRMTheme.textGrey, fontWeight: FontWeight.w500)
-                      ),
-                      
-                      const Text('Aula 101', style: TextStyle(fontSize: 13, color: UAGRMTheme.textDark)),
-                    ],
-                  );
-                },
-              ),
-            ],
-          ),
-          Padding(
+          // Header del Card
+          Container(
             padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.1))),
+            ),
             child: Row(
               children: [
+                const Icon(Icons.fact_check_outlined, color: UAGRMTheme.sidebarBg, size: 24),
+                const SizedBox(width: 12),
+                const Text(
+                  'Confirmar Adición',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: UAGRMTheme.sidebarBg),
+                ),
+              ],
+            ),
+          ),
+          
+          // Tabla de revisión
+          StandardTableContainer(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                StandardFlexHeader(
+                  labels: labels,
+                  flexValues: flexValues,
+                ),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: selectedSubjectCodes.length,
+                  itemBuilder: (context, index) {
+                    final code = selectedSubjectCodes.elementAt(index);
+                    final g = selectedGroupsPerSubject[code];
+                    if (g == null) return const SizedBox.shrink();
+
+                    return StandardFlexRow(
+                      flexValues: flexValues,
+                      isLast: index == selectedSubjectCodes.length - 1,
+                      cells: [
+                        if (!isMobile) tableText(code, isMobile, bold: true),
+                        tableText(g['materiaNombre'] ?? '', isMobile, bold: true),
+                        tableText(g['grupo'] ?? '', isMobile, bold: true),
+                        if (!isMobile)
+                          Align(alignment: Alignment.centerLeft, child: AppTurnoBadge(g['horario']?.toString() ?? '')),
+                        if (!isMobile) tableText(g['docente'] ?? '', isMobile),
+                        tableText(TimeFormatter.formatHorario(g['horario'] ?? ''), isMobile, color: UAGRMTheme.textGrey),
+                        if (!isMobile) tableText('Aula 101', isMobile),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          // Botones de acción compactos
+          Padding(
+            padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
                 Expanded(
+                  flex: isMobile ? 1 : 0,
                   child: OutlinedButton.icon(
                     onPressed: () => setState(() => _isReviewing = false),
-                    icon: const Icon(Icons.remove, size: 16),
-                    label: const Text('Modificar', style: TextStyle(fontSize: 14)),
+                    icon: const Icon(Icons.arrow_back, size: 16),
+                    label: Text(isMobile ? 'MODIFICAR' : 'MODIFICAR SELECCIÓN', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       side: BorderSide(color: Colors.grey.shade300),
-                      foregroundColor: UAGRMTheme.sidebarDeep,
+                      foregroundColor: UAGRMTheme.sidebarBg,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      minimumSize: const Size(0, 44),
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 Expanded(
+                  flex: isMobile ? 1 : 0,
                   child: ElevatedButton.icon(
                     onPressed: _isConfirming ? null : () => _handleConfirmar(registro, codigoCarrera),
                     icon: _isConfirming
                         ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Icon(Icons.check_circle_outline, size: 18),
-                    label: Text(_isConfirming ? 'Confirmando...' : 'Confirmar Adición', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
+                        : const Icon(Icons.check_circle, size: 16),
+                    label: Text(_isConfirming ? '...' : (isMobile ? 'CONFIRMAR' : 'CONFIRMAR ADICIÓN'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: UAGRMTheme.sidebarDeep,
+                      backgroundColor: UAGRMTheme.sidebarBg,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      minimumSize: const Size(0, 44),
                     ),
                   ),
                 ),
@@ -1065,100 +1093,138 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Table(
-                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                columnWidths: const {
-                  0: FixedColumnWidth(60),
-                  1: FixedColumnWidth(140),
-                  2: FixedColumnWidth(60),
-                  3: FixedColumnWidth(120),
-                  4: FixedColumnWidth(120),
-                  5: FixedColumnWidth(50),
-                },
-                children: [
-                  _buildTableHeader(['SIGLA', 'MATERIA', 'GRUPO', 'DOCENTE', 'HORARIO', 'CUPO']),
-                  ...selectedSubjectCodes.map((code) {
-                    final g = selectedGroupsPerSubject[code];
-                    if (g == null) {
-                      return const TableRow(
-                        children: [SizedBox(), SizedBox(), SizedBox(), SizedBox(), SizedBox(), SizedBox()],
-                      );
-                    }
-                    return TableRow(
-                      decoration: BoxDecoration(
-                        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
-                      ),
-                      children: [
-                        TableCell(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isMobile = constraints.maxWidth < 600 || Responsive.isMobile(context);
+                
+                return Table(
+                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                  columnWidths: isMobile
+                    ? const {
+                        0: FlexColumnWidth(3),
+                        1: FlexColumnWidth(1),
+                        2: FlexColumnWidth(2),
+                        3: FlexColumnWidth(1),
+                      }
+                    : const {
+                        0: FixedColumnWidth(60),
+                        1: FixedColumnWidth(140),
+                        2: FixedColumnWidth(60),
+                        3: FixedColumnWidth(120),
+                        4: FixedColumnWidth(120),
+                        5: FixedColumnWidth(50),
+                      },
+                  children: [
+                    _buildTableHeader(isMobile 
+                        ? ['MATERIA', 'GRP.', 'HOR.', 'CUPO'] 
+                        : ['SIGLA', 'MATERIA', 'GRUPO', 'DOCENTE', 'HORARIO', 'CUPO']),
+                    ...selectedSubjectCodes.map((code) {
+                      final g = selectedGroupsPerSubject[code];
+                      if (g == null) {
+                        return TableRow(
+                          children: List.generate(isMobile ? 4 : 6, (_) => const SizedBox()),
+                        );
+                      }
+                      
+                      final cells = <Widget>[];
+                      
+                      // Sigla (solo desktop)
+                      if (!isMobile) {
+                        cells.add(TableCell(
                           child: Padding(
                             padding: const EdgeInsets.all(8),
                             child: Text(code, style: const TextStyle(fontSize: 10)),
                           ),
-                        ),
-                        TableCell(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Text(g['materiaNombre'] ?? '', style: const TextStyle(fontSize: 10)),
+                        ));
+                      }
+                      
+                      // Materia
+                      cells.add(TableCell(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: isMobile ? 6 : 8, vertical: isMobile ? 8 : 8),
+                          child: Text(
+                            g['materiaNombre'] ?? '', 
+                            style: TextStyle(fontSize: isMobile ? 10 : 10, fontWeight: FontWeight.w700),
+                            maxLines: isMobile ? 2 : 1,
+                            softWrap: true,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        TableCell(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Text(g['grupo'] ?? '', style: const TextStyle(fontSize: 10)),
-                          ),
+                      ));
+                      
+                      // Grupo
+                      cells.add(TableCell(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: isMobile ? 6 : 8, vertical: isMobile ? 8 : 8),
+                          child: Text(g['grupo'] ?? '', style: TextStyle(fontSize: isMobile ? 10 : 10, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
                         ),
-                        TableCell(
+                      ));
+                      
+                      // Docente (solo desktop)
+                      if (!isMobile) {
+                        cells.add(TableCell(
                           child: Padding(
                             padding: const EdgeInsets.all(8),
-                            child: Text(g['docente'] ?? '', style: const TextStyle(fontSize: 10)),
+                            child: Text(g['docente'] ?? '', style: const TextStyle(fontSize: 10), maxLines: 2, overflow: TextOverflow.ellipsis),
                           ),
-                        ),
-                        TableCell(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                  AppTurnoBadge(g['horario'] ?? ''),
-                                  Text(
-                                    TimeFormatter.formatHorario(g['horario'] ?? ''), 
-                                    style: const TextStyle(fontSize: 10)
-                                  ),
-                              ]
-                            )
-                          ),
-                        ),
-                        TableCell(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: ((g['cuposDisponibles'] ?? 0) > 0) ? UAGRMTheme.successGreen.withValues(alpha: 0.1) : UAGRMTheme.errorRed.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(4),
+                        ));
+                      }
+                      
+                      // Horario
+                      cells.add(TableCell(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: isMobile ? 6 : 8, vertical: isMobile ? 8 : 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                                if (!isMobile) AppTurnoBadge(g['horario'] ?? ''),
+                                Text(
+                                  TimeFormatter.formatHorario(g['horario'] ?? ''), 
+                                  style: TextStyle(fontSize: isMobile ? 10 : 10),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                child: Text(
-                                  '${g['cuposDisponibles'] ?? 0}',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                    color: ((g['cuposDisponibles'] ?? 0) > 0) ? UAGRMTheme.successGreen : UAGRMTheme.errorRed,
-                                  ),
+                            ]
+                          )
+                        ),
+                      ));
+                      
+                      // Cupo
+                      cells.add(TableCell(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Align(
+                            alignment: isMobile ? Alignment.center : Alignment.centerLeft,
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: isMobile ? 4 : 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: ((g['cuposDisponibles'] ?? 0) > 0) ? UAGRMTheme.successGreen.withValues(alpha: 0.1) : UAGRMTheme.errorRed.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                '${g['cuposDisponibles'] ?? 0}',
+                                style: TextStyle(
+                                  fontSize: isMobile ? 9 : 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: ((g['cuposDisponibles'] ?? 0) > 0) ? UAGRMTheme.successGreen : UAGRMTheme.errorRed,
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ],
-                    );
-                  }),
-                ],
-              ),
+                      ));
+
+                      return TableRow(
+                        decoration: BoxDecoration(
+                          border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+                        ),
+                        children: cells,
+                      );
+                    }),
+                  ],
+                );
+              }
             ),
           ),
         ),
@@ -1201,40 +1267,86 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
             style: const TextStyle(fontSize: 14, color: UAGRMTheme.textGrey),
           ),
           const SizedBox(height: 32),
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 16,
-            runSpacing: 16,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () => Navigator.pushNamed(context, '/enrollment-slip'),
-                icon: const Icon(Icons.print, size: 18),
-                label: const Text('Imprimir Boleta de Adición', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: UAGRMTheme.sidebarDeep,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-              ),
-              OutlinedButton(
-                onPressed: () => setState(() {
-                  selectedSubjectCodes.clear();
-                  selectedGroupsPerSubject.clear();
-                  _confirmed = false;
-                  _isReviewing = false;
-                }),
-                child: const Text('Nueva Adición', style: TextStyle(fontSize: 14, color: UAGRMTheme.textDark)),
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
-                  side: BorderSide(color: Colors.grey.shade300),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-              ),
-            ],
-          )
+          Builder(
+            builder: (context) {
+              final isMobile = Responsive.isMobile(context);
+              if (isMobile) {
+                return Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => setState(() {
+                          selectedSubjectCodes.clear();
+                          selectedGroupsPerSubject.clear();
+                          _confirmed = false;
+                          _isReviewing = false;
+                        }),
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          side: BorderSide(color: Colors.grey.shade300),
+                          minimumSize: const Size(0, 40),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        child: const Text('NUEVA ADICIÓN', textAlign: TextAlign.center, style: TextStyle(fontSize: 11, color: UAGRMTheme.textDark, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => Navigator.pushNamed(context, '/enrollment-slip'),
+                        icon: const Icon(Icons.print, size: 14),
+                        label: const Text('IMPRIMIR', textAlign: TextAlign.center, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: UAGRMTheme.sidebarDeep,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          minimumSize: const Size(0, 40),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }
+
+              return Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 16,
+                runSpacing: 16,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () => Navigator.pushNamed(context, '/enrollment-slip'),
+                    icon: const Icon(Icons.print, size: 16),
+                    label: const Text('Imprimir Boleta de Adición', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: UAGRMTheme.sidebarDeep,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
+                  OutlinedButton(
+                    onPressed: () => setState(() {
+                      selectedSubjectCodes.clear();
+                      selectedGroupsPerSubject.clear();
+                      _confirmed = false;
+                      _isReviewing = false;
+                    }),
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                      side: BorderSide(color: Colors.grey.shade300),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: const Text('Nueva Adición', style: TextStyle(fontSize: 12, color: UAGRMTheme.textDark)),
+                  ),
+                ],
+              );
+            }
+          ),
         ],
       ),
     );
@@ -1247,8 +1359,9 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     final int totalCreds = selectedGroupsPerSubject.values
         .fold(0, (sum, g) => sum + ((g['creditos'] as int?) ?? 0));
 
+    final isMobile = Responsive.isMobile(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 12 : 16, vertical: isMobile ? 8 : 12),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(top: BorderSide(color: Colors.grey.shade200, width: 1)),
@@ -1260,82 +1373,134 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          // Indicador de materias seleccionadas
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: UAGRMTheme.primaryBlue.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: UAGRMTheme.primaryBlue.withValues(alpha: 0.2)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.check_box, color: UAGRMTheme.primaryBlue, size: 18),
-                const SizedBox(width: 8),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '$n materia${n == 1 ? '' : 's'}',
-                      style: GoogleFonts.outfit(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15,
-                        color: UAGRMTheme.primaryBlue,
-                        letterSpacing: 0.2,
-                      ),
-                    ),
-                    if (totalCreds > 0)
+      child: isMobile 
+        ? Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Indicador superior
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.check_box, color: UAGRMTheme.primaryBlue, size: 16),
+                      const SizedBox(width: 6),
                       Text(
-                        '$totalCreds créditos',
-                        style: const TextStyle(fontSize: 11, color: UAGRMTheme.textGrey),
+                        '$n materia${n == 1 ? '' : 's'}',
+                        style: GoogleFonts.outfit(fontWeight: FontWeight.w900, fontSize: 13, color: UAGRMTheme.primaryBlue, letterSpacing: 0.2),
                       ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Wrap(
-              alignment: WrapAlignment.end,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 8,
-              runSpacing: 8,
+                    ],
+                  ),
+                  if (totalCreds > 0)
+                    Text('$totalCreds créditos', style: const TextStyle(fontSize: 11, color: UAGRMTheme.textGrey)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // Botones expandidos
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => setState(() {
+                        selectedSubjectCodes.clear();
+                        selectedGroupsPerSubject.clear();
+                      }),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: UAGRMTheme.textGrey,
+                        side: BorderSide(color: Colors.grey.shade300),
+                        minimumSize: const Size(0, 44),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: const Text('LIMPIAR', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => setState(() => _isReviewing = true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: UAGRMTheme.sidebarBg,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(0, 44),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        elevation: 0,
+                      ),
+                      child: const Text('CONTINUAR', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          )
+        : Row(
               children: [
-                TextButton.icon(
+                // Indicador de materias seleccionadas
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: UAGRMTheme.primaryBlue.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: UAGRMTheme.primaryBlue.withValues(alpha: 0.2)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.check_box, color: UAGRMTheme.primaryBlue, size: 22),
+                      const SizedBox(width: 12),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '$n materia${n == 1 ? '' : 's'} seleccionada${n == 1 ? '' : 's'}',
+                            style: GoogleFonts.outfit(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 16,
+                              color: UAGRMTheme.primaryBlue,
+                            ),
+                          ),
+                          if (totalCreds > 0)
+                            Text(
+                              '$totalCreds créditos en total',
+                              style: const TextStyle(fontSize: 12, color: UAGRMTheme.textGrey),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                // Botones de acción
+                OutlinedButton(
                   onPressed: () => setState(() {
                     selectedSubjectCodes.clear();
                     selectedGroupsPerSubject.clear();
                   }),
-                  icon: const Icon(Icons.clear, size: 16),
-                  label: const Text('Limpiar', style: TextStyle(fontSize: 13)),
-                  style: TextButton.styleFrom(foregroundColor: UAGRMTheme.textGrey),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: UAGRMTheme.textGrey,
+                    side: BorderSide(color: Colors.grey.shade300),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text('LIMPIAR SELECCIÓN', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 ),
+                const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: () => setState(() => _isReviewing = true),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: UAGRMTheme.sidebarDeep,
+                    backgroundColor: UAGRMTheme.sidebarBg,
                     foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     elevation: 0,
                   ),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                    child: Text(
-                      'Confirmar',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                    ),
-                  ),
+                  child: const Text('REVISAR Y CONTINUAR', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -1347,9 +1512,14 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       ),
       children: labels
           .map((l) => TableCell(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  child: Text(l, style: GoogleFonts.outfit(fontWeight: FontWeight.w800, fontSize: 13, color: Colors.white, letterSpacing: 0.5)),
+                child: Builder(
+                  builder: (context) {
+                    final isMobile = Responsive.isMobile(context);
+                    return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: isMobile ? 6 : 16, vertical: isMobile ? 8 : 14),
+                      child: Text(l, style: GoogleFonts.outfit(fontWeight: FontWeight.w800, fontSize: isMobile ? 10 : 13, color: Colors.white, letterSpacing: 0.5)),
+                    );
+                  }
                 ),
               ))
           .toList(),
@@ -1360,32 +1530,42 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   Widget _buildFinalActions(String registro, String codigoCarrera) {
     return Row(
       children: [
-        TextButton(
+        OutlinedButton(
           onPressed: () => setState(() {
             selectedSubjectCodes.clear();
             selectedGroupsPerSubject.clear();
           }),
-          child: const Text('LIMPIAR'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: UAGRMTheme.textGrey,
+            side: BorderSide(color: Colors.grey.shade300),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+          child: const Text('LIMPIAR', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 12),
         Expanded(
           child: ElevatedButton(
             onPressed: (selectedSubjectCodes.isEmpty || _isConfirming)
                 ? null
                 : () => _handleConfirmar(registro, codigoCarrera),
             style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              backgroundColor: UAGRMTheme.sidebarBg,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              elevation: 0,
             ),
             child: _isConfirming
                 ? const SizedBox(
-                    height: 20,
-                    width: 20,
+                    height: 18,
+                    width: 18,
                     child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                   )
                 : const Text(
                     'CONFIRMAR INSCRIPCIÓN',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12),
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                   ),
           ),
         ),

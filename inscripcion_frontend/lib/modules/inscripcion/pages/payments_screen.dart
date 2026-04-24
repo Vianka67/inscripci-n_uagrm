@@ -34,7 +34,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
       subtitle: 'Gestión de pagos y transacciones universitarias',
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 900),
+          constraints: const BoxConstraints(maxWidth: 1200),
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
             child: _buildPaymentCard(),
@@ -107,10 +107,10 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
             icon: const Icon(Icons.open_in_new),
             label: const Text('Ir al Sistema de Pagos'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: UAGRMTheme.sidebarPanel, // #1E293B navy oscuro
+              backgroundColor: UAGRMTheme.sidebarPanel,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),

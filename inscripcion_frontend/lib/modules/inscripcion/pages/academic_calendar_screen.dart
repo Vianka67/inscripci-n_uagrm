@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:inscripcion_frontend/shared/utils/responsive_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
@@ -82,7 +83,7 @@ class _AcademicCalendarScreenState extends State<AcademicCalendarScreen> {
       subtitle: 'Consulta las fechas clave del semestre actual',
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 900),
+          constraints: const BoxConstraints(maxWidth: 1200),
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
             child: _buildCalendarCard(provider),
@@ -93,6 +94,7 @@ class _AcademicCalendarScreenState extends State<AcademicCalendarScreen> {
   }
 
   Widget _buildCalendarCard(RegistrationProvider provider) {
+    final isMobileView = Responsive.isMobile(context);
     final Map<String, dynamic> estudiante = {
       'nombreCompleto': 'Estudiante UAGRM',
       'registro': provider.studentRegister ?? '219005678',
@@ -110,102 +112,58 @@ class _AcademicCalendarScreenState extends State<AcademicCalendarScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 16,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  alignment: WrapAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.calendar_today_outlined, color: UAGRMTheme.primaryBlue),
-                          const SizedBox(width: 12),
-                          Flexible(
-                            child: Text(
+                isMobileView 
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.calendar_month_outlined, color: UAGRMTheme.sidebarBg, size: 24),
+                            const SizedBox(width: 12),
+                            Text(
                               'Calendario Académico 2025',
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: UAGRMTheme.primaryBlue,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      alignment: WrapAlignment.end,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        Tooltip(
-                          message: _landscape
-                              ? 'Cambiar a Vertical (Portrait)'
-                              : 'Cambiar a Horizontal (Landscape)',
-                          child: InkWell(
-                            onTap: () => setState(() => _landscape = !_landscape),
-                            borderRadius: BorderRadius.circular(8),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: UAGRMTheme.primaryBlue.withValues(alpha: 0.4)),
-                                borderRadius: BorderRadius.circular(8),
-                                color: _landscape
-                                    ? UAGRMTheme.primaryBlue.withValues(alpha: 0.08)
-                                    : Colors.transparent,
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    _landscape
-                                        ? Icons.stay_current_landscape
-                                        : Icons.stay_current_portrait,
-                                    size: 18,
-                                    color: UAGRMTheme.primaryBlue,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    _landscape ? 'Horizontal' : 'Vertical',
-                                    style: const TextStyle(
-                                        fontSize: 13,
-                                        color: UAGRMTheme.primaryBlue,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ],
+                                color: UAGRMTheme.sidebarBg,
                               ),
                             ),
-                          ),
+                          ],
                         ),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            PdfGenerator.generateAndPrintCalendario(
-                              _calendarEvents,
-                              landscape: _landscape,
-                              estudiante: estudiante,
-                              carreraNombre: carreraNombre,
-                              carreraCodigo: carreraCodigo,
-                              periodo: periodo,
-                            );
-                          },
-                          icon: const Icon(Icons.print, size: 18),
-                          label: const Text('Imprimir'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: UAGRMTheme.sidebarPanel,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          ),
+                        const SizedBox(height: 16),
+                        _buildHeaderActions(
+                          estudiante: estudiante,
+                          carreraNombre: carreraNombre,
+                          carreraCodigo: carreraCodigo,
+                          periodo: periodo,
+                        ),
+                      ],
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.calendar_month_outlined, color: UAGRMTheme.sidebarBg, size: 24),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Calendario Académico 2025',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: UAGRMTheme.sidebarBg,
+                              ),
+                            ),
+                          ],
+                        ),
+                        _buildHeaderActions(
+                          estudiante: estudiante,
+                          carreraNombre: carreraNombre,
+                          carreraCodigo: carreraCodigo,
+                          periodo: periodo,
                         ),
                       ],
                     ),
-                  ],
-                ),
                 const SizedBox(height: 8),
                 const Text(
                   'Universidad Autónoma Gabriel René Moreno',
@@ -214,56 +172,113 @@ class _AcademicCalendarScreenState extends State<AcademicCalendarScreen> {
               ],
             ),
           ),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final tableWidth = constraints.maxWidth < 600 ? 600.0 : constraints.maxWidth;
-              return SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: SizedBox(
-                  width: tableWidth,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      AppTableHeader(
-                        children: const [
-                          SizedBox(width: 80, child: AppHeaderCell('Fecha')),
-                          SizedBox(width: 80, child: AppHeaderCell('Día')),
-                          Expanded(child: AppHeaderCell('Evento / Actividad')),
-                          SizedBox(width: 120, child: AppHeaderCell('Tipo', textAlign: TextAlign.center)),
+          Builder(
+            builder: (context) {
+              final isMobileView = Responsive.isMobile(context);
+              final labels = isMobileView 
+                  ? const ['FECHA', 'EVENTO', 'TIPO']
+                  : const ['FECHA', 'DÍA', 'EVENTO / ACTIVIDAD', 'TIPO'];
+              final flexValues = isMobileView 
+                  ? [2, 6, 3]
+                  : [2, 2, 8, 3];
+
+              return StandardTableContainer(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    StandardFlexHeader(
+                      labels: labels,
+                      flexValues: flexValues,
+                    ),
+                    ..._calendarEvents.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final event = entry.value;
+                      return StandardFlexRow(
+                        flexValues: flexValues,
+                        isLast: index == _calendarEvents.length - 1,
+                        cells: [
+                          tableText('${event['month']} ${event['day']}', isMobileView, bold: true),
+                          if (!isMobileView)
+                            tableText('Lunes', isMobileView),
+                          tableText(event['title'], isMobileView),
+                          AppProcessBadge(event['type'] ?? ''),
                         ],
-                      ),
-                      ..._calendarEvents.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final event = entry.value;
-                        return Column(
-                          children: [
-                            _buildEventRow(event),
-                            if (index < _calendarEvents.length - 1)
-                              Divider(height: 1, color: Colors.grey.shade100),
-                          ],
-                        );
-                      }),
-                    ],
-                  ),
+                      );
+                    }),
+                  ],
                 ),
               );
-            },
+            }
           ),
         ],
       ),
     );
   }
 
-  Widget _buildEventRow(Map<String, dynamic> event) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      child: Row(
-        children: [
-          SizedBox(width: 80, child: Text('${event['month']} ${event['day']}', style: const TextStyle(fontWeight: FontWeight.bold, color: UAGRMTheme.textDark, fontSize: 13))),
-          const SizedBox(width: 80, child: Text('Lunes', style: TextStyle(color: UAGRMTheme.textGrey, fontSize: 13))),
-          Expanded(child: Text(event['title'], style: const TextStyle(color: UAGRMTheme.textDark, fontSize: 13))),
-          SizedBox(width: 120, child: AppProcessBadge(event['type'] ?? '')),
-        ],
+  Widget _buildHeaderActions({
+    required Map<String, dynamic> estudiante,
+    required String carreraNombre,
+    required String carreraCodigo,
+    required String periodo,
+  }) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        _buildCompactButton(
+          icon: _landscape ? Icons.stay_current_landscape : Icons.stay_current_portrait,
+          label: _landscape ? 'HORIZONTAL' : 'VERTICAL',
+          onTap: () => setState(() => _landscape = !_landscape),
+          isActive: _landscape,
+        ),
+        ElevatedButton.icon(
+          onPressed: () {
+            PdfGenerator.generateAndPrintCalendario(
+              _calendarEvents,
+              landscape: _landscape,
+              estudiante: estudiante,
+              carreraNombre: carreraNombre,
+              carreraCodigo: carreraCodigo,
+              periodo: periodo,
+            );
+          },
+          icon: const Icon(Icons.print, size: 16),
+          label: const Text('IMPRIMIR', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: UAGRMTheme.sidebarBg,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            minimumSize: const Size(0, 40),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            elevation: 0,
+          ),
+        ),
+      ],
+    );
+  }
+  Widget _buildCompactButton({required IconData icon, required String label, required VoidCallback onTap, required bool isActive}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        height: 40,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(8),
+          color: isActive ? UAGRMTheme.sidebarBg.withValues(alpha: 0.05) : Colors.white,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: UAGRMTheme.sidebarBg),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 11, color: UAGRMTheme.sidebarBg, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
       ),
     );
   }

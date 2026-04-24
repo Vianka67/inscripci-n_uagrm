@@ -116,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
         if (mounted) {
           final provider = context.read<RegistrationProvider>();
           final String nombreCompleto = loginResult.data?['loginEstudiante']?['nombreCompleto'] ?? '';
-          provider.setStudentData(_registroController.text, nombreCompleto);
+          provider.setStudentRegister(_registroController.text, name: nombreCompleto);
           
           // Delay para asegurar actualización de estado
           Future.microtask(() {

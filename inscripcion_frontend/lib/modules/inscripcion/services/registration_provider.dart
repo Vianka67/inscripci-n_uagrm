@@ -20,11 +20,13 @@ class RegistrationProvider extends ChangeNotifier {
 
   Future<void> _loadFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
-    // Solo cargamos si no se ha configurado en esta sesión para evitar sobrescritura.
+    // Solo cargamos si no se ha configurado ya en esta sesión (evitar sobrescritura)
     if (_studentRegister == null) {
       _studentRegister = prefs.getString('student_register');
     }
-    _studentName = prefs.getString('student_name');
+    if (_studentName == null) {
+      _studentName = prefs.getString('student_name');
+    }
     
     final careerJson = prefs.getString('selected_career');
     if (careerJson != null && _selectedCareer == null) {
@@ -76,15 +78,11 @@ class RegistrationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setStudentRegister(String register) {
+  void setStudentRegister(String register, {String? name}) {
     _studentRegister = register;
-    _saveToPrefs();
-    notifyListeners();
-  }
-
-  void setStudentData(String register, String name) {
-    _studentRegister = register;
-    _studentName = name;
+    if (name != null) {
+      _studentName = name;
+    }
     _saveToPrefs();
     notifyListeners();
   }

@@ -9,6 +9,7 @@ import 'package:inscripcion_frontend/modules/inscripcion/services/registration_p
 import 'package:inscripcion_frontend/shared/widgets/main_layout.dart';
 import 'package:inscripcion_frontend/shared/widgets/standard_table.dart';
 import 'package:inscripcion_frontend/shared/widgets/app_ui_kit.dart';
+import 'package:inscripcion_frontend/shared/utils/responsive_helper.dart';
 
 class EnrollmentDatesScreen extends StatefulWidget {
   const EnrollmentDatesScreen({super.key});
@@ -52,7 +53,7 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
       subtitle: 'Consulta tus fechas asignadas y periodos habilitados',
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1000),
+          constraints: const BoxConstraints(maxWidth: 1200),
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
             child: _buildQueryContent(registro),
@@ -131,45 +132,50 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
 
   Widget _buildAssignedDayBanner(String assignmentText) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       decoration: BoxDecoration(
-        color: UAGRMTheme.sidebarDeep, // Navy background
-        borderRadius: BorderRadius.circular(8),
+        color: UAGRMTheme.sidebarDeep,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: UAGRMTheme.sidebarDeep.withValues(alpha: 0.2),
+            blurRadius: 15,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: const Icon(Icons.access_time, color: Colors.white, size: 28),
+            child: const Icon(Icons.calendar_today, color: Colors.white, size: 36),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 24),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Su día de inscripción asignado',
-                  style: GoogleFonts.outfit(fontSize: 13, color: Colors.white.withValues(alpha: 0.8), fontWeight: FontWeight.w600, letterSpacing: 0.5),
+                  'SU DÍA DE INSCRIPCIÓN ASIGNADO',
+                  style: GoogleFonts.outfit(
+                    fontSize: 12, 
+                    color: Colors.white.withValues(alpha: 0.6), 
+                    fontWeight: FontWeight.w800, 
+                    letterSpacing: 1.2
+                  ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 8),
                 Text(
                   assignmentText,
                   style: GoogleFonts.outfit(
-                    fontSize: 24,
+                    fontSize: 26,
                     fontWeight: FontWeight.w900,
                     color: Colors.white,
-                    letterSpacing: 0.3,
+                    letterSpacing: -0.5,
                   ),
                 ),
               ],
@@ -181,57 +187,79 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
   }
 
   Widget _buildDatesTable() {
-    return StandardTableContainer(
-      minWidth: 700,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              children: [
-                const Icon(Icons.calendar_month_outlined, color: UAGRMTheme.primaryBlue),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Fechas Habilitadas por la Carrera',
-                    style: GoogleFonts.outfit(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      color: UAGRMTheme.primaryBlue,
-                      letterSpacing: 0.2,
+    final isMobile = Responsive.isMobile(context);
+    final labels = isMobile
+        ? const ['PROCESO', 'PERIODO', 'DÍA']
+        : const ['PROCESO', 'PERIODO', 'F. INICIO', 'F. FIN', 'DÍA', 'FECHA EST.'];
+    final flexValues = isMobile 
+        ? [3, 6, 2]
+        : [2, 4, 3, 3, 2, 3];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          )
+        ],
+      ),
+      child: StandardTableContainer(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.calendar_month_outlined, color: UAGRMTheme.sidebarBg, size: 22),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Fechas Habilitadas por la Carrera',
+                      style: GoogleFonts.outfit(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: UAGRMTheme.sidebarBg,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const Divider(height: 1),
-          StandardFlexHeader(
-            labels: const ['Proceso', 'Periodo', 'F. Inicio', 'F. Fin', 'Día', 'Fecha Est.'],
-            flexValues: const [2, 4, 3, 3, 2, 3],
-          ),
-          _buildRow('Inscripcion', '1/2025 Semestre Regular', '2025-02-15', '2025-02-20', '2', '2025-02-16', true),
-          _buildRow('Adicion', '1/2025 Semestre Regular', '2025-02-25', '2025-03-01', '1', '2025-02-25', false),
-          _buildRow('Retiro', '1/2025 Semestre Regular', '2025-03-10', '2025-03-15', '3', '2025-03-12', false),
-        ],
+            StandardFlexHeader(
+              labels: labels,
+              flexValues: flexValues,
+            ),
+            _buildRow('Inscripcion', '1/2025 Semestre Regular', '2025-02-15', '2025-02-20', '2', '2025-02-16', false, isMobile, flexValues),
+            _buildRow('Adicion', '1/2025 Semestre Regular', '2025-02-25', '2025-03-01', '1', '2025-02-25', false, isMobile, flexValues),
+            _buildRow('Retiro', '1/2025 Semestre Regular', '2025-03-10', '2025-03-15', '3', '2025-03-12', true, isMobile, flexValues),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildRow(String proceso, String periodo, String inicio, String fin, String dia, String estudiante, bool isLast) {
+  Widget _buildRow(String proceso, String periodo, String inicio, String fin, String dia, String estudiante, bool isLast, bool isMobile, List<int> flexValues) {
     return StandardFlexRow(
-      flexValues: const [2, 4, 3, 3, 2, 3],
+      flexValues: flexValues,
       isLast: isLast,
       cells: [
         AppProcessBadge(proceso),
-        Text(periodo, style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13, fontWeight: FontWeight.w500)),
-        Text(inicio, style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13)),
-        Text(fin, style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13)),
+        tableText(periodo, isMobile, bold: true),
+        if (!isMobile)
+          tableText(inicio, isMobile),
+        if (!isMobile)
+          tableText(fin, isMobile),
         Center(
-          child: Text(dia, style: GoogleFonts.outfit(fontWeight: FontWeight.w900, color: UAGRMTheme.primaryBlue, fontSize: 15)),
+          child: Text(dia, style: GoogleFonts.outfit(fontWeight: FontWeight.w900, color: UAGRMTheme.primaryBlue, fontSize: isMobile ? 13 : 15)),
         ),
-        Text(estudiante, style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13)),
+        if (!isMobile)
+          tableText(estudiante, isMobile),
       ],
     );
   }

@@ -340,7 +340,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
                               ),
                             ),
                             // Listado de asignaturas
-                            _buildCleanTable(materias),
+                            _buildCleanTable(materias, isMobile: false),
                             // Resumen final
                             Container(
                               padding: const EdgeInsets.all(32),
@@ -390,7 +390,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
     );
   }
 
-  Widget _buildCleanTable(List<dynamic> materias) {
+  Widget _buildCleanTable(List<dynamic> materias, {required bool isMobile}) {
     if (materias.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(32),
@@ -398,53 +398,53 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
         child: const Text('No hay materias inscritas', style: TextStyle(color: UAGRMTheme.textGrey)),
       );
     }
-    return AppTableCard(
+
+    final labels = isMobile 
+        ? const ['Sigla', 'Asignatura', 'Grp.', 'Horario']
+        : const ['Nro', 'Sigla', 'Materia', 'Grupo', 'Docente', 'Horario', 'Turno', 'Aula', 'Estado'];
+
+    final flexValues = isMobile 
+        ? [2, 5, 2, 4]
+        : [1, 2, 4, 1, 3, 3, 2, 2, 2];
+
+    return StandardTableContainer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Encabezados de tabla
-          AppTableHeader(
-            children: const [
-              SizedBox(width: 40, child: AppHeaderCell('Nro')),
-              SizedBox(width: 80, child: AppHeaderCell('Sigla')),
-              Expanded(flex: 3, child: AppHeaderCell('Materia')),
-              SizedBox(width: 50, child: AppHeaderCell('Grupo')),
-              Expanded(flex: 2, child: AppHeaderCell('Docente')),
-              Expanded(flex: 2, child: AppHeaderCell('Horario')),
-              SizedBox(width: 80, child: AppHeaderCell('Turno')),
-              SizedBox(width: 80, child: AppHeaderCell('Aula')),
-              SizedBox(width: 80, child: AppHeaderCell('Estado', textAlign: TextAlign.center)),
-            ],
+          StandardFlexHeader(
+            labels: labels,
+            flexValues: flexValues,
           ),
-          // Registro de materias
-          ListView.separated(
+          ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: materias.length,
-            separatorBuilder: (context, index) => Divider(height: 1, color: Colors.grey.shade100),
             itemBuilder: (context, index) {
               final item = materias[index];
               final i = index + 1;
               final materia = item['materia'] as Map<String, dynamic>? ?? {};
               final oferta = item['oferta'] as Map<String, dynamic>? ?? {};
-              final nroStr = i.toString();
               final aulaStr = 'Aula ' + (100 + i).toString();
                
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                child: Row(
-                  children: [
-                    SizedBox(width: 40, child: Text(nroStr, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark))),
-                    SizedBox(width: 80, child: Text(materia['codigo'] ?? '', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: UAGRMTheme.textDark))),
-                    Expanded(flex: 3, child: Text(materia['nombre'] ?? '', style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark))),
-                    SizedBox(width: 50, child: Text(item['grupo'] ?? oferta['grupo'] ?? '', style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark))),
-                    Expanded(flex: 2, child: Text(oferta['docente'] ?? 'Dr. Por Asignar', style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark))),
-                    Expanded(flex: 2, child: Text(TimeFormatter.formatHorario(oferta['horario'] ?? ''), style: const TextStyle(fontSize: 13, color: UAGRMTheme.textGrey))),
-                    SizedBox(width: 80, child: _buildNiceTurno(oferta['horario'] ?? '')),
-                    SizedBox(width: 80, child: Text(aulaStr, style: const TextStyle(fontSize: 13, color: UAGRMTheme.textGrey))),
-                    const SizedBox(width: 80, child: AppEstadoBadge('Inscrito')),
-                  ],
-                ),
+              return StandardFlexRow(
+                flexValues: flexValues,
+                isLast: index == materias.length - 1,
+                cells: [
+                  if (!isMobile)
+                    tableText(i.toString(), isMobile),
+                  tableText(materia['codigo'] ?? '', isMobile, bold: true),
+                  tableText(materia['nombre'] ?? '', isMobile, bold: true),
+                  tableText(item['grupo'] ?? oferta['grupo'] ?? '', isMobile, bold: true),
+                  if (!isMobile)
+                    tableText(oferta['docente'] ?? 'Dr. Por Asignar', isMobile),
+                  tableText(TimeFormatter.formatHorario(oferta['horario'] ?? ''), isMobile, color: UAGRMTheme.textGrey),
+                  if (!isMobile)
+                    _buildNiceTurno(oferta['horario'] ?? ''),
+                  if (!isMobile)
+                    tableText(aulaStr, isMobile),
+                  if (!isMobile)
+                    const AppEstadoBadge('Inscrito'),
+                ],
               );
             },
           ),
@@ -497,13 +497,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
           const SizedBox(height: 12),
           _buildStudentInfo(estudiante, {'nombre': carreraNombre, 'codigo': carreraCodigo}, lugar),
           const SizedBox(height: 16),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              width: 900,
-              child: _buildCleanTable(materias),
-            ),
-          ),
+          _buildCleanTable(materias, isMobile: true),
           const SizedBox(height: 16),
           _buildSummary(materias),
           const SizedBox(height: 24),

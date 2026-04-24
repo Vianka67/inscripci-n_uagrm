@@ -77,13 +77,14 @@ class UAGRMTheme {
       style: ElevatedButton.styleFrom(
         backgroundColor: primaryBlue,
         foregroundColor: Colors.white,
-        elevation: 2,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+        elevation: 1,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+        minimumSize: const Size(0, 40),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10),
         ),
         textStyle: GoogleFonts.inter(
-          fontSize: 16,
+          fontSize: 14,
           fontWeight: FontWeight.w600,
         ),
       ),
