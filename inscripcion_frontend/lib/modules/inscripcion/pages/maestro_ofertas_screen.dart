@@ -36,8 +36,8 @@ class _MaestroOfertasScreenState extends State<MaestroOfertasScreen> {
   }
 
   final String getOfertasMasterQuery = """
-    query GetOfertasMaster(\$codigoCarrera: String) {
-      ofertasMateria(codigoCarrera: \$codigoCarrera) {
+    query GetOfertasMaster(\$registro: Int!, \$carr: Int!, \$plan: String!, \$lugar: Int!, \$sem: String!, \$ano: Int!) {
+      allMoferta(registro: \$registro, carr: \$carr, plan: \$plan, lugar: \$lugar, sem: \$sem, ano: \$ano) {
         materiaCodigo
         materiaNombre
         semestre
@@ -45,7 +45,6 @@ class _MaestroOfertasScreenState extends State<MaestroOfertasScreen> {
         horario
         docente
         cuposDisponibles
-        cupoActual
       }
     }
   """;
@@ -63,13 +62,13 @@ class _MaestroOfertasScreenState extends State<MaestroOfertasScreen> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1200),
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: EdgeInsets.all(Responsive.isMobile(context) ? 16.0 : 24.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Título y filtros unificados en una tarjeta blanca
                 Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(Responsive.isMobile(context) ? 16 : 24),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -83,24 +82,34 @@ class _MaestroOfertasScreenState extends State<MaestroOfertasScreen> {
                     ],
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Cabecera superior
-                      Row(
-                        children: [
-                          const Icon(Icons.grid_view_outlined, color: UAGRMTheme.sidebarBg, size: 24),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'Maestro de Ofertas - $carreraNombre',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: UAGRMTheme.sidebarBg,
-                              ),
+                      Center(
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.grid_view_outlined, color: UAGRMTheme.sidebarBg, size: Responsive.isMobile(context) ? 20 : 24),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Maestro de Ofertas',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: Responsive.isMobile(context) ? 15 : 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: UAGRMTheme.sidebarBg,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 8),
+                            Text(
+                              carreraNombre,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13, fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 24),
                       // Barra de filtros
@@ -129,7 +138,14 @@ class _MaestroOfertasScreenState extends State<MaestroOfertasScreen> {
                     child: Query(
                       options: QueryOptions(
                         document: gql(getOfertasMasterQuery),
-                        variables: {'codigoCarrera': codigoCarrera},
+                        variables: {
+                          'registro': int.tryParse(provider.studentRegister ?? '0') ?? 0,
+                          'carr': int.tryParse(codigoCarrera ?? '0') ?? 0,
+                          'plan': '1',
+                          'lugar': 4271,
+                          'sem': '1',
+                          'ano': 2026
+                        },
                         fetchPolicy: FetchPolicy.networkOnly,
                       ),
                       builder: (QueryResult result, {VoidCallback? refetch, FetchMore? fetchMore}) {
@@ -154,7 +170,7 @@ class _MaestroOfertasScreenState extends State<MaestroOfertasScreen> {
                           );
                         }
 
-                        final dataList = result.data?['ofertasMateria'] as List<dynamic>? ?? [];
+                        final dataList = result.data?['allMoferta'] as List<dynamic>? ?? [];
 
                         // Aplicar filtros locales (Búsqueda por nombre/sigla y Nivel)
                         final filteredList = dataList.where((item) {
@@ -188,6 +204,106 @@ class _MaestroOfertasScreenState extends State<MaestroOfertasScreen> {
   }
 
   Widget _buildFiltersBar() {
+    final isMobile = Responsive.isMobile(context);
+    
+    if (isMobile) {
+      return Column(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: TextField(
+              decoration: const InputDecoration(
+                hintText: 'Buscar por sigla o nombre...',
+                hintStyle: TextStyle(color: UAGRMTheme.textGrey, fontSize: 12),
+                prefixIcon: Icon(Icons.search, color: UAGRMTheme.textGrey, size: 18),
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+              onChanged: (val) {
+                setState(() => _searchQuery = val);
+              },
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<int?>(
+                value: _selectedLevel,
+                isExpanded: true,
+                dropdownColor: Colors.white,
+                icon: const Icon(Icons.keyboard_arrow_down, color: UAGRMTheme.textGrey, size: 18),
+                selectedItemBuilder: (BuildContext context) {
+                  return [null, ...List.generate(9, (index) => index + 1)].map((level) {
+                    return Container(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        level == null ? 'Todos los niveles' : 'Nivel $level',
+                        style: const TextStyle(fontSize: 13, color: UAGRMTheme.textDark),
+                      ),
+                    );
+                  }).toList();
+                },
+                items: [
+                  DropdownMenuItem<int?>(
+                    value: null,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: _selectedLevel == null ? const Color(0xFFF1F5F9) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_selectedLevel == null) const Icon(Icons.check, color: UAGRMTheme.textDark, size: 16),
+                          if (_selectedLevel == null) const SizedBox(width: 4),
+                          Text('Todos', style: TextStyle(fontSize: 13, color: _selectedLevel == null ? UAGRMTheme.textDark : UAGRMTheme.textGrey)),
+                        ]
+                      )
+                    )
+                  ),
+                  ...List.generate(9, (index) => index + 1).map((level) => 
+                    DropdownMenuItem<int?>(
+                      value: level,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: _selectedLevel == level ? const Color(0xFFF1F5F9) : Colors.transparent,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (_selectedLevel == level) const Icon(Icons.check, color: UAGRMTheme.textDark, size: 16),
+                            if (_selectedLevel == level) const SizedBox(width: 4),
+                            Text('Nivel $level', style: TextStyle(fontSize: 13, color: _selectedLevel == level ? UAGRMTheme.textDark : UAGRMTheme.textGrey)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+                onChanged: (val) {
+                  setState(() => _selectedLevel = val);
+                },
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
     return Row(
       children: [
         Expanded(

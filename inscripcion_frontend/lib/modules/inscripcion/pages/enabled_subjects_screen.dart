@@ -14,16 +14,11 @@ class EnabledSubjectsScreen extends StatelessWidget {
   const EnabledSubjectsScreen({super.key});
 
   final String getSubjectsQuery = """
-    query GetEnabledSubjects(\$registro: String!, \$codigoCarrera: String) {
-      materiasHabilitadas(registro: \$registro, codigoCarrera: \$codigoCarrera) {
-        materia {
-          codigo
-          nombre
-          creditos
-        }
+    query GetEnabledSubjects(\$registro: Int!, \$carr: Int!, \$plan: String!, \$lugar: Int!, \$sem: String!, \$ano: Int!, \$nroSerie: Int!, \$proceso: String!) {
+      materiaOferta(registro: \$registro, carr: \$carr, plan: \$plan, lugar: \$lugar, sem: \$sem, ano: \$ano, nroSerie: \$nroSerie, proceso: \$proceso) {
+        materiaCodigo
+        materiaNombre
         semestre
-        obligatoria
-        habilitada
       }
     }
   """;
@@ -45,8 +40,14 @@ class EnabledSubjectsScreen extends StatelessWidget {
       options: QueryOptions(
         document: gql(getSubjectsQuery),
         variables: {
-          'registro': studentRegister ?? '',
-          'codigoCarrera': provider.selectedCareer?.code,
+          'registro': int.tryParse(studentRegister ?? '0') ?? 0,
+          'carr': int.tryParse(provider.selectedCareer?.code ?? '0') ?? 0,
+          'plan': '1',
+          'lugar': 4271,
+          'sem': '1',
+          'ano': 2026,
+          'nroSerie': 999123,
+          'proceso': 'I'
         },
         fetchPolicy: FetchPolicy.networkOnly, // Add fetchPolicy to ensure fresh data
       ),
@@ -66,23 +67,33 @@ class EnabledSubjectsScreen extends StatelessWidget {
 
         if (result.hasException) {
           return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, color: UAGRMTheme.errorRed, size: 48),
-                const SizedBox(height: 16),
-                Text('Error de carga:\n${result.exception.toString()}', textAlign: TextAlign.center),
-                const SizedBox(height: 16),
-                ElevatedButton(onPressed: refetch, child: const Text('Reintentar')),
-              ],
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, color: UAGRMTheme.errorRed, size: 48),
+                  const SizedBox(height: 16),
+                  Text('Error de carga:\n${result.exception.toString()}', textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
+                  const SizedBox(height: 16),
+                  ElevatedButton(onPressed: refetch, child: const Text('Reintentar')),
+                ],
+              ),
             ),
           );
         }
 
         final List<Subject> subjects;
         try {
-          final subjectsData = result.data?['materiasHabilitadas'] as List<dynamic>? ?? [];
-          subjects = subjectsData.map((data) => Subject.fromJson(data)).toList();
+          final subjectsData = result.data?['materiaOferta'] as List<dynamic>? ?? [];
+          subjects = subjectsData.map((data) => Subject(
+            code: data['materiaCodigo']?.toString() ?? '',
+            name: data['materiaNombre']?.toString() ?? 'Sin nombre',
+            credits: 0,
+            semester: int.tryParse(data['semestre']?.toString() ?? '0') ?? 0,
+            isRequired: true,
+            isEnabled: true,
+          )).toList();
         } catch (e) {
           return Center(
             child: Padding(
@@ -139,11 +150,12 @@ class EnabledSubjectsScreen extends StatelessWidget {
         final isMobile = Responsive.isMobile(context);
         final flexValues = isMobile ? [2, 5, 2] : [1, 4, 1, 1, 1];
 
-        return Center(
+        return Align(
+          alignment: Alignment.topCenter,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 1200),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              padding: EdgeInsets.all(Responsive.isMobile(context) ? 16 : 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [

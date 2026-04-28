@@ -15,7 +15,7 @@ SECRET_KEY = 'django-insecure-dev-key-change-in-production'
 # ADVERTENCIA DE SEGURIDAD: ¡no habilites debug en un entorno de producción!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0,*,192.168.0.122').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0,*,192.168.0.116').split(',')
 
 # Definición de aplicaciones
 INSTALLED_APPS = [
@@ -115,8 +115,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:53790",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
-    "http://192.168.0.122:8000",
-    "http://192.168.0.122:53790",
+    "http://192.168.0.116:8000",
+    "http://192.168.0.116:53790",
 ]
 CORS_ALLOW_METHODS = [
     'DELETE',

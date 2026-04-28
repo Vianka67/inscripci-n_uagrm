@@ -1,8 +1,11 @@
 import 'package:flutter/foundation.dart';
-import 'package:inscripcion_frontend/shared/utils/responsive_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
+import 'package:inscripcion_frontend/modules/inscripcion/services/registration_provider.dart';
+import 'package:inscripcion_frontend/shared/utils/responsive_helper.dart';
 import 'package:inscripcion_frontend/shared/widgets/standard_table.dart';
 import 'package:inscripcion_frontend/shared/widgets/app_ui_kit.dart';
 import 'package:inscripcion_frontend/shared/widgets/main_layout.dart';
@@ -29,56 +32,33 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     }
   }
 
-  // Datos mock para Transacciones basados en la imagen 5
-  final List<Map<String, dynamic>> _mockTransacciones = [
-    {
-      'fecha': '2025-01-15 09:30:00',
-      'proceso': 'Inscripción',
-      'periodo': '1/2025',
-      'via': 'Web',
-      'materias': 'MAT101-SA   FIS101-SA   INF210-SA',
-      'estado': 'Confirmado',
-    },
-    {
-      'fecha': '2025-01-20 14:15:00',
-      'proceso': 'Adición',
-      'periodo': '1/2025',
-      'via': 'Web',
-      'materias': 'INF220-SA',
-      'estado': 'Confirmado',
-    },
-    {
-      'fecha': '2024-07-10 08:00:00',
-      'proceso': 'Inscripción',
-      'periodo': '2/2024',
-      'via': 'Ventanilla',
-      'materias': 'MAT201-SA   EST301-SA   INF310-SA',
-      'estado': 'Confirmado',
-    },
-    {
-      'fecha': '2024-07-15 16:45:00',
-      'proceso': 'Retiro',
-      'periodo': '2/2024',
-      'via': 'Web',
-      'materias': 'EST301-SA',
-      'estado': 'Confirmado',
-    },
-  ];
+  final String getTransaccionesQuery = """
+    query GetTransacciones(\$nroSerie: Int!) {
+      transacciones(nroSerie: \$nroSerie) {
+        fechaHora
+        gestion
+        carrera
+        transaccion
+        via
+      }
+    }
+  """;
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<RegistrationProvider>();
     return MainLayout(
       title: 'Transacciones',
       subtitle: 'Historial de transacciones de inscripción',
-      child: Center(
+      child: Align(
+        alignment: Alignment.topCenter,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1200),
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+            padding: EdgeInsets.all(Responsive.isMobile(context) ? 16 : 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Tarjeta superior con título
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
@@ -93,15 +73,17 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       )
                     ],
                   ),
-                  child: Row(
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.receipt_long_outlined, color: UAGRMTheme.sidebarBg, size: 24),
-                      const SizedBox(width: 12),
-                      Expanded(
+                      Icon(Icons.receipt_long_outlined, color: UAGRMTheme.sidebarBg, size: 20),
+                      SizedBox(width: 8),
+                      Flexible(
                         child: Text(
                           'Historial de Transacciones Realizadas',
-                          style: const TextStyle(
-                            fontSize: 18,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: UAGRMTheme.sidebarBg,
                           ),
@@ -110,24 +92,29 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     ],
                   ),
                 ),
-                
                 const SizedBox(height: 24),
-                
-                // Tabla de transacciones
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.02),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      )
-                    ],
+                Query(
+                  options: QueryOptions(
+                    document: gql(getTransaccionesQuery),
+                    variables: {'nroSerie': 999123},
+                    fetchPolicy: FetchPolicy.networkOnly,
                   ),
-                  child: _buildTransactionsTable(),
+                  builder: (QueryResult result, {VoidCallback? refetch, FetchMore? fetchMore}) {
+                    if (result.isLoading) {
+                      return const Center(child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator()));
+                    }
+                    if (result.hasException) {
+                      return _buildError(result.exception.toString(), refetch);
+                    }
+
+                    final txList = result.data?['transacciones'] as List<dynamic>? ?? [];
+
+                    if (txList.isEmpty) {
+                      return _buildEmpty();
+                    }
+
+                    return _buildTransactionsTable(txList);
+                  },
                 ),
               ],
             ),
@@ -137,43 +124,33 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     );
   }
 
-  Widget _buildTransactionsTable() {
+  Widget _buildTransactionsTable(List<dynamic> txList) {
     final isMobile = Responsive.isMobile(context);
-    
-    final labels = isMobile 
-        ? const ['FECHA', 'PROCESO', 'MATERIAS', 'ESTADO']
-        : const ['FECHA', 'PROCESO', 'PERIODO', 'VÍA', 'MATERIAS', 'ESTADO'];
-    
-    final flexValues = isMobile 
-        ? [3, 2, 4, 2]
-        : [3, 2, 2, 2, 4, 2];
+    final labels = isMobile
+        ? const ['FECHA', 'TIPO', 'VÍA']
+        : const ['FECHA/HORA', 'GESTIÓN', 'CARRERA', 'TRANSACCIÓN', 'VÍA'];
+    final flexValues = isMobile ? [4, 3, 3] : [3, 2, 4, 3, 2];
 
     return StandardTableContainer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          StandardFlexHeader(
-            labels: labels,
-            flexValues: flexValues,
-          ),
+          StandardFlexHeader(labels: labels, flexValues: flexValues),
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: _mockTransacciones.length,
+            itemCount: txList.length,
             itemBuilder: (context, index) {
-              final tx = _mockTransacciones[index];
+              final tx = txList[index] as Map<String, dynamic>;
               return StandardFlexRow(
                 flexValues: flexValues,
-                isLast: index == _mockTransacciones.length - 1,
+                isLast: index == txList.length - 1,
                 cells: [
-                  tableText(tx['fecha'] ?? '', isMobile),
-                  AppProcessBadge(tx['proceso'] ?? ''),
-                  if (!isMobile)
-                    tableText(tx['periodo'] ?? '', isMobile),
-                  if (!isMobile)
-                    AppProcessBadge(tx['via'] ?? ''),
-                  tableText(tx['materias'] ?? '', isMobile),
-                  Center(child: AppEstadoBadge(tx['estado'] ?? '')),
+                  tableText(tx['fechaHora']?.toString() ?? '-', isMobile),
+                  if (!isMobile) tableText(tx['gestion']?.toString() ?? '-', isMobile),
+                  if (!isMobile) tableText(tx['carrera']?.toString() ?? '-', isMobile, bold: true),
+                  AppProcessBadge(tx['transaccion']?.toString() ?? '-'),
+                  tableText(tx['via']?.toString() ?? '-', isMobile),
                 ],
               );
             },
@@ -183,5 +160,36 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     );
   }
 
-}
+  Widget _buildError(String error, VoidCallback? refetch) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, color: UAGRMTheme.errorRed, size: 48),
+            const SizedBox(height: 16),
+            Text('Error: $error', textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
+            const SizedBox(height: 16),
+            ElevatedButton(onPressed: refetch, child: const Text('Reintentar')),
+          ],
+        ),
+      ),
+    );
+  }
 
+  Widget _buildEmpty() {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(48),
+        child: Column(
+          children: [
+            Icon(Icons.receipt_long_outlined, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text('Sin transacciones registradas', style: TextStyle(fontSize: 16, color: Colors.grey)),
+          ],
+        ),
+      ),
+    );
+  }
+}

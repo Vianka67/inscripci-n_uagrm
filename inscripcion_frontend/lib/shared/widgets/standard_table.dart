@@ -47,7 +47,7 @@ class StandardHeaderCell extends StatelessWidget {
   final String text;
   final TextAlign textAlign;
 
-  const StandardHeaderCell(this.text, {super.key, this.textAlign = TextAlign.left});
+  const StandardHeaderCell(this.text, {super.key, this.textAlign = TextAlign.center});
 
   @override
   Widget build(BuildContext context) {
@@ -69,9 +69,10 @@ class StandardHeaderCell extends StatelessWidget {
 }
 
 /// Helper global para textos de celdas con reglas estrictas de no-desbordamiento.
-Widget tableText(String text, bool isMobile, {bool bold = false, Color? color}) {
+Widget tableText(String text, bool isMobile, {bool bold = false, Color? color, TextAlign textAlign = TextAlign.center}) {
   return Text(
     text,
+    textAlign: textAlign,
     maxLines: 2,
     overflow: TextOverflow.ellipsis,
     softWrap: true,
@@ -153,7 +154,7 @@ class StandardFlexRow extends StatelessWidget {
         children: List.generate(cells.length, (index) {
           return Expanded(
             flex: flexValues[index],
-            child: cells[index],
+            child: Center(child: cells[index]),
           );
         }),
       ),
@@ -205,7 +206,7 @@ class AppResponsiveTable extends StatelessWidget {
               return TableCell(
                 child: Padding(
                   padding: cellPadding(isMobile),
-                  child: cell,
+                  child: Center(child: cell),
                 ),
               );
             }).toList(),
@@ -215,4 +216,3 @@ class AppResponsiveTable extends StatelessWidget {
     );
   }
 }
-

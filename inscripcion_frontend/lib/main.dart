@@ -20,7 +20,7 @@ import 'package:inscripcion_frontend/modules/inscripcion/pages/academic_calendar
 import 'package:inscripcion_frontend/modules/inscripcion/pages/payments_screen.dart';
 import 'package:inscripcion_frontend/modules/inscripcion/pages/maestro_ofertas_screen.dart';
 import 'package:inscripcion_frontend/modules/inscripcion/pages/transactions_screen.dart';
-
+import 'package:inscripcion_frontend/modules/inscripcion/pages/anulaciones_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -73,6 +73,7 @@ class UAGRMApp extends StatelessWidget {
               '/payments': (context) => const PaymentsScreen(),
               '/transactions': (context) => const TransactionsScreen(),
               '/maestro': (context) => const MaestroOfertasScreen(),
+              '/anulaciones': (context) => const AnulacionesScreen(),
             },
           ),
         ),

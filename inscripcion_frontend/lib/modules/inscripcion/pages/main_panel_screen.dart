@@ -219,6 +219,13 @@ class MainPanelScreen extends StatelessWidget {
         onTap: () => Navigator.pushNamed(context, '/enrollment-slip'),
       ),
       _DashboardCard(
+        title: 'Estado de Bloqueos',
+        subtitle: 'Consultar bloqueos activos',
+        icon: Icons.lock_outline,
+        isEnabled: isEnabled,
+        onTap: () => Navigator.pushNamed(context, '/blocked-status'),
+      ),
+      _DashboardCard(
         title: 'Transacciones',
         subtitle: 'Historial de transacciones',
         icon: Icons.attach_money_rounded,
@@ -245,6 +252,13 @@ class MainPanelScreen extends StatelessWidget {
         icon: Icons.payment_rounded,
         isEnabled: isEnabled,
         onTap: () => Navigator.pushNamed(context, '/payments'),
+      ),
+      _DashboardCard(
+        title: 'Anulaciones',
+        subtitle: 'Historial de anulación de materias',
+        icon: Icons.undo_outlined,
+        isEnabled: isEnabled,
+        onTap: () => Navigator.pushNamed(context, '/anulaciones'),
       ),
     ];
   }

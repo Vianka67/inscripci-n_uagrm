@@ -205,3 +205,190 @@ class Query(graphene.ObjectType):
             'estado': inscripcion.estado
         }]
 
+    # --- NUEVAS QUERIES DEL NUEVO SISTEMA ---
+
+    calendario = graphene.Field(
+        'apps.inscripcion.graphql.types.CalendarioType',
+        carr=graphene.Int(required=True),
+        plan=graphene.String(required=True),
+        sem=graphene.String(required=True),
+        ano=graphene.Int(required=True)
+    )
+
+    gestion_habilitada = graphene.Field(
+        'apps.inscripcion.graphql.types.GestionHabilitadaType',
+        registro=graphene.Int(required=True),
+        proceso=graphene.String(required=True)
+    )
+
+    listar_carreras = graphene.List(
+        'apps.inscripcion.graphql.types.CarreraEstudianteListType',
+        registro=graphene.Int(required=True),
+        sem=graphene.String(required=True),
+        ano=graphene.Int(required=True)
+    )
+
+    listar_carreras2 = graphene.List(
+        'apps.inscripcion.graphql.types.CarreraEstudianteListType',
+        registro=graphene.Int(required=True)
+    )
+
+    modalidad_carrera = graphene.Field(
+        'apps.inscripcion.graphql.types.ModalidadCarreraType',
+        registro=graphene.Int(required=True),
+        carr=graphene.Int(required=True),
+        plan=graphene.String(required=True),
+        lugar=graphene.Int(required=True),
+        sem=graphene.String(required=True),
+        ano=graphene.Int(required=True)
+    )
+
+    costo_inscripcion = graphene.Field(
+        'apps.inscripcion.graphql.types.CostoInscripcionType',
+        nroSerie=graphene.Int(required=True)
+    )
+
+    mat_ins = graphene.Field(
+        'apps.inscripcion.graphql.types.MatInsType',
+        nroSerie=graphene.Int(required=True)
+    )
+
+    materias_cupo_min = graphene.List(
+        'apps.inscripcion.graphql.types.MateriaCupoMinType',
+        registro=graphene.Int(required=True),
+        sem=graphene.String(required=True),
+        ano=graphene.Int(required=True),
+        carr=graphene.Int(required=True),
+        plan=graphene.String(required=True)
+    )
+
+    all_moferta = graphene.List(
+        'apps.inscripcion.graphql.types.OfertaMateriaType',
+        registro=graphene.Int(required=True),
+        carr=graphene.Int(required=True),
+        plan=graphene.String(required=True),
+        lugar=graphene.Int(required=True),
+        sem=graphene.String(required=True),
+        ano=graphene.Int(required=True)
+    )
+
+    materia_oferta = graphene.List(
+        'apps.inscripcion.graphql.types.OfertaMateriaType',
+        registro=graphene.Int(required=True),
+        carr=graphene.Int(required=True),
+        plan=graphene.String(required=True),
+        lugar=graphene.Int(required=True),
+        sem=graphene.String(required=True),
+        ano=graphene.Int(required=True),
+        nroSerie=graphene.Int(required=True),
+        proceso=graphene.String(required=True)
+    )
+
+    validar_fase_1 = graphene.Field(
+        graphene.Boolean,
+        registro=graphene.Int(required=True),
+        carr=graphene.Int(required=True),
+        plan=graphene.String(required=True),
+        lugar=graphene.Int(required=True),
+        sem=graphene.String(required=True),
+        ano=graphene.Int(required=True),
+        proceso=graphene.String(required=True),
+        titulo=graphene.Int(required=True),
+        modalidad=graphene.Int(required=True)
+    )
+
+    validar_procesado = graphene.Field(
+        graphene.Boolean,
+        registro=graphene.Int(required=True),
+        carr=graphene.Int(required=True),
+        plan=graphene.String(required=True),
+        lugar=graphene.Int(required=True),
+        sem=graphene.String(required=True),
+        ano=graphene.Int(required=True),
+        proceso=graphene.String(required=True)
+    )
+
+    def resolve_calendario(self, info, carr, plan, sem, ano):
+        # MOCK IMPLEMENTATION
+        return {
+            'fecIniIns': '2026-05-01', 'fecFinIns': '2026-05-15',
+            'fecIniRez': '2026-05-16', 'fecFinRez': '2026-05-20',
+            'fecIniAdi': '2026-05-21', 'fecFinAdi': '2026-05-25',
+            'fecIniRet': '2026-05-26', 'fecFinRet': '2026-05-30'
+        }
+
+    def resolve_gestion_habilitada(self, info, registro, proceso):
+        # MOCK IMPLEMENTATION
+        return {
+            'estudiante': {'nombre': 'Juan Perez', 'registro': str(registro)},
+            'parametros': {
+                'carrera': 239, 'plan': '1', 'nombreCarrera': 'Ing. Industrial',
+                'lugar': 4271, 'nroSerie': 999123, 'matIns': 'OK', 'matPendi': '0'
+            }
+        }
+
+    def resolve_listar_carreras(self, info, registro, sem, ano):
+        return []
+        
+    def resolve_listar_carreras2(self, info, registro):
+        return []
+
+    def resolve_modalidad_carrera(self, info, registro, carr, plan, lugar, sem, ano):
+        return {'codTit': 1, 'codMod': 1, 'descr': 'PRESENCIAL', 'matVen': 0, 'nroMat': 5}
+
+    def resolve_costo_inscripcion(self, info, nroSerie):
+        return {'insMontoPag': 0.0, 'insEstado': 'PENDIENTE', 'rezMontoPag': 0.0, 'rezEstado': 'PENDIENTE', 'adiMonto': 0.0, 'retMonto': 0.0, 'nota': ''}
+
+    def resolve_mat_ins(self, info, nroSerie):
+        return {'diaIns': 'LUNES', 'horaIns': '08:00'}
+
+    def resolve_materias_cupo_min(self, info, registro, sem, ano, carr, plan):
+        return []
+
+    def resolve_all_moferta(self, info, registro, carr, plan, lugar, sem, ano):
+        return []
+
+    def resolve_materia_oferta(self, info, registro, carr, plan, lugar, sem, ano, nroSerie, proceso):
+        return []
+
+    def resolve_validar_fase_1(self, info, registro, carr, plan, lugar, sem, ano, proceso, titulo, modalidad):
+        return True
+
+    def resolve_validar_procesado(self, info, registro, carr, plan, lugar, sem, ano, proceso):
+        return False
+
+    transacciones = graphene.List(
+        'apps.inscripcion.graphql.types.TransaccionType',
+        nroSerie=graphene.Int(required=True)
+    )
+
+    puntos_pago = graphene.List(
+        'apps.inscripcion.graphql.types.PuntoPagoType'
+    )
+
+    def resolve_transacciones(self, info, nroSerie):
+        # MOCK: retorna historial de ejemplo
+        return [
+            {'fechaHora': '2026-01-15 09:30', 'gestion': '1/2026', 'carrera': 'Ing. Industrial', 'transaccion': 'Inscripción', 'via': 'Web'},
+        ]
+
+    def resolve_puntos_pago(self, info):
+        # MOCK: sucursales de pago de ejemplo
+        return [
+            {'sucursal': 'Banco Unión - Edificio Central UAGRM'},
+            {'sucursal': 'Banco Mercantil Santa Cruz - Av. Monseñor Rivero'},
+            {'sucursal': 'Ventanilla de Tesoreria - Facultad de Ingeniería'},
+        ]
+
+    obtener_tramites_anulacion = graphene.List(
+        'apps.inscripcion.graphql.types.TramiteAnulacionType',
+        reg=graphene.Int(required=True)
+    )
+
+    def resolve_obtener_tramites_anulacion(self, info, reg):
+        # MOCK: retorna trámites de ejemplo
+        return [
+            {'reg': reg, 'sem': '1', 'ano': 2026, 'carr': 239, 'plan': '1', 'lugar': 4271, 'modalidad': 1, 'codMotiv': 1, 'codProc': 'I', 'aB': 'A'},
+            {'reg': reg, 'sem': '2', 'ano': 2025, 'carr': 239, 'plan': '1', 'lugar': 4271, 'modalidad': 1, 'codMotiv': 2, 'codProc': 'I', 'aB': 'B'},
+        ]
+

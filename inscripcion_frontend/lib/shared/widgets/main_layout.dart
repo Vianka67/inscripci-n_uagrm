@@ -242,6 +242,12 @@ class MainLayout extends StatelessWidget {
                     currentRoute: ModalRoute.of(context)?.settings.name,
                   ),
                   _SidebarItem(
+                    icon: Icons.lock_outline,
+                    title: 'Estado de Bloqueos',
+                    route: '/blocked-status',
+                    currentRoute: ModalRoute.of(context)?.settings.name,
+                  ),
+                  _SidebarItem(
                     icon: Icons.receipt_long_outlined,
                     title: 'Transacciones',
                     route: '/transactions',
@@ -264,6 +270,12 @@ class MainLayout extends StatelessWidget {
                     icon: Icons.credit_card_outlined,
                     title: 'Pagos',
                     route: '/payments',
+                    currentRoute: ModalRoute.of(context)?.settings.name,
+                  ),
+                  _SidebarItem(
+                    icon: Icons.undo_outlined,
+                    title: 'Anulaciones',
+                    route: '/anulaciones',
                     currentRoute: ModalRoute.of(context)?.settings.name,
                   ),
                 ],

@@ -405,7 +405,7 @@ class _EnrollmentSlipScreenState extends State<EnrollmentSlipScreen> {
 
     final flexValues = isMobile 
         ? [2, 5, 2, 4]
-        : [1, 2, 4, 1, 3, 3, 2, 2, 2];
+        : [1, 2, 4, 2, 3, 3, 2, 2, 2];
 
     return StandardTableContainer(
       child: Column(

@@ -12,8 +12,6 @@ import 'package:inscripcion_frontend/shared/widgets/main_layout.dart';
 import 'package:inscripcion_frontend/shared/utils/time_formatter.dart';
 import 'package:inscripcion_frontend/shared/widgets/standard_table.dart';
 import 'package:inscripcion_frontend/shared/widgets/schedule_validator.dart';
-import 'package:inscripcion_frontend/modules/inscripcion/widgets/schedule_grid_view.dart';
-import 'package:inscripcion_frontend/shared/utils/pdf_generator.dart';
 import 'package:inscripcion_frontend/shared/widgets/app_ui_kit.dart';
 
 class EnrollmentScreen extends StatefulWidget {
@@ -41,6 +39,21 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   bool _isReviewing = false;
   bool _confirmed = false;
   bool _isConfirming = false;
+  String _proceso = 'Inscripción';
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    if (args != null) {
+      if (args['proceso'] != null) {
+        _proceso = args['proceso'];
+      }
+      if (args['periodo'] != null && selectedPeriod != args['periodo']) {
+        selectedPeriod = args['periodo'];
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -90,12 +103,14 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     mutation ConfirmarInscripcion(
       \$registro: String!,
       \$codigoCarrera: String!,
-      \$ofertaIds: [Int!]!
+      \$ofertaIds: [Int!]!,
+      \$proceso: String
     ) {
       confirmarInscripcion(
         registro: \$registro,
         codigoCarrera: \$codigoCarrera,
-        ofertaIds: \$ofertaIds
+        ofertaIds: \$ofertaIds,
+        proceso: \$proceso
       ) {
         ok
         mensaje
@@ -121,6 +136,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
             'registro': registro,
             'codigoCarrera': codigoCarrera,
             'ofertaIds': ofertaIds,
+            'proceso': _proceso,
           },
         ),
       );
@@ -201,7 +217,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     // Si no hay carrera seleccionada, se muestra el selector de carreras
     if (codigoCarrera == null || codigoCarrera.isEmpty) {
       return MainLayout(
-        title: 'Inscripción',
+        title: _proceso,
         subtitle: 'Selecciona tu carrera para continuar',
         child: Center(
           child: ConstrainedBox(
@@ -213,7 +229,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
     }
 
     return MainLayout(
-      title: 'Inscripción',
+      title: _proceso,
       subtitle: 'Selecciona y confirma tus materias para este periodo',
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -597,7 +613,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                   Expanded(
                     child: SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.only(bottom: 16),
+                      padding: EdgeInsets.all(Responsive.isMobile(context) ? 16 : 24),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -607,7 +623,9 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(color: Colors.grey.shade200),
-                                boxShadow: Responsive.isTabletOrDesktop(context) ? [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))] : null,
+                                boxShadow: Responsive.isTabletOrDesktop(context)
+                                    ? [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))]
+                                    : null,
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -624,12 +642,21 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                                       children: [
                                         Text(
                                           'Inscripción - $selectedPeriod Semestre Regular',
-                                          style: GoogleFonts.outfit(fontSize: Responsive.isMobile(context) ? 16 : 20, fontWeight: FontWeight.w900, color: UAGRMTheme.textDark, letterSpacing: -0.2),
+                                          style: GoogleFonts.outfit(
+                                              fontSize: Responsive.isMobile(context) ? 16 : 20,
+                                              fontWeight: FontWeight.w900,
+                                              color: UAGRMTheme.textDark,
+                                              letterSpacing: -0.2),
                                         ),
                                         OutlinedButton.icon(
                                           onPressed: () => Navigator.of(context).pop(),
-                                          icon: Icon(Icons.arrow_back, size: Responsive.isMobile(context) ? 14 : 16, color: UAGRMTheme.textDark),
-                                          label: Text('VOLVER', style: TextStyle(color: UAGRMTheme.textDark, fontSize: Responsive.isMobile(context) ? 11 : 13, fontWeight: FontWeight.bold)),
+                                          icon: Icon(Icons.arrow_back,
+                                              size: Responsive.isMobile(context) ? 14 : 16, color: UAGRMTheme.textDark),
+                                          label: Text('VOLVER',
+                                              style: TextStyle(
+                                                  color: UAGRMTheme.textDark,
+                                                  fontSize: Responsive.isMobile(context) ? 11 : 13,
+                                                  fontWeight: FontWeight.bold)),
                                           style: OutlinedButton.styleFrom(
                                             side: BorderSide(color: Colors.grey.shade300),
                                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -642,35 +669,87 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                                     ),
                                   ),
                                   Container(
-                                    padding: Responsive.isMobile(context)
-                                        ? const EdgeInsets.symmetric(horizontal: 12, vertical: 8)
-                                        : const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: Responsive.isMobile(context) ? 16 : 24, 
+                                        vertical: 16),
                                     decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+                                      color: const Color(0xFFF8FAFC),
+                                      border: Border(
+                                        bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+                                      ),
                                     ),
-                                    child: Wrap(
-                                      spacing: 8,
-                                      runSpacing: 8,
-                                      crossAxisAlignment: WrapCrossAlignment.center,
+                                    child: Column(
                                       children: [
-                                        Icon(Icons.filter_alt_outlined, color: UAGRMTheme.textGrey, size: Responsive.isMobile(context) ? 18 : 20),
-                                        _buildDropdownFilter('Todos los turnos', selectedTurno, uniqueTurnos, (v) => setState(() => selectedTurno = v!)),
-                                        _buildDropdownFilter('Todos los docentes', selectedDocente ?? 'TODOS', uniqueDocentes, (v) => setState(() => selectedDocente = v!)),
-                                        _buildDropdownFilter('Todos los grupos', selectedGrupo, uniqueGrupos, (v) => setState(() => selectedGrupo = v!)),
-                                        ElevatedButton.icon(
-                                           onPressed: () => _seleccionarMateriaAleatoria(filteredOfertas),
-                                           icon: Icon(Icons.auto_awesome, size: Responsive.isMobile(context) ? 14 : 16),
-                                           label: Text('AUTO-SELECCIÓN', style: TextStyle(fontSize: Responsive.isMobile(context) ? 10 : 12, fontWeight: FontWeight.bold)),
-                                           style: ElevatedButton.styleFrom(
-                                             backgroundColor: UAGRMTheme.successGreen,
-                                             foregroundColor: Colors.white,
-                                             elevation: 0,
-                                             minimumSize: const Size(0, 40),
-                                             padding: const EdgeInsets.symmetric(horizontal: 16),
-                                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                           ),
-                                         ),
+                                        if (Responsive.isMobile(context)) ...[
+                                          // Versión móvil: Una columna
+                                          _buildDropdownFilter('Todos los turnos', selectedTurno, uniqueTurnos,
+                                              (v) => setState(() => selectedTurno = v!)),
+                                          const SizedBox(height: 8),
+                                          _buildDropdownFilter('Todos los docentes', selectedDocente ?? 'TODOS',
+                                              uniqueDocentes, (v) => setState(() => selectedDocente = v!)),
+                                          const SizedBox(height: 8),
+                                          _buildDropdownFilter('Todos los grupos', selectedGrupo, uniqueGrupos,
+                                              (v) => setState(() => selectedGrupo = v!)),
+                                          const SizedBox(height: 12),
+                                          SizedBox(
+                                            width: double.infinity,
+                                            child: ElevatedButton.icon(
+                                              onPressed: () => _seleccionarMateriaAleatoria(filteredOfertas),
+                                              icon: const Icon(Icons.auto_awesome, size: 16),
+                                              label: const Text('AUTO-SELECCIÓN', style: TextStyle(fontWeight: FontWeight.bold)),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: UAGRMTheme.successGreen,
+                                                foregroundColor: Colors.white,
+                                                elevation: 0,
+                                                minimumSize: const Size(0, 48),
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                              ),
+                                            ),
+                                          ),
+                                        ] else ...[
+                                          // Versión Desktop/Tablet: Dos filas
+                                          Row(
+                                            children: [
+                                              Icon(Icons.filter_alt_outlined,
+                                                  color: UAGRMTheme.textGrey, size: Responsive.isMobile(context) ? 18 : 20),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                  child: _buildDropdownFilter('Todos los turnos', selectedTurno, uniqueTurnos,
+                                                      (v) => setState(() => selectedTurno = v!))),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                  child: _buildDropdownFilter('Todos los docentes', selectedDocente ?? 'TODOS',
+                                                      uniqueDocentes, (v) => setState(() => selectedDocente = v!))),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 12),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                  child: _buildDropdownFilter('Todos los grupos', selectedGrupo, uniqueGrupos,
+                                                      (v) => setState(() => selectedGrupo = v!))),
+                                              const SizedBox(width: 12),
+                                              Flexible(
+                                                child: ElevatedButton.icon(
+                                                  onPressed: () => _seleccionarMateriaAleatoria(filteredOfertas),
+                                                  icon: Icon(Icons.auto_awesome, size: Responsive.isMobile(context) ? 14 : 16),
+                                                  label: Text('AUTO-SELECCIÓN', 
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    style: TextStyle(fontSize: Responsive.isMobile(context) ? 9 : 12, fontWeight: FontWeight.bold)),
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor: UAGRMTheme.successGreen,
+                                                    foregroundColor: Colors.white,
+                                                    elevation: 0,
+                                                    minimumSize: const Size(0, 44),
+                                                    padding: EdgeInsets.symmetric(horizontal: Responsive.isMobile(context) ? 8 : 16),
+                                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ],
                                     ),
                                   ),
@@ -707,17 +786,16 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
 
   Widget _buildDropdownFilter(String hint, String currentValue, List<String> options, Function(String?) onChanged) {
     final displayText = currentValue == 'TODOS' ? hint : currentValue;
-    return IntrinsicWidth(
-      child: Container(
-        height: 40,
-        constraints: const BoxConstraints(minWidth: 120),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: DropdownButtonHideUnderline(
+    return Container(
+      height: 44,
+      constraints: const BoxConstraints(minWidth: 120),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: DropdownButtonHideUnderline(
           child: DropdownButton<String>(
             isDense: true,
             value: currentValue == 'TODOS' ? null : currentValue,
@@ -731,7 +809,6 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
               );
             }).toList(),
             onChanged: (val) => onChanged(val ?? 'TODOS'),
-          ),
         ),
       ),
     );
@@ -979,9 +1056,9 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
               children: [
                 const Icon(Icons.fact_check_outlined, color: UAGRMTheme.sidebarBg, size: 24),
                 const SizedBox(width: 12),
-                const Text(
-                  'Confirmar Adición',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: UAGRMTheme.sidebarBg),
+                Text(
+                  'Confirmar $_proceso',
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: UAGRMTheme.sidebarBg),
                 ),
               ],
             ),
@@ -1054,7 +1131,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                     icon: _isConfirming
                         ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                         : const Icon(Icons.check_circle, size: 16),
-                    label: Text(_isConfirming ? '...' : (isMobile ? 'CONFIRMAR' : 'CONFIRMAR ADICIÓN'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                    label: Text(_isConfirming ? '...' : (isMobile ? 'CONFIRMAR' : 'CONFIRMAR ${_proceso.toUpperCase()}'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: UAGRMTheme.sidebarBg,
                       foregroundColor: Colors.white,
@@ -1258,7 +1335,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Adición Exitosa',
+            '$_proceso Exitosa',
             style: GoogleFonts.outfit(fontSize: 26, fontWeight: FontWeight.w900, color: UAGRMTheme.textDark, letterSpacing: -0.5),
           ),
           const SizedBox(height: 8),
@@ -1288,7 +1365,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                           minimumSize: const Size(0, 40),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         ),
-                        child: const Text('NUEVA ADICIÓN', textAlign: TextAlign.center, style: TextStyle(fontSize: 11, color: UAGRMTheme.textDark, fontWeight: FontWeight.bold)),
+                        child: Text('NUEVA ${_proceso.toUpperCase()}', textAlign: TextAlign.center, style: const TextStyle(fontSize: 11, color: UAGRMTheme.textDark, fontWeight: FontWeight.bold)),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -1319,7 +1396,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                   ElevatedButton.icon(
                     onPressed: () => Navigator.pushNamed(context, '/enrollment-slip'),
                     icon: const Icon(Icons.print, size: 16),
-                    label: const Text('Imprimir Boleta de Adición', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    label: Text('Imprimir Boleta de $_proceso', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: UAGRMTheme.sidebarDeep,
                       foregroundColor: Colors.white,
@@ -1341,7 +1418,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                       side: BorderSide(color: Colors.grey.shade300),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: const Text('Nueva Adición', style: TextStyle(fontSize: 12, color: UAGRMTheme.textDark)),
+                    child: Text('Nueva $_proceso', style: const TextStyle(fontSize: 12, color: UAGRMTheme.textDark)),
                   ),
                 ],
               );
@@ -1562,8 +1639,8 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                     width: 18,
                     child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                   )
-                : const Text(
-                    'CONFIRMAR INSCRIPCIÓN',
+                : Text(
+                    'CONFIRMAR ${_proceso.toUpperCase()}',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                   ),

@@ -81,11 +81,12 @@ class _AcademicCalendarScreenState extends State<AcademicCalendarScreen> {
     return MainLayout(
       title: 'Calendario Académico',
       subtitle: 'Consulta las fechas clave del semestre actual',
-      child: Center(
+      child: Align(
+        alignment: Alignment.topCenter,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1200),
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+            padding: EdgeInsets.all(Responsive.isMobile(context) ? 16 : 24),
             child: _buildCalendarCard(provider),
           ),
         ),
@@ -112,62 +113,44 @@ class _AcademicCalendarScreenState extends State<AcademicCalendarScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                isMobileView 
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.calendar_month_outlined, color: UAGRMTheme.sidebarBg, size: 24),
-                            const SizedBox(width: 12),
-                            Text(
+                Center(
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.calendar_month_outlined, color: UAGRMTheme.sidebarBg, size: 20),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
                               'Calendario Académico 2025',
+                              textAlign: TextAlign.center,
                               style: const TextStyle(
-                                fontSize: 18,
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: UAGRMTheme.sidebarBg,
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        _buildHeaderActions(
-                          estudiante: estudiante,
-                          carreraNombre: carreraNombre,
-                          carreraCodigo: carreraCodigo,
-                          periodo: periodo,
-                        ),
-                      ],
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.calendar_month_outlined, color: UAGRMTheme.sidebarBg, size: 24),
-                            const SizedBox(width: 12),
-                            Text(
-                              'Calendario Académico 2025',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: UAGRMTheme.sidebarBg,
-                              ),
-                            ),
-                          ],
-                        ),
-                        _buildHeaderActions(
-                          estudiante: estudiante,
-                          carreraNombre: carreraNombre,
-                          carreraCodigo: carreraCodigo,
-                          periodo: periodo,
-                        ),
-                      ],
-                    ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Universidad Autónoma Gabriel René Moreno',
-                  style: TextStyle(color: UAGRMTheme.textGrey, fontSize: 13),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Universidad Autónoma Gabriel René Moreno',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: UAGRMTheme.textGrey, fontSize: 12, fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Center(
+                  child: _buildHeaderActions(
+                    estudiante: estudiante,
+                    carreraNombre: carreraNombre,
+                    carreraCodigo: carreraCodigo,
+                    periodo: periodo,
+                  ),
                 ),
               ],
             ),
@@ -179,7 +162,7 @@ class _AcademicCalendarScreenState extends State<AcademicCalendarScreen> {
                   ? const ['FECHA', 'EVENTO', 'TIPO']
                   : const ['FECHA', 'DÍA', 'EVENTO / ACTIVIDAD', 'TIPO'];
               final flexValues = isMobileView 
-                  ? [2, 6, 3]
+                  ? [3, 6, 4]
                   : [2, 2, 8, 3];
 
               return StandardTableContainer(

@@ -31,11 +31,7 @@ class WebPageHeader extends StatelessWidget {
         vertical: isTablet ? 14 : 18,
       ),
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [UAGRMTheme.primaryBlue, Color(0xFF1565C0)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
+        color: UAGRMTheme.primaryBlue,
       ),
       child: Row(
         children: [

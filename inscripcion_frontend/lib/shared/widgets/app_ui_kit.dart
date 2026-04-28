@@ -82,20 +82,23 @@ class AppTurnoBadge extends StatelessWidget {
     }
 
     final isMobile = Responsive.isMobile(context);
-    return Container(
-      padding: isMobile
-          ? const EdgeInsets.symmetric(horizontal: 7, vertical: 4)
-          : const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
-      decoration: BoxDecoration(
-          color: bg, borderRadius: BorderRadius.circular(isMobile ? 10 : 14)),
-      child: Text(
-        turno.toUpperCase(),
-        softWrap: false,
-        style: GoogleFonts.outfit(
-          color: fg,
-          fontSize: isMobile ? 9.0 : 11.0,
-          fontWeight: FontWeight.w900,
-          letterSpacing: isMobile ? 0.3 : 0.5,
+    return Center(
+      child: Container(
+        padding: isMobile
+            ? const EdgeInsets.symmetric(horizontal: 7, vertical: 4)
+            : const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+        decoration: BoxDecoration(
+            color: bg, borderRadius: BorderRadius.circular(isMobile ? 10 : 14)),
+        child: Text(
+          turno.toUpperCase(),
+          softWrap: false,
+          textAlign: TextAlign.center,
+          style: GoogleFonts.outfit(
+            color: fg,
+            fontSize: isMobile ? 9.0 : 11.0,
+            fontWeight: FontWeight.w900,
+            letterSpacing: isMobile ? 0.3 : 0.5,
+          ),
         ),
       ),
     );
@@ -122,21 +125,24 @@ class AppCupoBadge extends StatelessWidget {
         textAlign: TextAlign.center,
       );
     }
-    return Container(
-      padding: isMobile
-          ? const EdgeInsets.symmetric(horizontal: 6, vertical: 3)
-          : const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: AppColors.sinCupoBg,
-        borderRadius: BorderRadius.circular(isMobile ? 8 : 12),
-      ),
-      child: Text(
-        'SIN CUPO',
-        style: GoogleFonts.outfit(
-          color: AppColors.sinCupoFg,
-          fontSize: isMobile ? 9.0 : 11.0,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 0.4,
+    return Center(
+      child: Container(
+        padding: isMobile
+            ? const EdgeInsets.symmetric(horizontal: 6, vertical: 3)
+            : const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: AppColors.sinCupoBg,
+          borderRadius: BorderRadius.circular(isMobile ? 8 : 12),
+        ),
+        child: Text(
+          'SIN CUPO',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.outfit(
+            color: AppColors.sinCupoFg,
+            fontSize: isMobile ? 9.0 : 11.0,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.4,
+          ),
         ),
       ),
     );
@@ -165,7 +171,7 @@ class AppProcessBadge extends StatelessWidget {
     return Center(
       child: Container(
         padding: isMobile
-            ? const EdgeInsets.symmetric(horizontal: 8, vertical: 4)
+            ? const EdgeInsets.symmetric(horizontal: 5, vertical: 3)
             : const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
             color: bg, borderRadius: BorderRadius.circular(isMobile ? 10 : 14)),
@@ -173,6 +179,7 @@ class AppProcessBadge extends StatelessWidget {
           proceso.toUpperCase(),
           softWrap: false,
           overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
           style: GoogleFonts.outfit(
               color: fg,
               fontSize: isMobile ? 9.0 : 11.0,
@@ -269,7 +276,7 @@ class AppHeaderCell extends StatelessWidget {
   final String text;
   final TextAlign textAlign;
 
-  const AppHeaderCell(this.text, {super.key, this.textAlign = TextAlign.left});
+  const AppHeaderCell(this.text, {super.key, this.textAlign = TextAlign.center});
 
   @override
   Widget build(BuildContext context) {
@@ -367,22 +374,25 @@ class AppEstadoBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     Color c = color ?? _infer();
     final isMobile = Responsive.isMobile(context);
-    return Container(
-      padding: isMobile
-          ? const EdgeInsets.symmetric(horizontal: 7, vertical: 3)
-          : const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: c.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(isMobile ? 8 : 12),
-        border: Border.all(color: c.withValues(alpha: 0.4)),
-      ),
-      child: Text(
-        estado,
-        style: GoogleFonts.outfit(
-          color: c,
-          fontSize: isMobile ? 9.0 : 11.0,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 0.2,
+    return Center(
+      child: Container(
+        padding: isMobile
+            ? const EdgeInsets.symmetric(horizontal: 5, vertical: 3)
+            : const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: c.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(isMobile ? 8 : 12),
+          border: Border.all(color: c.withValues(alpha: 0.4)),
+        ),
+        child: Text(
+          estado,
+          textAlign: TextAlign.center,
+          style: GoogleFonts.outfit(
+            color: c,
+            fontSize: isMobile ? 9.0 : 11.0,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.2,
+          ),
         ),
       ),
     );

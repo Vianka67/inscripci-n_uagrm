@@ -4,7 +4,7 @@ from django.db import transaction
 from django.utils import timezone
 
 @shared_task
-def procesar_inscripcion_asincrona(registro, codigo_carrera, oferta_ids):
+def procesar_inscripcion_asincrona(registro, codigo_carrera, oferta_ids, proceso='Inscripción'):
     from .models import (
         Estudiante, EstudianteCarrera, PeriodoAcademico,
         Inscripcion, InscripcionMateria, OfertaMateria, Bloqueo

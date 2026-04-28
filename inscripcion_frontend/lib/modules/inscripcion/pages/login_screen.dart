@@ -66,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
           String errorMsg = 'Credenciales incorrectas';
           
           if (loginResult.exception?.linkException != null) {
-            errorMsg = 'Error de conexión con el servidor (127.0.0.1:8000)';
+            errorMsg = 'Error de conexión con el servidor (192.168.0.116:8000)';
             debugPrint('Link Exception details: ${loginResult.exception?.linkException}');
           } else if (loginResult.exception?.graphqlErrors.isNotEmpty ?? false) {
              errorMsg = loginResult.exception!.graphqlErrors.first.message;
@@ -139,104 +139,138 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (Responsive.isMobile(context)) return _buildMobileLayout();
-    return _buildWideLayout();
-  }
-
-  Widget _buildWideLayout() {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: ScrollConfiguration(
-        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 450),
-                  child: Column(
-                    children: [
-                      Image.asset(
-                        'assets/images/logo_uagrm.png',
-                        width: 180,
-                        height: 180,
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => const Icon(
-                          Icons.school_rounded,
-                          size: 100,
-                          color: Color(0xFF003366),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        'Sistema de\nInscripción',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: UAGRMTheme.primaryBlue,
-                          fontSize: 32,
-                          fontWeight: FontWeight.w900,
-                          height: 1.1,
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      _buildLoginForm(isWide: true),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth >= 1024) {
+            return _buildWideLayout();
+          } else if (constraints.maxWidth >= 600) {
+            return _buildTabletLayout();
+          } else {
+            return _buildMobileLayout();
+          }
+        },
       ),
     );
   }
 
+  Widget _buildTabletLayout() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: IntrinsicHeight(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 380),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildHeader(160),
+                        const SizedBox(height: 16),
+                        _buildLoginForm(isWide: true),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildWideLayout() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: IntrinsicHeight(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 380),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildHeader(180),
+                        const SizedBox(height: 20),
+                        _buildLoginForm(isWide: true),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildHeader(double logoSize) {
+    return Column(
+      children: [
+        Image.asset(
+          'assets/images/logo_uagrm.png',
+          width: logoSize,
+          height: logoSize,
+          fit: BoxFit.contain,
+          errorBuilder: (_, __, ___) => Icon(
+            Icons.school_rounded,
+            size: logoSize * 0.6,
+            color: UAGRMTheme.primaryBlue,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'Sistema de\nInscripción',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: UAGRMTheme.primaryBlue,
+            fontSize: logoSize * 0.18,
+            fontWeight: FontWeight.w900,
+            height: 1.1,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildMobileLayout() {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(32),
+    final size = MediaQuery.of(context).size;
+    final isVerySmall = size.width < 360;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: IntrinsicHeight(
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: isVerySmall ? 20 : 32, vertical: 12),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                       const SizedBox(height: 20),
-                      Image.asset(
-                        'assets/images/logo_uagrm.png',
-                        width: 160,
-                        height: 160,
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => const Icon(Icons.school_rounded, size: 80, color: Color(0xFF003366)),
-                      ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        'Sistema de\nInscripción',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: UAGRMTheme.primaryBlue,
-                          fontSize: 28,
-                          fontWeight: FontWeight.w900,
-                          height: 1.1,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
+                      _buildHeader(isVerySmall ? 110 : 150),
+                      SizedBox(height: isVerySmall ? 12 : 20),
                       _buildLoginForm(isWide: false),
                     ],
                   ),
                 ),
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -262,7 +296,7 @@ class _LoginScreenState extends State<LoginScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w400),
             ),
-            const SizedBox(height: 36),
+            const SizedBox(height: 16),
           ],
           
           
@@ -300,7 +334,7 @@ class _LoginScreenState extends State<LoginScreen> {
             },
           ),
           
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           
           
           TextFormField(
@@ -314,24 +348,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 padding: EdgeInsets.only(left: 12.0),
                 child: Icon(Icons.lock_outline, size: 22, color: UAGRMTheme.primaryBlue),
               ),
-              suffixIcon: Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: IconButton(
-                  icon: Icon(
-                    _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                    color: UAGRMTheme.primaryBlue,
-                    size: 22,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
-                  },
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                  color: UAGRMTheme.primaryBlue.withValues(alpha: 0.6),
+                  size: 20,
                 ),
+                onPressed: () {
+                  setState(() {
+                    _obscurePassword = !_obscurePassword;
+                  });
+                },
               ),
               filled: true,
               fillColor: Colors.white,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
                 borderSide: const BorderSide(color: Colors.black54, width: 0.8),
@@ -351,11 +382,11 @@ class _LoginScreenState extends State<LoginScreen> {
              },
           ),
           
-          const SizedBox(height: 24),
+           const SizedBox(height: 16),
           
           
           SizedBox(
-            height: 52,
+            height: 48,
             child: ElevatedButton(
               onPressed: _isLoading ? null : _handleLogin,
               style: ElevatedButton.styleFrom(
@@ -379,7 +410,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
           
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           Center(
             child: InkWell(
               onTap: () {},

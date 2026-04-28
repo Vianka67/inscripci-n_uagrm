@@ -2,22 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class UAGRMTheme {
-  // Paleta de colores oficial
-  static const Color primaryBlue = Color(0xFF031221);
+  // Paleta de colores oficial unificada al azul profundo del sidebar
+  static const Color primaryBlue = Color(0xFF010A13); // Azul principal para todo el sistema
   static const Color primaryRed = Color(0xFFCC0000); // Rojo clásico bandera
-  static const Color secondaryBlue = Color(0xFF0056B3); // Un azul medio para contrastes
+  static const Color secondaryBlue = Color(0xFF010A13); // Unificado
   static const Color backgroundWhite = Color(0xFFFFFFFF);
-  static const Color textDark = Color(0xFF031221); // Usar el azul oscuro para textos "negros"
+  static const Color textDark = Color(0xFF010A13); // Usar el azul oscuro para textos "negros"
   static const Color textGrey = Color(0xFF666666);
   static const Color errorRed = Color(0xFFD32F2F);
   static const Color successGreen = Color(0xFF388E3C);
   static const Color warningOrange = Color(0xFFFF9800);
 
-  // Paleta del Sidebar / Navegación (UAGRM Dark lineage)
-  static const Color sidebarBg = Color(0xFF031221);       // Nuevo azul oscuro solicitado
-  static const Color sidebarDeep = Color(0xFF010A13);     // Una variante aún más oscura para cabeceras
-  static const Color sidebarPanel = Color(0xFF051B2E);    // Panel ligeramente más claro
-  static const Color sidebarHover = Color(0xFF0A263F);    // Hover
+  // Paleta del Sidebar / Navegación unificada
+  static const Color sidebarBg = Color(0xFF010A13);       // Unificado
+  static const Color sidebarDeep = Color(0xFF010A13);     // Unificado
+  static const Color sidebarPanel = Color(0xFF010A13);    // Unificado
+  static const Color sidebarHover = Color(0xFF0A263F);    // Hover ligeramente más claro para interacción
   static const Color sidebarActiveRed = Color(0xFFCC0000);
   static const Color sidebarActiveRedHover = Color(0xFFB00000);
 

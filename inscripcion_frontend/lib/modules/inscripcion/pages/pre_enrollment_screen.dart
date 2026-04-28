@@ -197,7 +197,7 @@ class _PreEnrollmentScreenState extends State<PreEnrollmentScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0B1A2B),
+                  color: UAGRMTheme.primaryBlue,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Row(
@@ -388,7 +388,7 @@ class _PreEnrollmentScreenState extends State<PreEnrollmentScreen> {
                   value: _selectedProceso,
                   icon: const Icon(Icons.keyboard_arrow_down,
                       color: UAGRMTheme.textGrey),
-                  items: ['Inscripción']
+                  items: ['Inscripción', 'Adición', 'Retiro']
                       .map((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
@@ -501,7 +501,10 @@ class _PreEnrollmentScreenState extends State<PreEnrollmentScreen> {
         const SizedBox(height: 32),
         ElevatedButton(
           onPressed: (_selectedProceso != null && _selectedPeriodo != null)
-              ? () => Navigator.pushNamed(context, '/enrollment')
+              ? () => Navigator.pushNamed(context, '/enrollment', arguments: {
+                    'proceso': _selectedProceso,
+                    'periodo': _selectedPeriodo,
+                  })
               : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: UAGRMTheme.sidebarDeep,

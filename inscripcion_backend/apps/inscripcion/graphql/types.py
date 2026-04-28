@@ -199,3 +199,99 @@ class FechasInscripcionType(graphene.ObjectType):
     fecha_fin = graphene.String()
     grupo = graphene.String()
     estado = graphene.String()
+
+# --- NUEVOS TIPOS PARA EL NUEVO SISTEMA ---
+
+class CalendarioType(graphene.ObjectType):
+    fecIniIns = graphene.String()
+    fecFinIns = graphene.String()
+    fecIniRez = graphene.String()
+    fecFinRez = graphene.String()
+    fecIniAdi = graphene.String()
+    fecFinAdi = graphene.String()
+    fecIniRet = graphene.String()
+    fecFinRet = graphene.String()
+
+class ParametrosGestionType(graphene.ObjectType):
+    carrera = graphene.Int()
+    plan = graphene.String()
+    nombreCarrera = graphene.String()
+    lugar = graphene.Int()
+    nroSerie = graphene.Int()
+    matIns = graphene.String()
+    matPendi = graphene.String()
+
+class GestionHabilitadaType(graphene.ObjectType):
+    estudiante = graphene.Field(EstudianteInfoType)
+    parametros = graphene.Field(ParametrosGestionType)
+
+class CarreraEstudianteListType(graphene.ObjectType):
+    carrera = graphene.Int()
+    plan = graphene.String()
+    nombreCarrera = graphene.String()
+    lugar = graphene.Int()
+    descripcionLugar = graphene.String()
+    nroSerie = graphene.Int()
+
+class ModalidadCarreraType(graphene.ObjectType):
+    codTit = graphene.Int()
+    codMod = graphene.Int()
+    descr = graphene.String()
+    matVen = graphene.Int()
+    nroMat = graphene.Int()
+
+class CostoInscripcionType(graphene.ObjectType):
+    insMontoPag = graphene.Float()
+    insEstado = graphene.String()
+    rezMontoPag = graphene.Float()
+    rezEstado = graphene.String()
+    adiMonto = graphene.Float()
+    retMonto = graphene.Float()
+    nota = graphene.String()
+
+class MatInsType(graphene.ObjectType):
+    diaIns = graphene.String()
+    horaIns = graphene.String()
+
+class MateriaCupoMinType(graphene.ObjectType):
+    sw = graphene.Int()
+    sigla = graphene.String()
+    grupo = graphene.String()
+    nombre = graphene.String()
+    lugar = graphene.Int()
+    cupoMin = graphene.Int()
+    inscritos = graphene.Int()
+
+class MensajeErrorType(graphene.ObjectType):
+    codErr = graphene.Int()
+    mensaje = graphene.String()
+
+class PuntoPagoType(graphene.ObjectType):
+    sucursal = graphene.String()
+
+class TransaccionType(graphene.ObjectType):
+    fechaHora = graphene.String()
+    gestion = graphene.String()
+    carrera = graphene.String()
+    transaccion = graphene.String()
+    via = graphene.String()
+
+class ModalidadMateriaType(graphene.ObjectType):
+    carr = graphene.Int()
+    plan = graphene.String()
+    sigla = graphene.String()
+    grupo = graphene.String()
+    modalidad = graphene.Int()
+
+class TramiteAnulacionType(graphene.ObjectType):
+    reg = graphene.Int()
+    sem = graphene.String()
+    ano = graphene.Int()
+    carr = graphene.Int()
+    plan = graphene.String()
+    lugar = graphene.Int()
+    modalidad = graphene.Int()
+    codMotiv = graphene.Int()
+    codProc = graphene.String()
+    aB = graphene.String()
+
