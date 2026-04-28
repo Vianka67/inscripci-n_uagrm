@@ -23,7 +23,7 @@ COPY requirements.txt .
 
 # Instalar dependencias de Python
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir --default-timeout=100 -r requirements.txt
 
 # Copiar el proyecto (esto crea /app/inscripcion_backend/...)
 COPY . .

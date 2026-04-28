@@ -7,6 +7,7 @@ from .inscripcion_service import InscripcionService
 from .periodo_service import PeriodoAcademicoService
 from .bloqueo_service import BloqueoService
 from .panel_service import PanelService
+from .external_api_service import ExternalApiService
 
 __all__ = [
     'EstudianteService',
@@ -15,4 +16,5 @@ __all__ = [
     'PeriodoAcademicoService',
     'BloqueoService',
     'PanelService',
+    'ExternalApiService',
 ]

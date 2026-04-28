@@ -45,6 +45,7 @@ class _MaestroOfertasScreenState extends State<MaestroOfertasScreen> {
         horario
         docente
         cuposDisponibles
+        cupoActual
       }
     }
   """;
@@ -106,7 +107,7 @@ class _MaestroOfertasScreenState extends State<MaestroOfertasScreen> {
                             Text(
                               carreraNombre,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 13, fontWeight: FontWeight.w500),
+                              style: const TextStyle(color: UAGRMTheme.textGrey, fontSize: 11, fontWeight: FontWeight.w500),
                             ),
                           ],
                         ),
@@ -317,8 +318,8 @@ class _MaestroOfertasScreenState extends State<MaestroOfertasScreen> {
             child: TextField(
               decoration: const InputDecoration(
                 hintText: 'Buscar por sigla o nombre...',
-                hintStyle: TextStyle(color: UAGRMTheme.textGrey, fontSize: 13),
-                prefixIcon: Icon(Icons.search, color: UAGRMTheme.textGrey, size: 20),
+                hintStyle: TextStyle(color: UAGRMTheme.textGrey, fontSize: 12),
+                prefixIcon: Icon(Icons.search, color: UAGRMTheme.textGrey, size: 18),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
@@ -439,20 +440,20 @@ class _MaestroOfertasScreenState extends State<MaestroOfertasScreen> {
                   flexValues: flexValues,
                   isLast: index == items.length - 1,
                   cells: [
-                    tableText(sigla, isMobile, bold: true),
-                    tableText(nombre, isMobile, bold: true),
+                    tableText(sigla, isMobile, bold: true, fontSize: 11),
+                    tableText(nombre, isMobile, bold: true, fontSize: 11),
                     if (!isMobile)
-                      tableText(semestre, isMobile),
-                    tableText(grupo, isMobile, bold: true),
+                      tableText(semestre, isMobile, fontSize: 11),
+                    tableText(grupo, isMobile, bold: true, fontSize: 11),
                     if (!isMobile)
                       Align(alignment: Alignment.centerLeft, child: AppTurnoBadge(horario)),
                     if (!isMobile)
-                      tableText(docente, isMobile),
+                      tableText(docente, isMobile, fontSize: 10),
                     if (!isMobile)
-                      tableText(horario, isMobile, color: UAGRMTheme.textGrey),
+                      tableText(horario, isMobile, color: UAGRMTheme.textGrey, fontSize: 10),
                     Center(child: AppCupoBadge(cuposDisp)),
                     if (!isMobile)
-                      tableText(cupoActual, isMobile),
+                      tableText(cupoActual, isMobile, fontSize: 11),
                   ],
                 );
               },

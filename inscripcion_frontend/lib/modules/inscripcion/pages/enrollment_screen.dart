@@ -78,13 +78,17 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       \$codigoCarrera: String,
       \$tieneCupo: Boolean,
       \$docente: String,
-      \$grupo: String
+      \$grupo: String,
+      \$registro: String,
+      \$proceso: String
     ) {
       ofertasMateria(
         codigoCarrera: \$codigoCarrera,
         tieneCupo: \$tieneCupo,
         docente: \$docente,
-        grupo: \$grupo
+        grupo: \$grupo,
+        registro: \$registro,
+        proceso: \$proceso
       ) {
         id
         grupo
@@ -389,7 +393,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                                 children: [
                                   Text(nombre,
                                       style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
+                                          fontWeight: FontWeight.w600,
                                           fontSize: 14,
                                           color: UAGRMTheme.textDark)),
                                   const SizedBox(height: 2),
@@ -444,7 +448,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('Seleccionar Periodo',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white)),
                     const SizedBox(height: 4),
                     Text('Elige el periodo académico para continuar con la inscripción.',
                         style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.85))),
@@ -479,7 +483,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(periodName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                              Text(periodName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
                               Text(isActive ? 'Periodo activo — haz clic para continuar' : 'Inactivo',
                                   style: TextStyle(fontSize: 12, color: isActive ? UAGRMTheme.successGreen : UAGRMTheme.textGrey)),
                             ],
@@ -515,7 +519,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
               SizedBox(height: 8),
               Text(
                 'Selecciona el Periodo',
-                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -534,7 +538,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                 child: ListTile(
                   contentPadding: const EdgeInsets.all(16),
                   leading: const Icon(Icons.calendar_today, color: UAGRMTheme.primaryBlue),
-                  title: Text(periodName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  title: Text(periodName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18)),
                   subtitle: Text(
                     isActive ? 'Activo' : 'Inactivo',
                     style: TextStyle(color: isActive ? UAGRMTheme.successGreen : UAGRMTheme.textGrey),
@@ -563,6 +567,8 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                 'tieneCupo': null,
                 'docente': null,
                 'grupo': null,
+                'registro': registro,
+                'proceso': _proceso,
               },
             ),
             builder: (QueryResult result, {VoidCallback? refetch, FetchMore? fetchMore}) {
@@ -592,7 +598,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                       children: [
                         const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 64),
                         const SizedBox(height: 16),
-                        const Text('Error al procesar ofertas', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        const Text('Error al procesar ofertas', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
                         const SizedBox(height: 8),
                         Text('Detalle técnico: $e', textAlign: TextAlign.center, style: const TextStyle(color: Colors.grey)),
                         const SizedBox(height: 24),
@@ -644,9 +650,9 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                                           'Inscripción - $selectedPeriod Semestre Regular',
                                           style: GoogleFonts.outfit(
                                               fontSize: Responsive.isMobile(context) ? 16 : 20,
-                                              fontWeight: FontWeight.w900,
+                                              fontWeight: FontWeight.w600,
                                               color: UAGRMTheme.textDark,
-                                              letterSpacing: -0.2),
+                                              letterSpacing: -0.1),
                                         ),
                                         OutlinedButton.icon(
                                           onPressed: () => Navigator.of(context).pop(),
@@ -656,7 +662,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                                               style: TextStyle(
                                                   color: UAGRMTheme.textDark,
                                                   fontSize: Responsive.isMobile(context) ? 11 : 13,
-                                                  fontWeight: FontWeight.bold)),
+                                                  fontWeight: FontWeight.w500)),
                                           style: OutlinedButton.styleFrom(
                                             side: BorderSide(color: Colors.grey.shade300),
                                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -696,7 +702,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                                             child: ElevatedButton.icon(
                                               onPressed: () => _seleccionarMateriaAleatoria(filteredOfertas),
                                               icon: const Icon(Icons.auto_awesome, size: 16),
-                                              label: const Text('AUTO-SELECCIÓN', style: TextStyle(fontWeight: FontWeight.bold)),
+                                              label: const Text('AUTO-SELECCIÓN', style: TextStyle(fontWeight: FontWeight.w500)),
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor: UAGRMTheme.successGreen,
                                                 foregroundColor: Colors.white,
@@ -736,7 +742,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                                                   label: Text('AUTO-SELECCIÓN', 
                                                     maxLines: 1,
                                                     overflow: TextOverflow.ellipsis,
-                                                    style: TextStyle(fontSize: Responsive.isMobile(context) ? 9 : 12, fontWeight: FontWeight.bold)),
+                                                    style: TextStyle(fontSize: Responsive.isMobile(context) ? 9 : 12, fontWeight: FontWeight.w500)),
                                                   style: ElevatedButton.styleFrom(
                                                     backgroundColor: UAGRMTheme.successGreen,
                                                     foregroundColor: Colors.white,
@@ -933,8 +939,9 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                   
               final isSelected = isMateriaSelected && selectedGroupIdForMateria == o['id'];
               final isOtherGroupSelected = isMateriaSelected && selectedGroupIdForMateria != o['id'];
-
-              final rowColor = hayCupo ? UAGRMTheme.textDark : Colors.grey.shade400;
+              
+              final canSelect = _proceso == 'Retiro' || hayCupo;
+              final rowColor = canSelect ? UAGRMTheme.textDark : Colors.grey.shade400;
 
               return StandardFlexRow(
                 flexValues: flexValues,
@@ -944,7 +951,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                   IconButton(
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    onPressed: (!hayCupo) ? null : () {
+                    onPressed: (!canSelect) ? null : () {
                       if (isOtherGroupSelected) {
                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
                         _showTopSnackBar('Ya seleccionaste el grupo ${selectedGroupsPerSubject[code]['grupo']} de esta materia', color: Colors.orange.shade800);
@@ -963,7 +970,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                     },
                     icon: Icon(
                       isSelected ? Icons.check_circle : Icons.circle_outlined,
-                      color: !hayCupo ? Colors.grey.shade200 : (isSelected ? UAGRMTheme.primaryBlue : Colors.grey.shade300),
+                      color: !canSelect ? Colors.grey.shade200 : (isSelected ? UAGRMTheme.primaryBlue : Colors.grey.shade300),
                       size: isMobile ? 18 : 22,
                     ),
                   ),
@@ -1006,7 +1013,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
       child: Text(
         title,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: UAGRMTheme.textDark),
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: UAGRMTheme.textDark),
       ),
     );
   }
@@ -1016,7 +1023,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
       child: Text(
         title,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.white),
       ),
     );
   }
@@ -1058,7 +1065,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                 const SizedBox(width: 12),
                 Text(
                   'Confirmar $_proceso',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: UAGRMTheme.sidebarBg),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: UAGRMTheme.sidebarBg),
                 ),
               ],
             ),
@@ -1113,7 +1120,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                   child: OutlinedButton.icon(
                     onPressed: () => setState(() => _isReviewing = false),
                     icon: const Icon(Icons.arrow_back, size: 16),
-                    label: Text(isMobile ? 'MODIFICAR' : 'MODIFICAR SELECCIÓN', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                    label: Text(isMobile ? 'MODIFICAR' : 'MODIFICAR SELECCIÓN', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500)),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       side: BorderSide(color: Colors.grey.shade300),
@@ -1131,7 +1138,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                     icon: _isConfirming
                         ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                         : const Icon(Icons.check_circle, size: 16),
-                    label: Text(_isConfirming ? '...' : (isMobile ? 'CONFIRMAR' : 'CONFIRMAR ${_proceso.toUpperCase()}'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                    label: Text(_isConfirming ? '...' : (isMobile ? 'CONFIRMAR' : 'CONFIRMAR ${_proceso.toUpperCase()}'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: UAGRMTheme.sidebarBg,
                       foregroundColor: Colors.white,
@@ -1221,7 +1228,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                           padding: EdgeInsets.symmetric(horizontal: isMobile ? 6 : 8, vertical: isMobile ? 8 : 8),
                           child: Text(
                             g['materiaNombre'] ?? '', 
-                            style: TextStyle(fontSize: isMobile ? 10 : 10, fontWeight: FontWeight.w700),
+                            style: TextStyle(fontSize: isMobile ? 10 : 10, fontWeight: FontWeight.w500),
                             maxLines: isMobile ? 2 : 1,
                             softWrap: true,
                             overflow: TextOverflow.ellipsis,
@@ -1233,7 +1240,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                       cells.add(TableCell(
                         child: Padding(
                           padding: EdgeInsets.symmetric(horizontal: isMobile ? 6 : 8, vertical: isMobile ? 8 : 8),
-                          child: Text(g['grupo'] ?? '', style: TextStyle(fontSize: isMobile ? 10 : 10, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          child: Text(g['grupo'] ?? '', style: TextStyle(fontSize: isMobile ? 10 : 10, fontWeight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis),
                         ),
                       ));
                       
@@ -1336,7 +1343,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
           const SizedBox(height: 24),
           Text(
             '$_proceso Exitosa',
-            style: GoogleFonts.outfit(fontSize: 26, fontWeight: FontWeight.w900, color: UAGRMTheme.textDark, letterSpacing: -0.5),
+            style: GoogleFonts.outfit(fontSize: 26, fontWeight: FontWeight.w600, color: UAGRMTheme.textDark, letterSpacing: -0.2),
           ),
           const SizedBox(height: 8),
           Text(
@@ -1465,7 +1472,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                       const SizedBox(width: 6),
                       Text(
                         '$n materia${n == 1 ? '' : 's'}',
-                        style: GoogleFonts.outfit(fontWeight: FontWeight.w900, fontSize: 13, color: UAGRMTheme.primaryBlue, letterSpacing: 0.2),
+                        style: GoogleFonts.outfit(fontWeight: FontWeight.w600, fontSize: 13, color: UAGRMTheme.primaryBlue, letterSpacing: 0.1),
                       ),
                     ],
                   ),
@@ -1534,7 +1541,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                           Text(
                             '$n materia${n == 1 ? '' : 's'} seleccionada${n == 1 ? '' : 's'}',
                             style: GoogleFonts.outfit(
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w600,
                               fontSize: 16,
                               color: UAGRMTheme.primaryBlue,
                             ),
@@ -1574,7 +1581,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     elevation: 0,
                   ),
-                  child: const Text('REVISAR Y CONTINUAR', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  child: const Text('REVISAR Y CONTINUAR', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
                 ),
               ],
             ),

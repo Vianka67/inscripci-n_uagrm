@@ -91,14 +91,17 @@ class InscripcionService:
         turno: Optional[str] = None,
         tiene_cupo: Optional[bool] = None,
         docente: Optional[str] = None,
-        grupo: Optional[str] = None
+        grupo: Optional[str] = None,
+        registro: Optional[str] = None,
+        proceso: Optional[str] = 'Inscripción'
     ) -> List:
         """
         Ofertas filtradas.
         """
         cache_key_data = {
             'm': codigo_materia, 'c': codigo_carrera, 'p': codigo_periodo,
-            't': turno, 'cupo': tiene_cupo, 'doc': docente, 'g': grupo
+            't': turno, 'cupo': tiene_cupo, 'doc': docente, 'g': grupo,
+            'reg': registro, 'proc': proceso
         }
         hash_str = hashlib.md5(json.dumps(cache_key_data, sort_keys=True).encode('utf-8')).hexdigest()
         cache_key = f'ofertas_materias_filter_{hash_str}'
@@ -107,7 +110,7 @@ class InscripcionService:
         if result is not None:
              return result
              
-        from ..models import OfertaMateria
+        from ..models import OfertaMateria, InscripcionMateria
         
         if not codigo_periodo:
             periodo = PeriodoAcademico.objects.filter(activo=True).first()
@@ -121,6 +124,15 @@ class InscripcionService:
             'materia_carrera__materia',
             'materia_carrera__carrera'
         )
+
+        # Si es retiro, solo mostramos lo que ya tiene inscrito
+        if proceso == 'Retiro' and registro:
+            queryset = queryset.filter(
+                id__in=InscripcionMateria.objects.filter(
+                    inscripcion__estudiante_carrera__estudiante__registro=registro,
+                    inscripcion__periodo_academico=periodo
+                ).values_list('oferta_id', flat=True)
+            )
         
         if codigo_materia:
             queryset = queryset.filter(materia_carrera__materia__codigo=codigo_materia)

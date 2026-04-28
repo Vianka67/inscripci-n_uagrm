@@ -8,6 +8,7 @@ class RegistrationProvider extends ChangeNotifier {
   String? _selectedSemester;
   String? _studentRegister;
   String? _studentName;
+  bool _isBlocked = false;
 
   RegistrationProvider() {
     _loadFromPrefs();
@@ -17,6 +18,7 @@ class RegistrationProvider extends ChangeNotifier {
   String? get selectedSemester => _selectedSemester;
   String? get studentRegister => _studentRegister;
   String? get studentName => _studentName;
+  bool get isBlocked => _isBlocked;
 
   Future<void> _loadFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
@@ -34,6 +36,7 @@ class RegistrationProvider extends ChangeNotifier {
         _selectedCareer = Career.fromJson(jsonDecode(careerJson));
       } catch (_) {}
     }
+    _isBlocked = prefs.getBool('is_blocked') ?? false;
     notifyListeners();
   }
 
@@ -57,11 +60,13 @@ class RegistrationProvider extends ChangeNotifier {
         'nombre': _selectedCareer!.name,
         'facultad': _selectedCareer!.faculty,
         'duracionSemestres': _selectedCareer!.durationSemesters,
+        'planCode': _selectedCareer!.planCode,
       };
       await prefs.setString('selected_career', jsonEncode(careerMap));
     } else {
       await prefs.remove('selected_career');
     }
+    await prefs.setBool('is_blocked', _isBlocked);
   }
 
   void selectCareer(Career career, {String? registro}) {
@@ -78,11 +83,20 @@ class RegistrationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setStudentRegister(String register, {String? name}) {
+  void setStudentRegister(String register, {String? name, bool? isBlocked}) {
     _studentRegister = register;
     if (name != null) {
       _studentName = name;
     }
+    if (isBlocked != null) {
+      _isBlocked = isBlocked;
+    }
+    _saveToPrefs();
+    notifyListeners();
+  }
+
+  void setBlocked(bool value) {
+    _isBlocked = value;
     _saveToPrefs();
     notifyListeners();
   }

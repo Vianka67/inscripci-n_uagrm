@@ -33,8 +33,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   }
 
   final String getTransaccionesQuery = """
-    query GetTransacciones(\$nroSerie: Int!) {
-      transacciones(nroSerie: \$nroSerie) {
+    query GetTransacciones(\$registro: Int!, \$carr: Int!, \$plan: String!, \$sem: String!, \$ano: Int!) {
+      transacciones(registro: \$registro, carr: \$carr, plan: \$plan, sem: \$sem, ano: \$ano) {
         fechaHora
         gestion
         carrera
@@ -96,7 +96,13 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 Query(
                   options: QueryOptions(
                     document: gql(getTransaccionesQuery),
-                    variables: {'nroSerie': 999123},
+                    variables: {
+                      'registro': int.tryParse(provider.studentRegister ?? '0') ?? 0,
+                      'carr': int.tryParse(provider.selectedCareer?.code ?? '0') ?? 0,
+                      'plan': provider.selectedCareer?.planCode ?? '2020',
+                      'sem': provider.selectedSemester ?? '1',
+                      'ano': 2026,
+                    },
                     fetchPolicy: FetchPolicy.networkOnly,
                   ),
                   builder: (QueryResult result, {VoidCallback? refetch, FetchMore? fetchMore}) {

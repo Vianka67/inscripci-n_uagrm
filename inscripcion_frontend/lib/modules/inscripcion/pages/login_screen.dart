@@ -30,6 +30,14 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   """;
 
+  final String checkBloqueoQuery = """
+    query CheckBloqueo(\$registro: Int!) {
+      bloqueo(registro: \$registro) {
+        cobBloq
+      }
+    }
+  """;
+
   final String getCarrerasQuery = """
     query GetCarreras(\$registro: String!) {
       misCarreras(registro: \$registro) {
@@ -63,10 +71,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (loginResult.hasException) {
           debugPrint('Login Error: ${loginResult.exception.toString()}');
-          String errorMsg = 'Credenciales incorrectas';
+          String errorMsg = 'Error al conectar con el servidor';
           
           if (loginResult.exception?.linkException != null) {
-            errorMsg = 'Error de conexión con el servidor (192.168.0.116:8000)';
+            errorMsg = 'Error de conexión: ${loginResult.exception?.linkException.toString()}';
             debugPrint('Link Exception details: ${loginResult.exception?.linkException}');
           } else if (loginResult.exception?.graphqlErrors.isNotEmpty ?? false) {
              errorMsg = loginResult.exception!.graphqlErrors.first.message;
@@ -113,10 +121,25 @@ class _LoginScreenState extends State<LoginScreen> {
           return;
         }
 
+        // Verificar bloqueos
+        final QueryResult blockResult = await client.query(
+          QueryOptions(
+            document: gql(checkBloqueoQuery),
+            variables: {'registro': int.tryParse(_registroController.text) ?? 0},
+            fetchPolicy: FetchPolicy.networkOnly,
+          ),
+        );
+
+        final bool isBlocked = (blockResult.data?['bloqueo'] as List?)?.isNotEmpty ?? false;
+
         if (mounted) {
           final provider = context.read<RegistrationProvider>();
           final String nombreCompleto = loginResult.data?['loginEstudiante']?['nombreCompleto'] ?? '';
-          provider.setStudentRegister(_registroController.text, name: nombreCompleto);
+          provider.setStudentRegister(
+            _registroController.text, 
+            name: nombreCompleto,
+            isBlocked: isBlocked,
+          );
           
           // Delay para asegurar actualización de estado
           Future.microtask(() {
@@ -236,7 +259,7 @@ class _LoginScreenState extends State<LoginScreen> {
           style: TextStyle(
             color: UAGRMTheme.primaryBlue,
             fontSize: logoSize * 0.18,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
             height: 1.1,
           ),
         ),

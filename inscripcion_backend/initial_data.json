@@ -3,7 +3,7 @@
         "model": "inscripcion.carrera",
         "pk": 1,
         "fields": {
-            "codigo": "ING-SIS",
+            "codigo": "187",
             "nombre": "Ingeniería de Sistemas",
             "facultad": "Facultad de Ciencias Exactas y Tecnología",
             "duracion_semestres": 10,
@@ -14,7 +14,7 @@
         "model": "inscripcion.carrera",
         "pk": 2,
         "fields": {
-            "codigo": "ING-IND",
+            "codigo": "124",
             "nombre": "Ingeniería Industrial",
             "facultad": "Facultad de Ciencias Exactas y Tecnología",
             "duracion_semestres": 10,
@@ -26,7 +26,7 @@
         "pk": 1,
         "fields": {
             "carrera": 1,
-            "codigo": "PLAN-SIS-2020",
+            "codigo": "2020",
             "nombre": "Plan de Estudios Ingeniería de Sistemas 2020",
             "anio_vigencia": 2020,
             "vigente": true
@@ -37,7 +37,7 @@
         "pk": 2,
         "fields": {
             "carrera": 2,
-            "codigo": "PLAN-IND-2020",
+            "codigo": "2021",
             "nombre": "Plan de Estudios Ingeniería Industrial 2020",
             "anio_vigencia": 2020,
             "vigente": true

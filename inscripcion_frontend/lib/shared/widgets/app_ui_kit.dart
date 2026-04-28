@@ -95,8 +95,8 @@ class AppTurnoBadge extends StatelessWidget {
           textAlign: TextAlign.center,
           style: GoogleFonts.outfit(
             color: fg,
-            fontSize: isMobile ? 9.0 : 11.0,
-            fontWeight: FontWeight.w900,
+            fontSize: isMobile ? 8.0 : 10.0,
+            fontWeight: FontWeight.w600,
             letterSpacing: isMobile ? 0.3 : 0.5,
           ),
         ),
@@ -115,12 +115,12 @@ class AppCupoBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasCupo = cupos > 0;
     final isMobile = Responsive.isMobile(context);
-    final fontSize = isMobile ? 11.0 : 13.0;
+    final fontSize = isMobile ? 10.0 : 12.0;
     if (hasCupo) {
       return Text(
         '$cupos',
         style: TextStyle(
-          fontSize: fontSize, fontWeight: FontWeight.bold, color: AppColors.cupoOkColor,
+          fontSize: fontSize, fontWeight: FontWeight.w600, color: AppColors.cupoOkColor,
         ),
         textAlign: TextAlign.center,
       );
@@ -139,8 +139,8 @@ class AppCupoBadge extends StatelessWidget {
           textAlign: TextAlign.center,
           style: GoogleFonts.outfit(
             color: AppColors.sinCupoFg,
-            fontSize: isMobile ? 9.0 : 11.0,
-            fontWeight: FontWeight.w800,
+            fontSize: isMobile ? 8.0 : 10.0,
+            fontWeight: FontWeight.w600,
             letterSpacing: 0.4,
           ),
         ),
@@ -182,8 +182,8 @@ class AppProcessBadge extends StatelessWidget {
           textAlign: TextAlign.center,
           style: GoogleFonts.outfit(
               color: fg,
-              fontSize: isMobile ? 9.0 : 11.0,
-              fontWeight: FontWeight.w900,
+              fontSize: isMobile ? 8.0 : 10.0,
+              fontWeight: FontWeight.w600,
               letterSpacing: 0.3),
         ),
       ),
@@ -286,7 +286,7 @@ class AppHeaderCell extends StatelessWidget {
       textAlign: textAlign,
       style: GoogleFonts.outfit(
         color: Colors.white,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w600,
         fontSize: fontSize,
         letterSpacing: Responsive.isMobile(context) ? 0.3 : 0.5,
       ),
@@ -350,7 +350,7 @@ class AppPageTitle extends StatelessWidget {
             title,
             style: GoogleFonts.outfit(
               fontSize: fontSize,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
               color: UAGRMTheme.sidebarBg,
               letterSpacing: 0.2,
             ),
@@ -389,8 +389,8 @@ class AppEstadoBadge extends StatelessWidget {
           textAlign: TextAlign.center,
           style: GoogleFonts.outfit(
             color: c,
-            fontSize: isMobile ? 9.0 : 11.0,
-            fontWeight: FontWeight.w800,
+            fontSize: isMobile ? 8.0 : 10.0,
+            fontWeight: FontWeight.w500,
             letterSpacing: 0.2,
           ),
         ),

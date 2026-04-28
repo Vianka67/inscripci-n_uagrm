@@ -59,8 +59,8 @@ class StandardHeaderCell extends StatelessWidget {
       overflow: TextOverflow.ellipsis,
       softWrap: true,
       style: GoogleFonts.outfit(
-        fontWeight: FontWeight.w800,
-        fontSize: isMobile ? 10 : 13,
+        fontWeight: FontWeight.w600,
+        fontSize: isMobile ? 8 : 10,
         color: Colors.white,
         letterSpacing: isMobile ? 0.3 : 0.5,
       ),
@@ -69,7 +69,7 @@ class StandardHeaderCell extends StatelessWidget {
 }
 
 /// Helper global para textos de celdas con reglas estrictas de no-desbordamiento.
-Widget tableText(String text, bool isMobile, {bool bold = false, Color? color, TextAlign textAlign = TextAlign.center}) {
+Widget tableText(String text, bool isMobile, {bool bold = false, Color? color, TextAlign textAlign = TextAlign.center, double? fontSize}) {
   return Text(
     text,
     textAlign: textAlign,
@@ -77,8 +77,8 @@ Widget tableText(String text, bool isMobile, {bool bold = false, Color? color, T
     overflow: TextOverflow.ellipsis,
     softWrap: true,
     style: GoogleFonts.outfit(
-      fontSize: isMobile ? 11 : 13,
-      fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
+      fontSize: fontSize ?? (isMobile ? 9 : 11),
+      fontWeight: bold ? FontWeight.w600 : FontWeight.w400,
       color: color ?? UAGRMTheme.textDark,
       height: 1.2,
     ),

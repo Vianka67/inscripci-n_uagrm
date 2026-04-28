@@ -35,40 +35,35 @@ class UAGRMTheme {
     // Tipografía optimizada para Web y Mobile — Estilo Premium solicitado
     textTheme: TextTheme(
       displayLarge: GoogleFonts.outfit(
-        fontSize: 28,
-        fontWeight: FontWeight.w900,
-        color: textDark,
-        letterSpacing: -0.5,
-      ),
-      displayMedium: GoogleFonts.outfit(
         fontSize: 22,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
         color: textDark,
         letterSpacing: -0.2,
       ),
-      titleLarge: GoogleFonts.outfit(
-        fontSize: 20,
-        fontWeight: FontWeight.w700,
+      displayMedium: GoogleFonts.outfit(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
         color: textDark,
-        letterSpacing: 0.2,
       ),
-      bodyLarge: GoogleFonts.inter(
+      titleLarge: GoogleFonts.outfit(
         fontSize: 16,
+        fontWeight: FontWeight.w600,
+        color: textDark,
+      ),
+      bodyLarge: GoogleFonts.outfit(
+        fontSize: 13,
         fontWeight: FontWeight.w500,
         color: textDark,
-        letterSpacing: 0.1,
       ),
-      bodyMedium: GoogleFonts.inter(
-        fontSize: 14,
+      bodyMedium: GoogleFonts.outfit(
+        fontSize: 11,
         fontWeight: FontWeight.w400,
         color: textGrey,
-        letterSpacing: 0.1,
       ),
       labelLarge: GoogleFonts.outfit(
         fontSize: 14,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w600,
         color: Colors.white,
-        letterSpacing: 0.5,
       ),
     ),
 
@@ -83,9 +78,9 @@ class UAGRMTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        textStyle: GoogleFonts.inter(
+        textStyle: GoogleFonts.outfit(
           fontSize: 14,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w500,
         ),
       ),
     ),
@@ -131,9 +126,9 @@ class UAGRMTheme {
       foregroundColor: Colors.white,
       elevation: 0,
       centerTitle: true,
-      titleTextStyle: GoogleFonts.inter(
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
+      titleTextStyle: GoogleFonts.outfit(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
         color: Colors.white,
       ),
       iconTheme: const IconThemeData(color: Colors.white),
@@ -169,12 +164,12 @@ class UAGRMTheme {
     scaffoldBackgroundColor: darkBackground,
 
     textTheme: TextTheme(
-      displayLarge: GoogleFonts.inter(fontSize: 26, fontWeight: FontWeight.w900, color: darkText, letterSpacing: -0.5),
-      displayMedium: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w800, color: darkText, letterSpacing: -0.2),
-      titleLarge: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: darkText, letterSpacing: 0.2),
-      bodyLarge: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w500, color: darkText, letterSpacing: 0.1),
-      bodyMedium: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w400, color: darkTextSecondary, letterSpacing: 0.1),
-      labelLarge: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 0.5),
+      displayLarge: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.w900, color: darkText, letterSpacing: -0.5),
+      displayMedium: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w800, color: darkText, letterSpacing: -0.2),
+      titleLarge: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700, color: darkText, letterSpacing: 0.2),
+      bodyLarge: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: darkText, letterSpacing: 0.1),
+      bodyMedium: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w400, color: darkTextSecondary, letterSpacing: 0.1),
+      labelLarge: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white, letterSpacing: 0.5),
     ),
 
     elevatedButtonTheme: ElevatedButtonThemeData(

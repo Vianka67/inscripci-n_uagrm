@@ -10,7 +10,7 @@ class GraphQLService {
     // Si es web (Chrome), podemos usar localhost o la IP de la red
     // Para asegurar conexión desde otros dispositivos o si el backend está en esa IP:
     if (kIsWeb) {
-      return 'http://192.168.0.116:8000/graphql/';
+      return 'http://localhost:8000/graphql/';
     }
     // Si es móvil, usa la IP de la red local
     return 'http://$_localNetworkIp:8000/graphql/';

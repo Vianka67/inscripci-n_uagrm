@@ -68,7 +68,7 @@ class AnulacionesScreen extends StatelessWidget {
                             Text('Trámites de Anulación',
                                 style: GoogleFonts.outfit(
                                     fontSize: 16,
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w600,
                                     color: UAGRMTheme.errorRed)),
                             const SizedBox(height: 4),
                             Text(
@@ -200,7 +200,7 @@ class AnulacionesScreen extends StatelessWidget {
           const SizedBox(height: 16),
           Text('Sin trámites de anulación',
               style: GoogleFonts.outfit(
-                  fontSize: 18, fontWeight: FontWeight.w800, color: UAGRMTheme.textDark)),
+                  fontSize: 18, fontWeight: FontWeight.w600, color: UAGRMTheme.textDark)),
           const SizedBox(height: 8),
           const Text(
             'No tienes ningún trámite de anulación registrado.',

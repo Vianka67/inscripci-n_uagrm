@@ -50,41 +50,97 @@ def procesar_inscripcion_asincrona(registro, codigo_carrera, oferta_ids, proceso
             if sin_cupo:
                 return {"ok": False, "mensaje": f"Lo sentimos, los cupos se acaban de llenar en: {', '.join(sin_cupo)}"}
 
-            # Liberar cupos de las materias anteriores si ya existía una inscripción previa
-            inscripciones_anteriores = inscripcion.materias_inscritas.select_related('oferta').all()
-            ofertas_anteriores_ids = [ia.oferta.id for ia in inscripciones_anteriores]
-            if ofertas_anteriores_ids:
-                ofertas_viejas = OfertaMateria.objects.select_for_update().filter(id__in=ofertas_anteriores_ids)
-                for oferta_vieja in ofertas_viejas:
-                    if oferta_vieja.cupo_actual > 0:
-                        oferta_vieja.cupo_actual -= 1
-                        oferta_vieja.save(update_fields=['cupo_actual'])
-            
-            inscripciones_anteriores.delete()
+            if proceso == 'Retiro':
+                # Retirar materias seleccionadas
+                inscritas = inscripcion.materias_inscritas.filter(oferta_id__in=oferta_ids).select_related('oferta')
+                n_retiradas = inscritas.count()
+                
+                for mi in inscritas:
+                    if mi.oferta:
+                        oferta_update = OfertaMateria.objects.select_for_update().get(id=mi.oferta.id)
+                        if oferta_update.cupo_actual > 0:
+                            oferta_update.cupo_actual -= 1
+                            oferta_update.save(update_fields=['cupo_actual'])
+                
+                inscritas.delete()
+                
+                # Actualizar estado de la inscripción si es necesario
+                inscripcion.fecha_inscripcion_realizada = timezone.now()
+                inscripcion.save(update_fields=['fecha_inscripcion_realizada'])
 
-            for oferta in ofertas:
-                InscripcionMateria.objects.create(
-                    inscripcion=inscripcion,
-                    oferta=oferta,
-                    materia=oferta.materia_carrera.materia,
-                    grupo=oferta.grupo,
-                )
-                oferta.cupo_actual += 1
-                oferta.save(update_fields=['cupo_actual'])
+                return {
+                    "ok": True,
+                    "mensaje": f"Retiro exitoso de {n_retiradas} materia{'s' if n_retiradas != 1 else ''}.",
+                    "inscripcion_id": inscripcion.id
+                }
 
-            inscripcion.estado = 'PENDIENTE_PAGO'
-            inscripcion.fecha_inscripcion_realizada = timezone.now()
-            inscripcion.save(update_fields=['estado', 'fecha_inscripcion_realizada'])
-            
-            # Programar la liberación de cupos si no paga en 10 minutos (600 segundos)
-            liberar_cupos_por_impago.apply_async((inscripcion.id,), countdown=600)
+            elif proceso == 'Adición':
+                # Adicionar materias sin borrar las anteriores
+                inscritas_ids = list(inscripcion.materias_inscritas.values_list('oferta_id', flat=True))
+                nuevas_ofertas = [o for o in ofertas if o.id not in inscritas_ids]
+                
+                if not nuevas_ofertas:
+                    return {"ok": False, "mensaje": "Las materias seleccionadas ya están inscritas."}
 
-            n = len(oferta_ids)
-            return {
-                "ok": True, 
-                "mensaje": f"Reserva realizada. Tienes 10 minutos para completar el pago de {n} materia{'s' if n != 1 else ''}.",
-                "inscripcion_id": inscripcion.id
-            }
+                for oferta in nuevas_ofertas:
+                    InscripcionMateria.objects.create(
+                        inscripcion=inscripcion,
+                        oferta=oferta,
+                        materia=oferta.materia_carrera.materia,
+                        grupo=oferta.grupo,
+                    )
+                    oferta.cupo_actual += 1
+                    oferta.save(update_fields=['cupo_actual'])
+                
+                inscripcion.estado = 'PENDIENTE_PAGO'
+                inscripcion.fecha_inscripcion_realizada = timezone.now()
+                inscripcion.save(update_fields=['estado', 'fecha_inscripcion_realizada'])
+                
+                # Programar la liberación de cupos si no paga
+                liberar_cupos_por_impago.apply_async((inscripcion.id,), countdown=600)
+
+                n = len(nuevas_ofertas)
+                return {
+                    "ok": True, 
+                    "mensaje": f"Adición realizada. Tienes 10 minutos para completar el pago de {n} nueva{'s' if n != 1 else ''} materia{'s' if n != 1 else ''}.",
+                    "inscripcion_id": inscripcion.id
+                }
+
+            else:  # Inscripción (Proceso regular)
+                # Liberar cupos de las materias anteriores si ya existía una inscripción previa
+                inscripciones_anteriores = inscripcion.materias_inscritas.select_related('oferta').all()
+                for ia in inscripciones_anteriores:
+                    if ia.oferta:
+                        oferta_vieja = OfertaMateria.objects.select_for_update().get(id=ia.oferta.id)
+                        if oferta_vieja.cupo_actual > 0:
+                            oferta_vieja.cupo_actual -= 1
+                            oferta_vieja.save(update_fields=['cupo_actual'])
+                
+                inscripciones_anteriores.delete()
+
+                for oferta in ofertas:
+                    InscripcionMateria.objects.create(
+                        inscripcion=inscripcion,
+                        oferta=oferta,
+                        materia=oferta.materia_carrera.materia,
+                        grupo=oferta.grupo,
+                    )
+                    oferta.cupo_actual += 1
+                    oferta.save(update_fields=['cupo_actual'])
+
+                inscripcion.estado = 'PENDIENTE_PAGO'
+                inscripcion.fecha_inscripcion_realizada = timezone.now()
+                inscripcion.save(update_fields=['estado', 'fecha_inscripcion_realizada'])
+                
+                # Programar la liberación de cupos
+                liberar_cupos_por_impago.apply_async((inscripcion.id,), countdown=600)
+
+                n = len(oferta_ids)
+                return {
+                    "ok": True, 
+                    "mensaje": f"Reserva realizada. Tienes 10 minutos para completar el pago de {n} materia{'s' if n != 1 else ''}.",
+                    "inscripcion_id": inscripcion.id
+                }
 
     except Exception as e:
         return {"ok": False, "mensaje": f"Error asíncrono: {str(e)}"}

@@ -73,7 +73,7 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
         document: gql(getDatesQuery),
         variables: {
           'carr': int.tryParse(provider.selectedCareer?.code ?? '0') ?? 0,
-          'plan': '1',
+          'plan': provider.selectedCareer?.planCode ?? '2020',
           'sem': '1',
           'ano': 2026,
           'nroSerie': 999123,
@@ -168,7 +168,7 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
                   style: GoogleFonts.outfit(
                     fontSize: isMobile ? 10 : 12,
                     color: UAGRMTheme.textGrey,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                     letterSpacing: 1.2,
                   ),
                 ),
@@ -176,9 +176,9 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
                 Text(
                   assignmentText,
                   style: GoogleFonts.outfit(
-                    fontSize: isMobile ? 20 : 26,
-                    fontWeight: FontWeight.w900,
-                    color: UAGRMTheme.sidebarDeep,
+                    fontSize: isMobile ? 24 : 32,
+                    fontWeight: FontWeight.w600,
+                    color: UAGRMTheme.primaryBlue,
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -212,9 +212,9 @@ class _EnrollmentDatesScreenState extends State<EnrollmentDatesScreen> {
                   'Fechas Habilitadas por la Carrera',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.outfit(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                    color: UAGRMTheme.sidebarBg,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    color: UAGRMTheme.textDark,
                   ),
                 ),
               ],

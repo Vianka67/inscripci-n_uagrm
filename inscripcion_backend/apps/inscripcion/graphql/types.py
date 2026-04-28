@@ -295,3 +295,126 @@ class TramiteAnulacionType(graphene.ObjectType):
     codProc = graphene.String()
     aB = graphene.String()
 
+class BuscarEstudianteType(graphene.ObjectType):
+    nombreCompleto = graphene.String()
+    codigoCarrera = graphene.Int()
+    planCarrera = graphene.String()
+
+class NombreEstudianteType(graphene.ObjectType):
+    type = graphene.String()
+    nombre = graphene.String()
+class BloqueoExternoType(graphene.ObjectType):
+    cobBloq = graphene.String()
+    desBloq = graphene.String()
+    porroga = graphene.String()
+    desbTemp = graphene.String()
+
+class MateriaBoletaType(graphene.ObjectType):
+    nsa = graphene.Int()
+    cr = graphene.Int()
+    sigla = graphene.String()
+    grupo = graphene.String()
+    materiaNombre = graphene.String(name="materiaNombre")
+    horario = graphene.String(name="horario")
+    nroReprobado = graphene.Int()
+    modalidad = graphene.String()
+
+    def resolve_materiaNombre(self, info):
+        return self.get('nombreMateria') or self.get('materiaNombre')
+
+    def resolve_horario(self, info):
+        return self.get('horarios') or self.get('horario')
+
+class BoletaInscripcionExternaType(graphene.ObjectType):
+    periodo = graphene.String()
+    estudiante = graphene.Field(EstudianteInfoType)
+    facultad = graphene.Field(CarreraInfoType) # Reuse if similar or create new
+    carrera = graphene.Field(CarreraEstudianteListType)
+    materias = graphene.List(MateriaBoletaType)
+
+class MateriaOfertaType(graphene.ObjectType):
+    sigla = graphene.String()
+    nsa = graphene.Int()
+    materiaNombre = graphene.String(name="materiaNombre")
+    materiaCodigo = graphene.String(name="materiaCodigo")
+    semestre = graphene.Int()
+    ok = graphene.Int()
+
+    def resolve_materiaNombre(self, info):
+        return self.get('nombreMateria') or self.get('materiaNombre')
+
+    def resolve_materiaCodigo(self, info):
+        return self.get('codMat') or self.get('materiaCodigo')
+
+class MofertaGrupoType(graphene.ObjectType):
+    grupo = graphene.String()
+    docente = graphene.String()
+    cupo = graphene.Int()
+    cuposDisponibles = graphene.Int(name="cuposDisponibles")
+    swHab = graphene.Int()
+    horario = graphene.String(name="horario")
+
+    def resolve_cuposDisponibles(self, info):
+        return self.get('cupo') or self.get('cuposDisponibles')
+
+    def resolve_horario(self, info):
+        return self.get('horarios') or self.get('horario')
+
+class MofertaType(graphene.ObjectType):
+    materiaCodigo = graphene.String(name="materiaCodigo")
+    codMat = graphene.String()
+    grupo = graphene.String()
+    docente = graphene.String()
+    cupo = graphene.Int()
+    cupoActual = graphene.Int(name="cupoActual")
+    cuposDisponibles = graphene.Int(name="cuposDisponibles")
+    swHab = graphene.Int()
+    horario = graphene.String(name="horario")
+    horarios = graphene.String()
+    modalidad = graphene.String()
+    materiaNombre = graphene.String(name="materiaNombre")
+    nombreMateria = graphene.String()
+    semestre = graphene.Int()
+
+    def resolve_materiaCodigo(self, info):
+        return self.get('codMat') or self.get('materiaCodigo')
+
+    def resolve_cuposDisponibles(self, info):
+        return self.get('cupo') or self.get('cuposDisponibles')
+
+    def resolve_horario(self, info):
+        return self.get('horarios') or self.get('horario')
+
+    def resolve_materiaNombre(self, info):
+        return self.get('nombreMateria') or self.get('materiaNombre')
+
+class MateriaInscritaType(graphene.ObjectType):
+    nsa = graphene.Int()
+    materiaCodigo = graphene.Int(name="materiaCodigo")
+    sigla = graphene.String()
+    materiaNombre = graphene.String(name="materiaNombre")
+    grupo = graphene.String()
+
+    def resolve_materiaCodigo(self, info):
+        return self.get('codMat') or self.get('materiaCodigo')
+
+    def resolve_materiaNombre(self, info):
+        return self.get('nombreMateria') or self.get('materiaNombre')
+
+class TransaccionType(graphene.ObjectType):
+    fechaHora = graphene.String()
+    gestion = graphene.String()
+    carrera = graphene.String()
+    transaccion = graphene.String()
+    via = graphene.String()
+
+class ModalidadMateriaSeleccionadaType(graphene.ObjectType):
+    carr = graphene.Int()
+    plan = graphene.String()
+    sigla = graphene.String()
+    grupo = graphene.String()
+    modalidad = graphene.String()
+
+class MensajeErrorInscripcionType(graphene.ObjectType):
+    codErr = graphene.Int()
+    mensaje = graphene.String()

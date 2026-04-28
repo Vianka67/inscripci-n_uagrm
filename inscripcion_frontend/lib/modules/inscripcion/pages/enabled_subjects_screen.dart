@@ -103,7 +103,7 @@ class EnabledSubjectsScreen extends StatelessWidget {
                 children: [
                   const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 64),
                   const SizedBox(height: 16),
-                  const Text('Error al procesar datos', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Text('Error al procesar datos', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 8),
                   Text('Detalle técnico: $e', textAlign: TextAlign.center, style: const TextStyle(color: Colors.grey)),
                   const SizedBox(height: 24),
@@ -123,7 +123,7 @@ class EnabledSubjectsScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 Text(
                   'No hay materias habilitadas',
-                  style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w900, color: UAGRMTheme.primaryBlue),
+                  style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w600, color: UAGRMTheme.primaryBlue),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -186,7 +186,7 @@ class EnabledSubjectsScreen extends StatelessWidget {
                                 'Resumen de Materias Habilitadas',
                                 style: const TextStyle(
                                   fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w600,
                                   color: UAGRMTheme.sidebarBg,
                                 ),
                               ),
@@ -272,9 +272,9 @@ class EnabledSubjectsScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(count, style: GoogleFonts.outfit(fontWeight: FontWeight.w900, fontSize: 22, color: color)),
+          Text(count, style: GoogleFonts.outfit(fontWeight: FontWeight.w600, fontSize: 22, color: color)),
           const SizedBox(height: 2),
-          Text(label.toUpperCase(), style: GoogleFonts.outfit(color: color, fontSize: 9, fontWeight: FontWeight.w800, letterSpacing: 0.5)),
+          Text(label.toUpperCase(), style: GoogleFonts.outfit(color: color, fontSize: 9, fontWeight: FontWeight.w400, letterSpacing: 0.5)),
         ],
       ),
     );

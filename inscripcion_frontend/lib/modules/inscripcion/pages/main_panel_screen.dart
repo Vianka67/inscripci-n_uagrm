@@ -131,7 +131,7 @@ class MainPanelScreen extends StatelessWidget {
         children: [
           Text(
             'Bienvenido, ${student.fullName.split(' ').first} ${student.fullName.split(' ').length > 1 ? student.fullName.split(' ')[1] : ''}',
-            style: GoogleFonts.outfit(fontSize: 26, fontWeight: FontWeight.w900, color: UAGRMTheme.textDark, letterSpacing: -0.5),
+            style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w600, color: UAGRMTheme.textDark, letterSpacing: -0.2),
           ),
           const SizedBox(height: 4),
           Text(
@@ -311,7 +311,7 @@ class _DashboardCard extends StatelessWidget {
                 const SizedBox(height: 14),
                 Text(
                   title,
-                  style: GoogleFonts.outfit(fontWeight: FontWeight.w800, fontSize: 16, color: UAGRMTheme.textDark, letterSpacing: 0.1),
+                  style: GoogleFonts.outfit(fontWeight: FontWeight.w600, fontSize: 16, color: UAGRMTheme.textDark, letterSpacing: 0.1),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

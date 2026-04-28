@@ -1,12 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:inscripcion_frontend/config/theme/app_theme.dart';
 import 'package:inscripcion_frontend/modules/inscripcion/services/registration_provider.dart';
 import 'package:inscripcion_frontend/shared/utils/responsive_helper.dart';
 import 'package:inscripcion_frontend/shared/widgets/main_layout.dart';
+import 'package:inscripcion_frontend/shared/widgets/standard_table.dart';
 
 class BlockedStatusScreen extends StatefulWidget {
   const BlockedStatusScreen({super.key});
@@ -31,13 +33,12 @@ class _BlockedStatusScreenState extends State<BlockedStatusScreen> {
   }
 
   final String getBlockStatusQuery = """
-    query GetBlockStatus(\$registro: String!) {
-      bloqueoEstudiante(registro: \$registro) {
-        bloqueado
-        bloqueos {
-          motivo
-          fechaBloqueo
-        }
+    query GetBlockStatus(\$registro: Int!) {
+      bloqueo(registro: \$registro) {
+        cobBloq
+        desBloq
+        porroga
+        desbTemp
       }
     }
   """;
@@ -45,243 +46,233 @@ class _BlockedStatusScreenState extends State<BlockedStatusScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<RegistrationProvider>();
-    final registro = provider.studentRegister ?? '';
+    final int registro = int.tryParse(provider.studentRegister ?? '0') ?? 0;
 
     return MainLayout(
-      title: 'Transacciones y Bloqueos',
-      subtitle: 'Información sobre bloqueos activos en tu cuenta',
-      child: Center(
+      title: 'Estado de Bloqueos',
+      subtitle: 'Verifica si tienes impedimentos para tu inscripción',
+      child: Align(
+        alignment: Alignment.topCenter,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 800),
+          constraints: const BoxConstraints(maxWidth: 1200),
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: _buildQuery(registro, isLarge: Responsive.isTabletOrDesktop(context)),
+            padding: EdgeInsets.all(Responsive.isMobile(context) ? 16 : 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Query(
+                  options: QueryOptions(
+                    document: gql(getBlockStatusQuery),
+                    variables: {'registro': registro},
+                    fetchPolicy: FetchPolicy.networkOnly,
+                  ),
+                  builder: (QueryResult result, {VoidCallback? refetch, FetchMore? fetchMore}) {
+                    if (result.isLoading) {
+                      return const Center(child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator()));
+                    }
+                    if (result.hasException) {
+                      return _buildError(result.exception.toString(), refetch);
+                    }
+
+                    final bloqueos = result.data?['bloqueo'] as List<dynamic>? ?? [];
+                    final isBloqueado = bloqueos.isNotEmpty;
+
+                    return Column(
+                      children: [
+                        _buildStatusHeader(isBloqueado),
+                        const SizedBox(height: 32),
+                        if (isBloqueado) ...[
+                          _buildBlocksTable(bloqueos),
+                          const SizedBox(height: 24),
+                          _buildWarningFooter(),
+                        ] else
+                          _buildSuccessFooter(),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildQuery(String registro, {required bool isLarge}) {
-    return Query(
-      options: QueryOptions(
-        document: gql(getBlockStatusQuery),
-        variables: {'registro': registro},
-        fetchPolicy: FetchPolicy.networkOnly,
-      ),
-      builder: (QueryResult result, {VoidCallback? refetch, FetchMore? fetchMore}) {
-        if (result.isLoading) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(40.0),
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-
-        if (result.hasException) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.error_outline, color: UAGRMTheme.errorRed, size: 64),
-                  const SizedBox(height: 16),
-                  const Text('Error al cargar datos', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  Text(result.exception.toString(), textAlign: TextAlign.center, style: const TextStyle(color: UAGRMTheme.textGrey)),
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: refetch,
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Reintentar'),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        final data = result.data?['bloqueoEstudiante'];
-        if (data == null) {
-          return const Center(child: Text('No se encontró información de bloqueo.', style: TextStyle(color: UAGRMTheme.textGrey)));
-        }
-
-        final bool isBlocked = data['bloqueado'] ?? false;
-        final List bloqueos = data['bloqueos'] ?? [];
-
-        return Column(
-          children: [
-            _buildStatusHeader(isBlocked, isLarge),
-            const SizedBox(height: 24),
-            if (isBlocked) _buildBlockedDetails(bloqueos, isLarge),
-            if (!isBlocked) _buildUnblockedState(),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildStatusHeader(bool isBlocked, bool isLarge) {
-    if (isBlocked) {
+  Widget _buildStatusHeader(bool isBloqueado) {
+    final isLarge = Responsive.isDesktop(context);
+    if (isBloqueado) {
       return Container(
         width: double.infinity,
         padding: EdgeInsets.all(isLarge ? 32 : 24),
         decoration: BoxDecoration(
-          color: UAGRMTheme.errorRed.withValues(alpha: 0.1),
+          color: UAGRMTheme.errorRed.withOpacity(0.1),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: UAGRMTheme.errorRed.withValues(alpha: 0.3)),
+          border: Border.all(color: UAGRMTheme.errorRed.withOpacity(0.3)),
         ),
         child: const Column(
           children: [
-            Icon(Icons.lock, color: UAGRMTheme.errorRed, size: 64),
+            Icon(Icons.lock_person_rounded, color: UAGRMTheme.errorRed, size: 56),
             SizedBox(height: 16),
             Text(
               'CUENTA BLOQUEADA',
-              style: TextStyle(color: UAGRMTheme.errorRed, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 2),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: UAGRMTheme.errorRed, letterSpacing: 0.5),
             ),
             SizedBox(height: 8),
             Text(
-              'No puedes realizar procesos de inscripción. Revisa los detalles a continuación.',
+              'Tu registro presenta impedimentos que debes regularizar para inscribirte.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: UAGRMTheme.textDark, fontSize: 14, height: 1.5),
-            ),
-          ],
-        ),
-      );
-    } else {
-      return Container(
-        width: double.infinity,
-        padding: EdgeInsets.all(isLarge ? 32 : 24),
-        decoration: BoxDecoration(
-          color: UAGRMTheme.successGreen.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: UAGRMTheme.successGreen.withValues(alpha: 0.3)),
-        ),
-        child: const Column(
-          children: [
-            Icon(Icons.check_circle, color: UAGRMTheme.successGreen, size: 64),
-            SizedBox(height: 16),
-            Text(
-              'CUENTA HABILITADA',
-              style: TextStyle(color: UAGRMTheme.successGreen, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 2),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'No tienes bloqueos activos. Puedes registrar tus materias normalmente.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: UAGRMTheme.textDark, fontSize: 14, height: 1.5),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: UAGRMTheme.errorRed),
             ),
           ],
         ),
       );
     }
-  }
 
-  Widget _buildBlockedDetails(List bloqueos, bool isLarge) {
-    if (bloqueos.isEmpty) return const SizedBox.shrink();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Text(
-          'Detalles de Bloqueos',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: UAGRMTheme.primaryBlue),
-        ),
-        const SizedBox(height: 16),
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: bloqueos.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 12),
-          itemBuilder: (context, index) {
-            final b = bloqueos[index];
-            final motivo = b['motivo'] ?? 'Motivo desconocido';
-            final fecha = b['fechaDesbloqueo'];
-            
-            return Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade200),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: UAGRMTheme.errorRed.withValues(alpha: 0.1), shape: BoxShape.circle),
-                    child: const Icon(Icons.warning_amber_rounded, color: UAGRMTheme.errorRed, size: 28),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          motivo,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: UAGRMTheme.textDark),
-                        ),
-                        if (fecha != null && fecha.toString().isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              const Icon(Icons.date_range, size: 14, color: UAGRMTheme.textGrey),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Posible resolución: ${_formatDate(fecha)}',
-                                style: const TextStyle(fontSize: 13, color: UAGRMTheme.textGrey),
-                              ),
-                            ],
-                          ),
-                        ]
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildUnblockedState() {
     return Container(
-      padding: const EdgeInsets.all(32),
-      alignment: Alignment.center,
-      child: Column(
+      width: double.infinity,
+      padding: EdgeInsets.all(isLarge ? 32 : 24),
+      decoration: BoxDecoration(
+        color: UAGRMTheme.successGreen.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: UAGRMTheme.successGreen.withOpacity(0.3)),
+      ),
+      child: const Column(
         children: [
-          const Icon(Icons.school_rounded, size: 80, color: UAGRMTheme.primaryBlue),
-          const SizedBox(height: 24),
-          const Text(
-            '¡Todo listo!',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Icon(Icons.check_circle_outline_rounded, color: UAGRMTheme.successGreen, size: 56),
+          SizedBox(height: 16),
+          Text(
+            'SIN BLOQUEOS',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: UAGRMTheme.successGreen, letterSpacing: 0.5),
           ),
-          const SizedBox(height: 8),
-          const Text(
-            'No encontramos restricciones en tu registro. Puedes proceder al menú de inscripción.',
+          SizedBox(height: 8),
+          Text(
+            '¡Excelente! No tienes trámites pendientes que impidan tu inscripción.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: UAGRMTheme.textGrey),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: UAGRMTheme.successGreen),
           ),
         ],
       ),
     );
   }
 
-  String _formatDate(String isoString) {
-    if (isoString.isEmpty) return '';
-    try {
-      final date = DateTime.parse(isoString).toLocal();
-      const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-      return '${date.day.toString().padLeft(2, '0')} de ${months[date.month - 1]} ${date.year}';
-    } catch (e) {
-      return isoString;
-    }
+  Widget _buildBlocksTable(List<dynamic> bloqueos) {
+    final isMobile = Responsive.isMobile(context);
+    final labels = isMobile 
+        ? const ['CÓD.', 'MOTIVO'] 
+        : const ['CÓDIGO', 'DESCRIPCIÓN DEL BLOQUEO', 'OBSERVACIÓN / PRÓRROGA'];
+    
+    final flexValues = isMobile ? [2, 8] : [2, 6, 4];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 8, bottom: 12),
+          child: Text(
+            'DETALLE DE TRÁMITES PENDIENTES',
+            style: GoogleFonts.outfit(
+              fontSize: 11, 
+              fontWeight: FontWeight.w600, 
+              color: UAGRMTheme.textGrey, 
+              letterSpacing: 0.5
+            ),
+          ),
+        ),
+        StandardTableContainer(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              StandardFlexHeader(labels: labels, flexValues: flexValues),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: bloqueos.length,
+                itemBuilder: (context, index) {
+                  final b = bloqueos[index] as Map<String, dynamic>;
+                  final cod = b['cobBloq']?.toString() ?? '-';
+                  final desc = b['desBloq']?.toString() ?? '-';
+                  final obs = b['porroga']?.toString() ?? '-';
+
+                  return StandardFlexRow(
+                    flexValues: flexValues,
+                    isLast: index == bloqueos.length - 1,
+                    cells: [
+                      tableText(cod, isMobile, bold: true),
+                      tableText(desc, isMobile, textAlign: TextAlign.left),
+                      if (!isMobile)
+                        tableText(obs, isMobile, color: UAGRMTheme.textGrey),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWarningFooter() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF9F9),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: UAGRMTheme.errorRed.withOpacity(0.1)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.info_outline, color: UAGRMTheme.errorRed, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Para levantar estos bloqueos, por favor dirígete a las oficinas correspondientes (Caja, CPD o tu Facultad).',
+              style: GoogleFonts.inter(fontSize: 12, color: UAGRMTheme.errorRed, fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSuccessFooter() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0FDF4),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: UAGRMTheme.successGreen.withOpacity(0.1)),
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.info_outline, color: UAGRMTheme.successGreen, size: 20),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Tu registro está habilitado para todos los procesos de este periodo académico.',
+              style: TextStyle(fontSize: 13, color: UAGRMTheme.successGreen, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildError(String error, VoidCallback? refetch) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          children: [
+            const Icon(Icons.cloud_off_rounded, color: Colors.grey, size: 48),
+            const SizedBox(height: 16),
+            Text('Error al conectar con Informix: $error', textAlign: TextAlign.center, style: const TextStyle(color: Colors.grey)),
+            const SizedBox(height: 16),
+            ElevatedButton(onPressed: refetch, child: const Text('Reintentar')),
+          ],
+        ),
+      ),
+    );
   }
 }

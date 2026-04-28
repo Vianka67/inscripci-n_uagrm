@@ -38,7 +38,7 @@ class MainLayout extends StatelessWidget {
                       style: const TextStyle(
                           fontSize: 16,
                           color: Colors.white,
-                          fontWeight: FontWeight.bold)),
+                          fontWeight: FontWeight.w600)),
                   if (subtitle != null) ...[
                     const SizedBox(height: 1),
                     Text(subtitle!,
@@ -117,7 +117,7 @@ class MainLayout extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 0.2),
+                style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white, letterSpacing: 0.2),
               ),
               if (subtitle != null)
                 Text(
@@ -144,7 +144,7 @@ class MainLayout extends StatelessWidget {
                 ),
                 child: const Row(
                   children: [
-                    Text('SIS - Origen', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: UAGRMTheme.textDark)),
+                    Text('SIS - Origen', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: UAGRMTheme.textDark)),
                   ],
                 ),
               ),
@@ -167,7 +167,7 @@ class MainLayout extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: const BoxDecoration(
                 border: Border(bottom: BorderSide(color: UAGRMTheme.sidebarPanel)),
               ),
@@ -188,8 +188,8 @@ class MainLayout extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('AppInscripción', style: GoogleFonts.outfit(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
-                      Text('UAGRM', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 11, fontWeight: FontWeight.w600)),
+                      Text('AppInscripción', style: GoogleFonts.outfit(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600, letterSpacing: 0.2)),
+                      Text('UAGRM', style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 11, fontWeight: FontWeight.w400)),
                     ],
                   ),
                 ],
@@ -197,11 +197,11 @@ class MainLayout extends StatelessWidget {
             ),
             
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('CARRERA', style: GoogleFonts.outfit(color: Colors.white.withValues(alpha: 0.7), fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
+                  Text('CARRERA', style: GoogleFonts.outfit(color: Colors.white.withValues(alpha: 0.7), fontSize: 10, fontWeight: FontWeight.w500, letterSpacing: 1.0)),
                   const SizedBox(height: 8),
                   _SidebarCareerSelector(),
                 ],
@@ -219,64 +219,70 @@ class MainLayout extends StatelessWidget {
                     title: 'Registrador de Materias',
                     route: '/pre-enrollment',
                     currentRoute: ModalRoute.of(context)?.settings.name,
-                    isEnabled: provider.selectedCareer != null,
+                    isEnabled: provider.selectedCareer != null && !provider.isBlocked,
                   ),
                   _SidebarItem(
                     icon: Icons.checklist_rtl_outlined,
                     title: 'Materias Habilitadas',
                     route: '/enabled-subjects',
                     currentRoute: ModalRoute.of(context)?.settings.name,
-                    isEnabled: provider.selectedCareer != null,
+                    isEnabled: provider.selectedCareer != null && !provider.isBlocked,
                   ),
                   _SidebarItem(
                     icon: Icons.calendar_month_outlined,
                     title: 'Fecha/Hora Inscripción',
                     route: '/enrollment-dates',
                     currentRoute: ModalRoute.of(context)?.settings.name,
-                    isEnabled: provider.selectedCareer != null,
+                    isEnabled: provider.selectedCareer != null && !provider.isBlocked,
                   ),
                   _SidebarItem(
                     icon: Icons.description_outlined,
                     title: 'Boleta de Inscripción',
                     route: '/enrollment-slip',
                     currentRoute: ModalRoute.of(context)?.settings.name,
+                    isEnabled: provider.selectedCareer != null && !provider.isBlocked,
                   ),
                   _SidebarItem(
                     icon: Icons.lock_outline,
                     title: 'Estado de Bloqueos',
                     route: '/blocked-status',
                     currentRoute: ModalRoute.of(context)?.settings.name,
+                    isEnabled: true, // Siempre accesible
                   ),
                   _SidebarItem(
                     icon: Icons.receipt_long_outlined,
                     title: 'Transacciones',
                     route: '/transactions',
                     currentRoute: ModalRoute.of(context)?.settings.name,
+                    isEnabled: provider.selectedCareer != null && !provider.isBlocked,
                   ),
                   _SidebarItem(
                     icon: Icons.calendar_today_outlined,
                     title: 'Calendario Académico',
                     route: '/calendar',
                     currentRoute: ModalRoute.of(context)?.settings.name,
+                    isEnabled: provider.selectedCareer != null && !provider.isBlocked,
                   ),
                   _SidebarItem(
                     icon: Icons.grid_view_outlined,
                     title: 'Maestro de Ofertas',
                     route: '/maestro',
                     currentRoute: ModalRoute.of(context)?.settings.name,
-                    isEnabled: provider.selectedCareer != null,
+                    isEnabled: provider.selectedCareer != null && !provider.isBlocked,
                   ),
                   _SidebarItem(
                     icon: Icons.credit_card_outlined,
                     title: 'Pagos',
                     route: '/payments',
                     currentRoute: ModalRoute.of(context)?.settings.name,
+                    isEnabled: true, // Siempre accesible para poder pagar deudas
                   ),
                   _SidebarItem(
                     icon: Icons.undo_outlined,
                     title: 'Anulaciones',
                     route: '/anulaciones',
                     currentRoute: ModalRoute.of(context)?.settings.name,
+                    isEnabled: provider.selectedCareer != null && !provider.isBlocked,
                   ),
                 ],
               ),
@@ -299,7 +305,7 @@ class MainLayout extends StatelessWidget {
                           shape: BoxShape.circle,
                         ),
                         child: Center(
-                          child: Text(_getInitials(provider.studentName ?? ''), style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13)),
+                          child: Text(_getInitials(provider.studentName ?? ''), style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13)),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -307,8 +313,8 @@ class MainLayout extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(_getShortName(provider.studentName ?? ''), style: GoogleFonts.outfit(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: 0.2), maxLines: 1, overflow: TextOverflow.ellipsis),
-                            Text('Reg: ${provider.studentRegister ?? "N/A"}', style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 11)),
+                            Text(_getShortName(provider.studentName ?? ''), style: GoogleFonts.outfit(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600, letterSpacing: 0.2), maxLines: 1, overflow: TextOverflow.ellipsis),
+                            Text('Reg: ${provider.studentRegister ?? "N/A"}', style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 11, fontWeight: FontWeight.w400)),
                           ],
                         ),
                       ),
@@ -421,7 +427,7 @@ class _SidebarCareerSelector extends StatelessWidget {
                   value: career.code,
                   child: Text(
                     career.name,
-                    style: GoogleFonts.outfit(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700, letterSpacing: 0.2),
+                    style: GoogleFonts.outfit(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 0.1),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -459,6 +465,7 @@ class _SidebarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<RegistrationProvider>();
     bool isActive = currentRoute == route;
     if (route == '/panel' && currentRoute == '/') isActive = true;
 
@@ -472,6 +479,11 @@ class _SidebarItem extends StatelessWidget {
         child: InkWell(
           onTap: () {
             if (!isEnabled) {
+              String message = 'Debe seleccionar una carrera para acceder a este módulo';
+              if (provider.selectedCareer != null && provider.isBlocked) {
+                message = 'Su cuenta está bloqueada. Regularice su situación en Estado de Bloqueos.';
+              }
+              
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -479,10 +491,10 @@ class _SidebarItem extends StatelessWidget {
                     children: [
                       const Icon(Icons.lock_outline, color: Colors.white, size: 20),
                       const SizedBox(width: 10),
-                      Expanded(child: Text('Debe seleccionar una carrera para acceder a este módulo', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500))),
+                      Expanded(child: Text(message, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500))),
                     ],
                   ),
-                  backgroundColor: Colors.orange.shade800,
+                  backgroundColor: provider.isBlocked ? UAGRMTheme.errorRed : Colors.orange.shade800,
                   behavior: SnackBarBehavior.floating,
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -499,12 +511,12 @@ class _SidebarItem extends StatelessWidget {
           hoverColor: UAGRMTheme.sidebarHover,
           child: Padding(
             padding: isMobile
-                ? const EdgeInsets.symmetric(horizontal: 12, vertical: 10)
-                : const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                ? const EdgeInsets.symmetric(horizontal: 12, vertical: 6)
+                : const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             child: Row(
               children: [
                 Icon(icon,
-                    size: isMobile ? 18 : 20,
+                    size: isMobile ? 14 : 16,
                     color: isEnabled
                         ? (isActive
                             ? Colors.white
@@ -515,15 +527,15 @@ class _SidebarItem extends StatelessWidget {
                   child: Text(
                     title,
                     style: GoogleFonts.outfit(
-                      fontSize: isMobile ? 13 : 14,
+                      fontSize: isMobile ? 11 : 12,
                       fontWeight:
-                          isActive ? FontWeight.w800 : FontWeight.w600,
+                          isActive ? FontWeight.w600 : FontWeight.w400,
                       color: isEnabled
                           ? (isActive
                               ? Colors.white
                               : Colors.white.withValues(alpha: 0.9))
                           : Colors.white.withValues(alpha: 0.4),
-                      letterSpacing: 0.3,
+                      letterSpacing: 0.2,
                     ),
                   ),
                 ),
